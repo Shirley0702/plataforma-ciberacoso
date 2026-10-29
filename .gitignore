@@ -1,0 +1,30 @@
+# Entornos y secretos
+.env
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+backend/db.sqlite3
+backend/staticfiles/
+backend/media/
+backend/model_artifacts/
+
+# Node
+frontend/node_modules/
+frontend/.pnpm-store/
+frontend/dist/
+*.log
+
+# Temporales y artefactos locales
+tmp/
+
+# Editores y sistema
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

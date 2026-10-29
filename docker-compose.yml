@@ -1,0 +1,74 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cibersegura}
+      POSTGRES_USER: ${POSTGRES_USER:-cibersegura}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cibersegura_local}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cibersegura}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-solo-desarrollo-cambia-esta-clave}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-True}
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
+      CORS_ALLOWED_ORIGINS: http://localhost:8080
+      DATABASE_ENGINE: postgresql
+      POSTGRES_DB: ${POSTGRES_DB:-cibersegura}
+      POSTGRES_USER: ${POSTGRES_USER:-cibersegura}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cibersegura_local}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-}
+      DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:-}
+      ADDITIONAL_UNIVERSITY_EMAIL_DOMAINS: ${ADDITIONAL_UNIVERSITY_EMAIL_DOMAINS:-}
+      DJANGO_EMAIL_BACKEND: ${DJANGO_EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-True}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL:-False}
+      EMAIL_TIMEOUT: ${EMAIL_TIMEOUT:-10}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-CiberSegura <no-reply@localhost>}
+      EMAIL_VERIFICATION_MINUTES: ${EMAIL_VERIFICATION_MINUTES:-10}
+      EMAIL_VERIFICATION_MAX_ATTEMPTS: ${EMAIL_VERIFICATION_MAX_ATTEMPTS:-5}
+      EMAIL_VERIFICATION_RESEND_SECONDS: ${EMAIL_VERIFICATION_RESEND_SECONDS:-60}
+      TEXT_REVIEW_MODEL_PATH: /app/model_artifacts/text_review_classifier.joblib
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - media_data:/app/media
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_initial_data &&
+             python manage.py train_personalization_model &&
+             python manage.py train_text_review_model &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+        VITE_ADMIN_URL: ${VITE_ADMIN_URL:-http://localhost:8000/admin/}
+    ports:
+      - "8080:80"
+    volumes:
+      - media_data:/usr/share/nginx/html/media:ro
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  media_data:

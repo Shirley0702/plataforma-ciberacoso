@@ -1,0 +1,37 @@
+{
+  "source": {
+    "name": "CLANDESTINO",
+    "version": "0.0.1",
+    "url": "https://github.com/microsoft/Clandestino",
+    "license": "MIT",
+    "license_file": "clandestino_license.txt",
+    "sha256": "e5fde76dbabe88c2f932f503ffe9712b66e191575e5acbd3541a7a02d18b7c99"
+  },
+  "generated_at": "2026-10-29T15:31:19.193726+00:00",
+  "filters": {
+    "human_generated_only": true,
+    "personal_information_rule": "all_annotators_must_answer_no",
+    "attention_mean_harm_score": ">=3.5",
+    "neutral_mean_harm_score": "<=2.0",
+    "ambiguous_scores": "excluded",
+    "anonymization": [
+      "mentions",
+      "emails",
+      "urls",
+      "phone_numbers"
+    ],
+    "class_balancing": true
+  },
+  "statistics": {
+    "source_records": 9998,
+    "human_records": 8373,
+    "excluded_ai": 1625,
+    "excluded_pii": 6479,
+    "excluded_ambiguous": 979,
+    "excluded_invalid": 0,
+    "excluded_duplicate": 0,
+    "attention_candidates": 353,
+    "neutral_candidates": 562,
+    "exported_per_class": 353
+  }
+}

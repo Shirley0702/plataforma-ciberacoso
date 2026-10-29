@@ -1,0 +1,92 @@
+import { useState } from 'react'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../features/auth/context/AuthContext'
+
+const links = [
+  { to: '/inicio', icon: '⌂', label: 'Inicio' },
+  { to: '/evaluacion', icon: '✓', label: 'Evaluación' },
+  { to: '/revision-texto', icon: '◫', label: 'Revisión de Texto' },
+  { to: '/panel', icon: '◇', label: 'Panel personalizado' },
+  { to: '/curso', icon: '▤', label: 'Curso' },
+  { to: '/recursos', icon: '+', label: 'Recursos' },
+  { to: '/mi-cuenta', icon: '●', label: 'Mi Cuenta' },
+]
+
+export function AppShell() {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/acceso')
+  }
+
+  return (
+    <div className="app-shell">
+      <a className="skip-link" href="#contenido-principal">Saltar al contenido</a>
+      <header className="mobile-header">
+        <NavLink className="brand" to="/inicio" aria-label="CiberSegura, ir al inicio">
+          <span className="brand-mark" aria-hidden="true">CS</span>
+          <span>CiberSegura</span>
+        </NavLink>
+        <button
+          className="menu-button"
+          type="button"
+          aria-expanded={menuOpen}
+          aria-controls="navegacion-principal"
+          onClick={() => setMenuOpen((value) => !value)}
+        >
+          <span aria-hidden="true">☰</span>
+          <span className="visually-hidden">Abrir menú</span>
+        </button>
+      </header>
+
+      <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`} id="navegacion-principal">
+        <NavLink className="brand sidebar-brand" to="/inicio" onClick={() => setMenuOpen(false)}>
+          <span className="brand-mark" aria-hidden="true">CS</span>
+          <span>CiberSegura</span>
+        </NavLink>
+        <div className="sidebar-intro">
+          <span className="eyebrow">Tu espacio</span>
+          <strong>Aprende. Detecta. Actúa.</strong>
+        </div>
+        <nav aria-label="Navegación principal">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              onClick={() => setMenuOpen(false)}
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <span className="nav-icon" aria-hidden="true">{link.icon}</span>
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <NavLink className="user-chip" to="/mi-cuenta" onClick={() => setMenuOpen(false)}>
+            <span className="avatar">
+              {user?.avatar_url
+                ? <img src={user.avatar_url} alt="" />
+                : <span aria-hidden="true">{user?.full_name?.charAt(0).toUpperCase() || 'U'}</span>}
+            </span>
+            <span>
+              <small>Sesión de</small>
+              <strong>{user?.full_name}</strong>
+            </span>
+          </NavLink>
+          <button className="logout-button" type="button" onClick={() => void handleLogout()}>
+            Cerrar sesión
+          </button>
+        </div>
+      </aside>
+
+      {menuOpen && <button className="menu-backdrop" aria-label="Cerrar menú" onClick={() => setMenuOpen(false)} />}
+
+      <main id="contenido-principal" className="main-content" tabIndex={-1}>
+        <Outlet />
+      </main>
+    </div>
+  )
+}
