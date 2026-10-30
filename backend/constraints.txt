@@ -1,7 +1,7 @@
 # Línea base reproducible validada el 6 de octubre de 2026 con Python 3.12.14.
 # requirements.txt declara las dependencias directas; este archivo fija la
 # resolución completa utilizada por Docker y por las pruebas de la Semana 1.
-asgiref==3.12.1
+asgiref==3.13.0
 Django==5.2.16
 django-cors-headers==4.9.0
 djangorestframework==3.17.1
