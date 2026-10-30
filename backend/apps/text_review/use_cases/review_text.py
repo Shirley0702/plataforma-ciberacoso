@@ -5,6 +5,11 @@ from apps.diagnostics.models import DiagnosticResult
 
 from ..ml import classify_text
 from ..models import TextReview
+from ..recommendations import (
+    build_recommendations,
+    context_labels,
+    detect_contexts,
+)
 
 
 class DiagnosticRequired(APIException):
@@ -19,25 +24,6 @@ def _attention_level(score):
     if score >= 0.55:
         return "moderate"
     return "low"
-
-
-def _recommendations(review):
-    if review.classification == TextReview.Classification.NEEDS_ATTENTION:
-        items = [
-            "Conserva capturas completas, fechas y enlaces si hacerlo no aumenta el riesgo.",
-            "Evita responder bajo presión; bloquea o reporta la cuenta si es seguro para ti.",
-            "Comparte lo ocurrido con una persona de confianza o con bienestar estudiantil.",
-        ]
-    else:
-        items = [
-            "Observa el contexto, la repetición y si la situación cambia después de expresar un límite.",
-            "Si algo te incomoda, puedes conservar el mensaje y comentarlo con una persona de confianza.",
-        ]
-    if review.recommended_unit:
-        items.append(
-            f"Continúa con tu ruta educativa: {review.recommended_unit.title}."
-        )
-    return items
 
 
 def present_review(review):
@@ -58,7 +44,13 @@ def present_review(review):
             if possible_signals
             else "Un solo texto no permite conocer todo el contexto. Si te hizo sentir incómodo o inseguro, busca apoyo aunque el sistema no marque señales claras."
         ),
-        "recommendations": _recommendations(review),
+        "contexts_considered": context_labels(review.context_signals),
+        "recommendations": build_recommendations(
+            needs_attention=possible_signals,
+            attention_level=review.attention_level,
+            context_keys=review.context_signals,
+            recommended_unit=review.recommended_unit,
+        ),
         "recommended_unit": (
             {
                 "id": review.recommended_unit.id,
@@ -86,6 +78,7 @@ def review_text(user, text):
         raise DiagnosticRequired()
 
     prediction = classify_text(text)
+    contexts = detect_contexts(text)
     classification = (
         TextReview.Classification.NEEDS_ATTENTION
         if prediction["label"] == "attention"
@@ -100,6 +93,7 @@ def review_text(user, text):
         attention_level=_attention_level(prediction["attention_score"]),
         model_version=prediction["version"],
         character_count=len(text),
+        context_signals=contexts,
     )
     return present_review(review)
 

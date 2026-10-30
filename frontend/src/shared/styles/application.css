@@ -325,6 +325,9 @@ p { color: var(--muted); line-height: 1.65; }
 .text-review-result h2 { margin: .8rem 0 .55rem; }
 .text-review-result h3 { margin-top: 1.4rem; font-size: 1.05rem; }
 .text-review-result ul { display: grid; gap: .65rem; padding-left: 1.3rem; }
+.context-summary { margin: 1rem 0; padding: 1rem; border-radius: 14px; background: rgba(255, 255, 255, .72); }
+.context-summary ul { display: flex; flex-wrap: wrap; gap: .5rem; margin: .65rem 0 0; padding: 0; list-style: none; }
+.context-summary li { padding: .35rem .7rem; border: 1px solid var(--border); border-radius: 999px; background: white; font-size: .88rem; }
 .text-review-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.5rem; }
 .privacy-confirmation { margin: 1.5rem 0 0; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .82rem; }
 

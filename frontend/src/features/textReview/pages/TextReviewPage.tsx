@@ -110,6 +110,14 @@ export function TextReviewPage() {
           <span className="status-pill">Orientación Inicial</span>
           <h2 id="review-result-title">{result.title}</h2>
           <p>{result.guidance}</p>
+          {result.contexts_considered.length > 0 && (
+            <div className="context-summary" aria-label="Contextos considerados para la orientación">
+              <strong>Aspectos considerados:</strong>
+              <ul>
+                {result.contexts_considered.map((context) => <li key={context}>{context}</li>)}
+              </ul>
+            </div>
+          )}
           <h3>Pasos que Puedes Considerar</h3>
           <ul>
             {result.recommendations.map((recommendation) => <li key={recommendation}>{recommendation}</li>)}

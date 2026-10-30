@@ -14,7 +14,7 @@ Flujo educativo obligatorio: **Registro/Login → Verificación del correo → E
 - Datos iniciales, usuario de demostración, pruebas backend y documentación del alcance.
 - Banco de ocho escenarios con opciones indirectas y pesos no expuestos al frontend.
 - Selección del módulo con mayor puntuación y curso limitado a la ruta asignada.
-- Ruta de microaprendizaje con tres lecciones, una actividad de decisión y un cuestionario final por módulo.
+- Ruta de microaprendizaje con cuatro lecciones, una actividad de decisión y un cuestionario final por módulo.
 - Certificado individual al obtener al menos 80 %, descargable en PDF y verificable mediante código público.
 - Interfaz responsiva, navegación por teclado, etiquetas accesibles y mensajes claros.
 

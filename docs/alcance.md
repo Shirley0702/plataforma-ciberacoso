@@ -16,7 +16,7 @@ Los jóvenes pueden experimentar o presenciar conductas de hostigamiento digital
 - Evaluación diagnóstica de ocho escenarios universitarios.
 - Algoritmo de filtrado que suma pesos por módulo y prioriza la mayor puntuación.
 - Panel personal con la ruta educativa asignada.
-- Curso filtrado al módulo sugerido con tres lecciones, una actividad interactiva y avance registrado.
+- Curso filtrado al módulo sugerido con cuatro lecciones, una actividad interactiva y avance registrado.
 - Cuestionario final obligatorio y certificado del módulo al alcanzar al menos 80 %.
 - Recursos oficiales de orientación.
 - Administración mediante Django Admin.

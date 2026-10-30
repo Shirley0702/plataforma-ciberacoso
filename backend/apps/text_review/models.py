@@ -32,6 +32,7 @@ class TextReview(models.Model):
     attention_level = models.CharField(max_length=20)
     model_version = models.CharField(max_length=80)
     character_count = models.PositiveIntegerField()
+    context_signals = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

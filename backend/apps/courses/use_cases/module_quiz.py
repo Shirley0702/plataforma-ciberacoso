@@ -73,7 +73,7 @@ def submit_module_quiz(user, unit, raw_answers):
     ).count()
     if not lesson_count or completed_count != lesson_count:
         raise PermissionDenied(
-            "Completa las tres lecciones y la actividad antes del cuestionario."
+            "Completa todos los microcontenidos y la actividad antes del cuestionario."
         )
 
     questions = list(

@@ -28,7 +28,7 @@ export function ModuleAssessment({
         <span className="eyebrow">Evaluación final del módulo</span>
         <h2 id="quiz-title">Cuestionario obligatorio · aprobación mínima 80%</h2>
         {!unit.quiz_unlocked ? (
-          <p>Completa las tres lecciones y la actividad interactiva para desbloquearlo.</p>
+          <p>Completa todos los microcontenidos y la actividad interactiva para desbloquearlo.</p>
         ) : (
           <>
             {unit.quiz_questions.map((question, index) => (

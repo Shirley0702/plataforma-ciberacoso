@@ -22,6 +22,7 @@ class TextReviewAdmin(admin.ModelAdmin):
         "classification",
         "attention_score",
         "attention_level",
+        "context_signals",
         "model_version",
         "character_count",
         "created_at",

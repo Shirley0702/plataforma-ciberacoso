@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.test import SimpleTestCase
 from unittest.mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -10,6 +11,27 @@ from .ml import classify_text, train_and_save_classifier
 from .ml.dataset import load_training_dataset
 from .ml.classifier import split_dataset
 from .models import TextReview
+from .recommendations import build_recommendations, detect_contexts
+
+
+class PersonalizedRecommendationTests(SimpleTestCase):
+    def test_detects_multiple_contexts_without_storing_the_original_text(self):
+        contexts = detect_contexts(
+            "El tutor me amenaza con publicar una foto y lo repite todos los días."
+        )
+
+        self.assertEqual(contexts, ["pressure", "privacy", "repetition", "authority"])
+
+    def test_high_attention_prioritizes_safety_and_context(self):
+        recommendations = build_recommendations(
+            needs_attention=True,
+            attention_level="high",
+            context_keys=["pressure"],
+            recommended_unit=None,
+        )
+
+        self.assertIn("Prioriza tu seguridad", recommendations[0])
+        self.assertTrue(any("amenaza" in item for item in recommendations))
 
 
 class TextReviewModelTests(APITestCase):
@@ -102,7 +124,7 @@ class TextReviewApiTests(APITestCase):
             return_value={
                 "label": "attention",
                 "attention_score": 0.82,
-                "version": "spanish-text-review-v2",
+                "version": "spanish-text-review-v3",
                 "algorithm": "logistic_regression",
             },
         ):
@@ -118,6 +140,8 @@ class TextReviewApiTests(APITestCase):
         self.assertNotIn("text", response.data)
         review = TextReview.objects.get()
         self.assertEqual(review.character_count, len(sensitive_text))
+        self.assertIn("repetition", review.context_signals)
+        self.assertIn("Situación repetida", response.data["contexts_considered"])
         self.assertFalse(any(field.name == "text" for field in TextReview._meta.fields))
 
     def test_review_requires_a_detailed_text(self):

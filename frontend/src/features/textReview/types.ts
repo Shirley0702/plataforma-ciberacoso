@@ -6,6 +6,7 @@ export interface TextReviewResult {
   attention_level: 'low' | 'moderate' | 'high'
   title: string
   guidance: string
+  contexts_considered: string[]
   recommendations: string[]
   recommended_unit: CourseSummary | null
   created_at: string

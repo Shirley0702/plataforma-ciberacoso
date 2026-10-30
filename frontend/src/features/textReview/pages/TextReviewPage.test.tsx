@@ -23,6 +23,7 @@ const result = {
   attention_level: 'moderate' as const,
   title: 'Conviene revisar esta situación con cuidado',
   guidance: 'El contexto y la repetición también son importantes.',
+  contexts_considered: ['Situación repetida', 'Privacidad o difusión'],
   recommendations: ['Conserva capturas si hacerlo no aumenta el riesgo.'],
   recommended_unit: {
     id: 1,
@@ -73,6 +74,7 @@ describe('TextReviewPage', () => {
       expect(apiMock.post).toHaveBeenCalledWith('/text-reviews/review/', { text: description })
     })
     expect(screen.getByRole('heading', { name: result.title })).toBeInTheDocument()
+    expect(screen.getByText('Situación repetida')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Continuar con Mi Curso' })).toHaveAttribute('href', '/curso')
     expect(screen.getByText(/no se guardó en la base de datos/i)).toBeInTheDocument()
   })
