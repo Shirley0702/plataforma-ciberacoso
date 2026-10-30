@@ -32,6 +32,7 @@ urlpatterns = [
     path("api/courses/", include("apps.courses.urls")),
     path("api/resources/", include("apps.resources.urls")),
     path("api/text-reviews/", include("apps.text_review.urls")),
+    path("api/product-validation/", include("apps.product_validation.urls")),
 ]
 
 admin.site.site_header = "CiberSegura - Administración"

@@ -11,6 +11,7 @@ import { ResourcesPage } from '../features/resources/pages/ResourcesPage'
 import { AccountPage } from '../features/account/pages/AccountPage'
 import { HomePage } from '../features/home/pages/HomePage'
 import { TextReviewPage } from '../features/textReview/pages/TextReviewPage'
+import { ProductFeedbackPage } from '../features/productValidation/pages/ProductFeedbackPage'
 import { AppShell } from './layout/AppShell'
 import { NotFoundPage } from './pages/NotFoundPage'
 
@@ -31,6 +32,7 @@ export function AppRouter() {
               <Route path="/revision-texto" element={<TextReviewPage />} />
               <Route path="/curso" element={<CoursePage />} />
               <Route path="/recursos" element={<ResourcesPage />} />
+              <Route path="/opinion" element={<ProductFeedbackPage />} />
               <Route path="/mi-cuenta" element={<AccountPage />} />
             </Route>
           </Route>

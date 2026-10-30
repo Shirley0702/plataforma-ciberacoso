@@ -426,3 +426,23 @@ p { color: var(--muted); line-height: 1.65; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Product validation */
+.feedback-page { max-width: 980px; }
+.feedback-form { display: grid; gap: 1.2rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--line); border-radius: var(--radius-lg); background: white; box-shadow: var(--shadow-soft); }
+.feedback-version { margin: 0; color: var(--teal-dark); font-weight: 700; }
+.feedback-instructions { margin: 0; }
+.feedback-question { display: grid; gap: .8rem; margin: 0; padding: 1rem 0 1.2rem; border: 0; border-bottom: 1px solid var(--line); }
+.feedback-question legend { width: 100%; margin: 0; color: var(--navy); font-size: 1rem; font-weight: 750; }
+.rating-scale { display: grid; grid-template-columns: repeat(5, minmax(48px, 1fr)); gap: .65rem; }
+.rating-scale label { position: relative; cursor: pointer; }
+.rating-scale input { position: absolute; opacity: 0; }
+.rating-scale span { display: grid; min-height: 48px; place-items: center; border: 1px solid #bfd2cc; border-radius: 11px; background: #fbfdfc; color: var(--navy); font-weight: 800; }
+.rating-scale label:hover span, .rating-scale input:focus-visible + span { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(15,123,116,.15); }
+.rating-scale label.selected span { border-color: var(--teal); background: var(--teal); color: white; }
+.rating-anchors { display: flex; justify-content: space-between; color: var(--muted); font-size: .78rem; }
+.feedback-comment textarea { min-height: 120px; resize: vertical; }
+
+@media (max-width: 480px) {
+  .rating-scale { gap: .35rem; }
+}

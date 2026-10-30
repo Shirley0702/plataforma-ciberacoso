@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "apps.courses",
     "apps.resources",
     "apps.text_review",
+    "apps.product_validation",
 ]
 
 MIDDLEWARE = [
@@ -129,6 +130,7 @@ TEXT_REVIEW_MODEL_PATH = Path(
     )
 )
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
 
 CORS_ALLOWED_ORIGINS = [
     origin.strip()

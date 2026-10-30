@@ -1,0 +1,15 @@
+{% extends "admin/change_list.html" %}
+
+{% block content_title %}
+  {{ block.super }}
+  <div class="module" style="margin: 16px 0; padding: 16px;">
+    <h2>Promedios de la selección actual (escala de 1 a 5)</h2>
+    <p>
+      Facilidad: <strong>{{ validation_metrics.ease_of_use|floatformat:2|default:"Sin datos" }}</strong> ·
+      Claridad: <strong>{{ validation_metrics.content_clarity|floatformat:2|default:"Sin datos" }}</strong> ·
+      Utilidad educativa: <strong>{{ validation_metrics.educational_usefulness|floatformat:2|default:"Sin datos" }}</strong> ·
+      Satisfacción: <strong>{{ validation_metrics.satisfaction|floatformat:2|default:"Sin datos" }}</strong> ·
+      Accesibilidad: <strong>{{ validation_metrics.accessibility|floatformat:2|default:"Sin datos" }}</strong>
+    </p>
+  </div>
+{% endblock %}
