@@ -9,9 +9,11 @@ from apps.users.views import (
     ResendEmailVerificationView,
     VerifyEmailView,
 )
+from config.observability import health_check
 
 
 urlpatterns = [
+    path("api/health/", health_check, name="health_check"),
     path("admin/", admin.site.urls),
     path("api/auth/register/", RegisterView.as_view(), name="register"),
     path("api/auth/verify-email/", VerifyEmailView.as_view(), name="verify_email"),

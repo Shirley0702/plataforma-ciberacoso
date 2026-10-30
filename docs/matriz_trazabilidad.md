@@ -13,21 +13,22 @@ Esta matriz relaciona los requisitos con su implementación actual, la evidencia
 | RF-05 | Progreso limitado a la ruta asignada | `CompleteLessonView` | Rechazo de lecciones pertenecientes a otros módulos | 6–7 | Implementado y probado |
 | RF-06 | Completar actividad y cuestionario del módulo | `CompleteLessonView`, `SubmitModuleQuizView` y `CoursePage` | Bloqueo previo, respuesta válida, cálculo de puntuación e intentos | 6–7 | Implementado y probado |
 | RF-07 | Obtener certificado con 80 % o más | `Certificate`, descarga PDF y verificación pública | Aprobación al 80 %, PDF autenticado y código verificable | 7 | Implementado y probado |
-| RF-08 | Recursos de orientación | `apps.resources` | Enlaces, teléfonos y vigencia revisados | 12 | Implementado, sin validación final |
-| RF-09 | Administración de contenidos | Django Admin | Permisos, auditoría y reversibilidad | 9–12 | Básico |
+| RF-08 | Recursos de orientación | `apps.resources` | Enlaces, teléfonos y vigencia revisados | 12 | Implementado; requiere revisión periódica externa |
+| RF-09 | Administración de contenidos | Django Admin | Permisos, auditoría y reversibilidad | 9–12 | Implementado para contenidos y evidencia de calidad |
+| RF-10 | Recoger validación del producto | `apps.product_validation` y `ProductFeedbackPage` | Cinco métricas por versión, consentimiento, agregados y matriz ISO/IEC 25010 | 14–15 | Instrumento implementado; resultados dependen de participantes reales |
 
 ## Requisitos no funcionales
 
 | ID | Resultado esperado | Evidencia mínima | Semana de cierre | Estado de línea base |
 |---|---|---|---:|---|
-| RNF-01 | Interfaz responsiva | Pruebas en móvil, tableta y escritorio | 5, 7 y 14 | Pendiente de evidencia completa |
-| RNF-02 | Accesibilidad WCAG 2.2 | Teclado, foco, contraste, lector y auditoría | 5 y 14 | Parcial |
+| RNF-01 | Interfaz responsiva | Pruebas en móvil, tableta y escritorio | 5, 7 y 14 | Cubierto por E2E en escritorio y móvil; completar evidencia en dispositivos físicos |
+| RNF-02 | Accesibilidad WCAG 2.2 | Teclado, foco, contraste, lector y auditoría | 5 y 14 | Auditoría automática transversal; lector de pantalla y dispositivos físicos requieren evidencia manual |
 | RNF-03 | Contraseñas protegidas | Hash Django, validadores y pruebas de autenticación | 2 | Implementado; ampliar pruebas |
 | RNF-04 | Uso únicamente orientativo | Aviso visible y consistente en API/UI | 7 y 12 | Implementado; revisar contenidos |
 
 ## Cobertura de la línea base
 
-- Backend: 28 pruebas automatizadas en PostgreSQL, incluidas cuentas iniciales, campos obligatorios, nombres completos, generación automática de usuario, registro universitario internacional, código de verificación, validación de contraseña, separación de roles, rutas privadas, autenticación, priorización por pesos, ocultamiento de la lógica de puntuación, salida neutral, curso filtrado, actividad, cuestionario, certificación y verificación pública.
-- Frontend: TypeScript y compilación de producción correctos; todavía no existen pruebas automatizadas.
+- Backend: 48 pruebas automatizadas en PostgreSQL para autenticación, roles, diagnóstico, personalización, curso, certificación, clasificación de texto, validación del producto y salud operativa.
+- Frontend: 8 pruebas de componentes y accesibilidad, compilación TypeScript de producción y 2 recorridos E2E completos con Chromium (escritorio y móvil), incluida auditoría WCAG en navegador real.
 - Datos: migraciones iniciales disponibles para todos los módulos.
-- Operación: Docker Compose levanta PostgreSQL, backend y frontend; faltan CI/CD, monitoreo y recuperación, planificados para la Unidad 3.
+- Operación: Docker Compose levanta PostgreSQL, backend y frontend con comprobaciones de salud; GitHub Actions ejecuta CI/E2E, publica imágenes y verifica respaldo/restauración en una base temporal.

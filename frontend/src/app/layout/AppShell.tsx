@@ -47,9 +47,10 @@ export function AppShell() {
     <div className="app-shell">
       <a className="skip-link" href="#contenido-principal">Saltar al contenido</a>
       <header className="mobile-header">
-        <NavLink className="brand" to="/inicio" aria-label="CiberSegura, ir al inicio">
+        <NavLink className="brand" to="/inicio">
           <span className="brand-mark" aria-hidden="true">CS</span>
           <span>CiberSegura</span>
+          <span className="visually-hidden">Ir al inicio</span>
         </NavLink>
         <button
           className="menu-button"

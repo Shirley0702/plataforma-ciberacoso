@@ -17,6 +17,9 @@ Flujo educativo obligatorio: **Registro/Login → Verificación del correo → E
 - Ruta de microaprendizaje con cuatro lecciones, una actividad de decisión y un cuestionario final por módulo.
 - Certificado individual al obtener al menos 80 %, descargable en PDF y verificable mediante código público.
 - Interfaz responsiva, navegación por teclado, etiquetas accesibles y mensajes claros.
+- Encuesta versionada de usabilidad, claridad, utilidad, satisfacción y accesibilidad.
+- Salud de aplicación y base de datos, registros JSON sin contenido sensible y respaldos verificables.
+- Integración continua, recorrido E2E en escritorio/móvil y publicación de imágenes en GHCR.
 
 ## Inicio rápido con Docker
 
@@ -100,6 +103,8 @@ En Windows también puede validarse toda la línea base desde la raíz:
 .\verify-baseline.ps1
 ```
 
+La automatización de GitHub ejecuta pruebas backend, frontend, accesibilidad y el recorrido completo con Playwright. Después comprueba un respaldo/restauración de PostgreSQL. Si todo pasa en `main`, publica imágenes inmutables del backend y frontend en GitHub Container Registry. El procedimiento de salud, monitoreo, respaldo y entorno de pruebas está en `docs/operacion_y_recuperacion.md`.
+
 La organización de carpetas y la responsabilidad de cada archivo están explicadas en `docs/estructura_proyecto.md`. La evidencia y los riesgos de la primera semana están en `docs/linea_base_inicial.md`; la relación entre requisitos y sprints está en `docs/matriz_trazabilidad.md`.
 
 ## API principal
@@ -120,6 +125,9 @@ La organización de carpetas y la responsabilidad de cada archivo están explica
 - `GET /api/courses/certificates/{code}/download/`
 - `GET /api/courses/certificates/verify/{code}/`
 - `GET /api/resources/`
+- `GET /api/product-validation/feedback/`
+- `POST /api/product-validation/feedback/`
+- `GET /api/health/`
 
 ## Estructura
 

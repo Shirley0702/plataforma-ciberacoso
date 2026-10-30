@@ -22,6 +22,9 @@ frontend/dist/
 
 # Temporales y artefactos locales
 tmp/
+backups/
+frontend/playwright-report/
+frontend/test-results/
 
 # Editores y sistema
 .idea/

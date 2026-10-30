@@ -52,6 +52,17 @@ class RoleAccessTests(APITestCase):
                 response = self.client.get(route)
                 self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    @override_settings(APP_VERSION="health-test")
+    def test_health_endpoint_checks_database_without_authentication(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.get("/api/health/", HTTP_X_REQUEST_ID="test-request")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            {"status": "ok", "database": "ok", "version": "health-test"},
+        )
+        self.assertEqual(response["X-Request-ID"], "test-request")
+
     def test_demo_can_authenticate_in_educational_platform(self):
         response = self.client.post(
             reverse("token_obtain_pair"),
