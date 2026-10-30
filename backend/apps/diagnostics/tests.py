@@ -5,7 +5,6 @@ from rest_framework.test import APITestCase
 from apps.courses.models import CourseUnit
 
 from .models import DiagnosticOption, DiagnosticQuestion, DiagnosticResult
-from .ml.model import load_model
 
 
 class DiagnosticTests(APITestCase):
@@ -62,20 +61,14 @@ class DiagnosticTests(APITestCase):
             format="json",
         )
 
-    def test_submit_uses_machine_learning_for_a_clear_pattern(self):
+    def test_submit_uses_weighted_scores_for_a_clear_pattern(self):
         response = self.submit(self.vertical_option, self.technology_option)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["suggested_unit"]["id"], self.vertical.id)
         self.assertEqual(response.data["maximum_score"], 10)
         self.assertEqual(len(response.data["module_scores"]), 2)
         result = DiagnosticResult.objects.latest("id")
-        self.assertEqual(
-            result.recommendation_method,
-            DiagnosticResult.RecommendationMethod.MACHINE_LEARNING,
-        )
-        self.assertEqual(result.model_version, "route-logistic-regression-v1")
-        self.assertGreater(result.model_confidence, 0)
-        self.assertLessEqual(result.model_confidence, 1)
+        self.assertEqual(result.scoring_version, "weighted-scores-v1")
 
     def test_submit_uses_preventive_technology_route_for_neutral_answers(self):
         response = self.submit(self.neutral_one, self.neutral_two)
@@ -83,11 +76,7 @@ class DiagnosticTests(APITestCase):
         self.assertEqual(response.data["suggested_unit"]["id"], self.technology.id)
         self.assertEqual(response.data["maximum_score"], 0)
         result = DiagnosticResult.objects.latest("id")
-        self.assertEqual(
-            result.recommendation_method,
-            DiagnosticResult.RecommendationMethod.RULE_FALLBACK,
-        )
-        self.assertIsNone(result.model_confidence)
+        self.assertEqual(result.scoring_version, "weighted-scores-v1")
 
     def test_submit_requires_every_active_scenario(self):
         response = self.client.post(
@@ -110,9 +99,3 @@ class DiagnosticTests(APITestCase):
         self.assertNotIn("module_title", response.data[0])
         self.assertNotIn("weight", response.data[0]["options"][0])
         self.assertNotIn("destination_unit", response.data[0]["options"][0])
-
-    def test_model_is_trained_and_keeps_validation_metadata(self):
-        artifact = load_model()
-        self.assertEqual(artifact["version"], "route-logistic-regression-v1")
-        self.assertEqual(artifact["training_source"], "expert_bootstrap_synthetic")
-        self.assertGreaterEqual(artifact["validation_accuracy"], 0.85)

@@ -1,5 +1,3 @@
-import logging
-
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
@@ -13,13 +11,8 @@ from ..models import (
     DiagnosticOption,
     DiagnosticResult,
 )
-from ..ml.features import aggregate_option_scores
-from ..ml.model import predict_route
-
-
 DEFAULT_ROUTE_SLUG = "acoso-tecnologico"
-MINIMUM_MODEL_CONFIDENCE = 0.55
-logger = logging.getLogger(__name__)
+SCORING_VERSION = "weighted-scores-v1"
 
 
 class CourseCatalogUnavailable(APIException):
@@ -47,7 +40,7 @@ def _fallback_unit():
     )
 
 
-def _rule_selected_unit(ranking):
+def _select_unit(ranking):
     if not ranking:
         unit = _fallback_unit()
         if unit is None:
@@ -55,26 +48,6 @@ def _rule_selected_unit(ranking):
         return unit, 0
     winner = ranking[0]
     return CourseUnit.objects.get(id=winner["destination_unit"]), winner["total_score"]
-
-
-def _machine_learning_selection(options):
-    feature_scores = aggregate_option_scores(options)
-    if not any(feature_scores.values()):
-        return None
-    try:
-        prediction = predict_route(feature_scores)
-    except Exception:
-        logger.exception("No fue posible ejecutar el modelo de recomendación.")
-        return None
-    if prediction["confidence"] < MINIMUM_MODEL_CONFIDENCE:
-        return None
-    unit = CourseUnit.objects.filter(
-        slug=prediction["slug"],
-        active=True,
-    ).first()
-    if unit is None:
-        return None
-    return unit, prediction
 
 
 @transaction.atomic
@@ -92,27 +65,14 @@ def create_diagnostic_result(user, options):
     )
 
     ranking = _rank_selected_options(options)
-    rule_unit, maximum_score = _rule_selected_unit(ranking)
-    ml_selection = _machine_learning_selection(options)
-    if ml_selection:
-        suggested_unit, prediction = ml_selection
-        recommendation_method = DiagnosticResult.RecommendationMethod.MACHINE_LEARNING
-        model_version = prediction["version"]
-        model_confidence = prediction["confidence"]
-    else:
-        suggested_unit = rule_unit
-        recommendation_method = DiagnosticResult.RecommendationMethod.RULE_FALLBACK
-        model_version = ""
-        model_confidence = None
+    suggested_unit, maximum_score = _select_unit(ranking)
     attempt.completed_at = timezone.now()
     attempt.save(update_fields=("completed_at",))
     return DiagnosticResult.objects.create(
         attempt=attempt,
         suggested_unit=suggested_unit,
         maximum_score=maximum_score,
-        recommendation_method=recommendation_method,
-        model_version=model_version,
-        model_confidence=model_confidence,
+        scoring_version=SCORING_VERSION,
         scores={
             str(item["destination_unit"]): item["total_score"] for item in ranking
         },

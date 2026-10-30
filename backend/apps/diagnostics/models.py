@@ -70,10 +70,6 @@ class DiagnosticAnswer(models.Model):
 
 
 class DiagnosticResult(models.Model):
-    class RecommendationMethod(models.TextChoices):
-        MACHINE_LEARNING = "machine_learning", "Machine Learning"
-        RULE_FALLBACK = "rule_fallback", "Respaldo basado en reglas"
-
     attempt = models.OneToOneField(
         DiagnosticAttempt, on_delete=models.CASCADE, related_name="result"
     )
@@ -84,13 +80,7 @@ class DiagnosticResult(models.Model):
         related_name="diagnostic_results",
     )
     maximum_score = models.PositiveIntegerField(default=0)
-    recommendation_method = models.CharField(
-        max_length=30,
-        choices=RecommendationMethod.choices,
-        default=RecommendationMethod.RULE_FALLBACK,
-    )
-    model_version = models.CharField(max_length=80, blank=True)
-    model_confidence = models.FloatField(null=True, blank=True)
+    scoring_version = models.CharField(max_length=40, default="weighted-scores-v1")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

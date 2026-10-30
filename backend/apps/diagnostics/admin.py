@@ -31,19 +31,15 @@ class DiagnosticResultAdmin(admin.ModelAdmin):
     list_display = (
         "attempt",
         "suggested_unit",
-        "recommendation_method",
-        "model_version",
-        "model_confidence",
+        "scoring_version",
         "created_at",
     )
-    list_filter = ("recommendation_method", "model_version")
+    list_filter = ("scoring_version",)
     readonly_fields = (
         "attempt",
         "scores",
         "suggested_unit",
         "maximum_score",
-        "recommendation_method",
-        "model_version",
-        "model_confidence",
+        "scoring_version",
         "created_at",
     )

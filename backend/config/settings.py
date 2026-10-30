@@ -122,12 +122,6 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-DIAGNOSTIC_MODEL_PATH = Path(
-    os.getenv(
-        "DIAGNOSTIC_MODEL_PATH",
-        BASE_DIR / "model_artifacts" / "route_recommender.joblib",
-    )
-)
 TEXT_REVIEW_MODEL_PATH = Path(
     os.getenv(
         "TEXT_REVIEW_MODEL_PATH",
