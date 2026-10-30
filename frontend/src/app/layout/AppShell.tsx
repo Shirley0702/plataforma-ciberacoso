@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../features/auth/context/AuthContext'
 
 const links = [
@@ -12,10 +12,29 @@ const links = [
   { to: '/mi-cuenta', icon: '●', label: 'Mi Cuenta' },
 ]
 
+const pageTitles: Record<string, string> = {
+  '/inicio': 'Inicio',
+  '/evaluacion': 'Evaluación',
+  '/revision-texto': 'Revisión de Texto',
+  '/panel': 'Panel Personalizado',
+  '/curso': 'Curso',
+  '/recursos': 'Recursos',
+  '/mi-cuenta': 'Mi Cuenta',
+}
+
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { user, logout } = useAuth()
+  const location = useLocation()
   const navigate = useNavigate()
+  const mainContentRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const pageTitle = pageTitles[location.pathname] ?? 'CiberSegura'
+    document.title = `${pageTitle} | CiberSegura`
+    mainContentRef.current?.focus()
+    setMenuOpen(false)
+  }, [location.pathname])
 
   const handleLogout = async () => {
     await logout()
@@ -38,7 +57,7 @@ export function AppShell() {
           onClick={() => setMenuOpen((value) => !value)}
         >
           <span aria-hidden="true">☰</span>
-          <span className="visually-hidden">Abrir menú</span>
+          <span className="visually-hidden">{menuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
         </button>
       </header>
 
@@ -82,9 +101,9 @@ export function AppShell() {
         </div>
       </aside>
 
-      {menuOpen && <button className="menu-backdrop" aria-label="Cerrar menú" onClick={() => setMenuOpen(false)} />}
+      {menuOpen && <button className="menu-backdrop" type="button" aria-label="Cerrar menú" onClick={() => setMenuOpen(false)} />}
 
-      <main id="contenido-principal" className="main-content" tabIndex={-1}>
+      <main ref={mainContentRef} id="contenido-principal" className="main-content" tabIndex={-1}>
         <Outlet />
       </main>
     </div>

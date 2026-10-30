@@ -63,9 +63,14 @@ export function RegisterPage() {
 
   const fieldError = (field: keyof RegistrationForm) => (
     showErrors && errors[field]
-      ? <div className="invalid-feedback d-block">{errors[field]}</div>
+      ? <div className="invalid-feedback d-block" id={`${field}-error`}>{errors[field]}</div>
       : null
   )
+
+  const describedBy = (field: keyof RegistrationForm, helpId?: string) => {
+    const references = [showErrors && errors[field] ? `${field}-error` : '', helpId ?? ''].filter(Boolean)
+    return references.length ? references.join(' ') : undefined
+  }
 
   return (
     <main className="auth-page register-page">
@@ -110,28 +115,29 @@ export function RegisterPage() {
                   value={form.full_name}
                   onChange={(event) => update('full_name', sanitizeFullName(event.target.value))}
                   aria-invalid={showErrors && Boolean(errors.full_name)}
+                  aria-describedby={describedBy('full_name')}
                   required
                 />
                 {fieldError('full_name')}
               </div>
               <div className="col-12">
                 <label className="form-label" htmlFor="birth-date">Fecha de Nacimiento</label>
-                <input className={`form-control ${showErrors && errors.birth_date ? 'is-invalid' : ''}`} id="birth-date" type="date" min={EARLIEST_BIRTH_DATE} max={TODAY_DATE} value={form.birth_date} onChange={(event) => update('birth_date', event.target.value)} required />
+                <input className={`form-control ${showErrors && errors.birth_date ? 'is-invalid' : ''}`} id="birth-date" type="date" min={EARLIEST_BIRTH_DATE} max={TODAY_DATE} value={form.birth_date} onChange={(event) => update('birth_date', event.target.value)} aria-invalid={showErrors && Boolean(errors.birth_date)} aria-describedby={describedBy('birth_date')} required />
                 {fieldError('birth_date')}
               </div>
               <div className="col-12">
                 <label className="form-label" htmlFor="email">Correo Institucional</label>
-                <input className={`form-control ${showErrors && errors.email ? 'is-invalid' : ''}`} id="email" type="email" autoComplete="email" placeholder="usuario@universidad.edu" value={form.email} onChange={(event) => update('email', event.target.value)} required />
+                <input className={`form-control ${showErrors && errors.email ? 'is-invalid' : ''}`} id="email" type="email" autoComplete="email" placeholder="usuario@universidad.edu" value={form.email} onChange={(event) => update('email', event.target.value)} aria-invalid={showErrors && Boolean(errors.email)} aria-describedby={describedBy('email')} required />
                 {fieldError('email')}
               </div>
               <div className="col-12 col-md-6">
                 <label className="form-label" htmlFor="register-password">Contraseña</label>
-                <PasswordInput className={`form-control ${showErrors && errors.password ? 'is-invalid' : ''}`} id="register-password" autoComplete="new-password" minLength={10} maxLength={128} value={form.password} onChange={(event) => update('password', event.target.value)} required aria-describedby="password-help" />
+                <PasswordInput className={`form-control ${showErrors && errors.password ? 'is-invalid' : ''}`} id="register-password" autoComplete="new-password" minLength={10} maxLength={128} value={form.password} onChange={(event) => update('password', event.target.value)} required aria-invalid={showErrors && Boolean(errors.password)} aria-describedby={describedBy('password', 'password-help')} />
                 {fieldError('password')}
               </div>
               <div className="col-12 col-md-6">
                 <label className="form-label" htmlFor="confirm-password">Confirmar Contraseña</label>
-                <PasswordInput className={`form-control ${showErrors && errors.confirm_password ? 'is-invalid' : ''}`} id="confirm-password" autoComplete="new-password" value={form.confirm_password} onChange={(event) => update('confirm_password', event.target.value)} required />
+                <PasswordInput className={`form-control ${showErrors && errors.confirm_password ? 'is-invalid' : ''}`} id="confirm-password" autoComplete="new-password" value={form.confirm_password} onChange={(event) => update('confirm_password', event.target.value)} required aria-invalid={showErrors && Boolean(errors.confirm_password)} aria-describedby={describedBy('confirm_password')} />
                 {fieldError('confirm_password')}
               </div>
               <div className="col-12">
@@ -139,7 +145,7 @@ export function RegisterPage() {
               </div>
               <div className="col-12">
                 <div className="form-check consent-check">
-                  <input className={`form-check-input ${showErrors && errors.accepted_terms ? 'is-invalid' : ''}`} id="terms" type="checkbox" checked={form.accepted_terms} onChange={(event) => update('accepted_terms', event.target.checked)} required />
+                  <input className={`form-check-input ${showErrors && errors.accepted_terms ? 'is-invalid' : ''}`} id="terms" type="checkbox" checked={form.accepted_terms} onChange={(event) => update('accepted_terms', event.target.checked)} aria-invalid={showErrors && Boolean(errors.accepted_terms)} aria-describedby={describedBy('accepted_terms')} required />
                   <label className="form-check-label" htmlFor="terms">Comprendo que las evaluaciones son orientativas y no reemplazan ayuda profesional o una denuncia.</label>
                   {fieldError('accepted_terms')}
                 </div>

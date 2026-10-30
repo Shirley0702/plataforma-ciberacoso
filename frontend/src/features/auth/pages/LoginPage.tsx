@@ -75,10 +75,12 @@ export function LoginPage() {
                 placeholder="usuario@universidad.edu"
                 value={identifier}
                 onChange={(event) => setIdentifier(event.target.value)}
+                aria-describedby={showErrors && fieldErrors.identifier ? 'identifier-error identifier-help' : 'identifier-help'}
+                aria-invalid={showErrors && Boolean(fieldErrors.identifier)}
                 required
               />
-              {showErrors && fieldErrors.identifier && <div className="invalid-feedback">{fieldErrors.identifier}</div>}
-              <div className="form-text">La cuenta de prueba también puede ingresar como demo.</div>
+              {showErrors && fieldErrors.identifier && <div className="invalid-feedback" id="identifier-error">{fieldErrors.identifier}</div>}
+              <div className="form-text" id="identifier-help">La cuenta de prueba también puede ingresar como demo.</div>
             </div>
             <div className="mb-4">
               <label className="form-label" htmlFor="password">Contraseña</label>
@@ -88,9 +90,11 @@ export function LoginPage() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
+                aria-describedby={showErrors && fieldErrors.password ? 'login-password-error' : undefined}
+                aria-invalid={showErrors && Boolean(fieldErrors.password)}
                 required
               />
-              {showErrors && fieldErrors.password && <div className="invalid-feedback d-block">{fieldErrors.password}</div>}
+              {showErrors && fieldErrors.password && <div className="invalid-feedback d-block" id="login-password-error">{fieldErrors.password}</div>}
             </div>
             <button className="btn btn-primary btn-lg w-100" disabled={submitting} type="submit">
               {submitting ? 'Ingresando…' : 'Entrar a mi espacio'}

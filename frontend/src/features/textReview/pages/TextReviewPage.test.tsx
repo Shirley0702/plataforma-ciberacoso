@@ -56,9 +56,7 @@ describe('TextReviewPage', () => {
     expect(screen.getByRole('button', { name: 'Obtener Orientación' })).toBeDisabled()
     await waitFor(() => expect(apiMock.get).toHaveBeenCalledWith('/text-reviews/latest/'))
 
-    const accessibility = await axe(container, {
-      rules: { 'color-contrast': { enabled: false } },
-    })
+    const accessibility = await axe(container)
     expect(accessibility.violations).toEqual([])
   })
 
