@@ -7,6 +7,8 @@ from apps.courses.models import CourseUnit
 from apps.diagnostics.models import DiagnosticAttempt, DiagnosticResult
 
 from .ml import classify_text, train_and_save_classifier
+from .ml.dataset import load_training_dataset
+from .ml.classifier import split_dataset
 from .models import TextReview
 
 
@@ -14,18 +16,33 @@ class TextReviewModelTests(APITestCase):
     def test_training_compares_models_and_keeps_required_metrics(self):
         artifact = train_and_save_classifier()
 
-        self.assertEqual(len(artifact["evaluations"]), 3)
-        self.assertIn(artifact["selected_algorithm"], artifact["evaluations"])
+        self.assertEqual(len(artifact["validation_evaluations"]), 3)
+        self.assertIn(
+            artifact["selected_algorithm"],
+            artifact["validation_evaluations"],
+        )
+        self.assertEqual(artifact["selection_metric"], "validation_f1")
+        self.assertEqual(sum(artifact["split_sizes"].values()), artifact["dataset_size"])
+        self.assertGreater(artifact["split_sizes"]["train"], artifact["split_sizes"]["test"])
         self.assertEqual(artifact["training_source"]["name"], "CLANDESTINO")
         self.assertEqual(artifact["training_source"]["license"], "MIT")
         self.assertEqual(artifact["dataset_source_sizes"]["training_examples.csv"], 706)
         self.assertEqual(artifact["dataset_source_sizes"]["domain_examples.csv"], 120)
-        for metrics in artifact["evaluations"].values():
+        for metrics in artifact["validation_evaluations"].values():
             self.assertEqual(
                 set(metrics),
                 {"accuracy", "precision", "recall", "f1", "confusion_matrix"},
             )
             self.assertEqual(len(metrics["confusion_matrix"]), 2)
+        self.assertEqual(
+            set(artifact["test_metrics"]),
+            {"accuracy", "precision", "recall", "f1", "confusion_matrix"},
+        )
+        self.assertEqual(artifact["eda_summary"]["quality_checks"]["empty_texts"], 0)
+        self.assertEqual(
+            artifact["eda_summary"]["quality_checks"]["duplicate_normalized_texts"],
+            0,
+        )
 
         attention = classify_text(
             "Me amenaza con publicar información privada si no respondo."
@@ -35,6 +52,24 @@ class TextReviewModelTests(APITestCase):
         )
         self.assertEqual(attention["label"], "attention")
         self.assertEqual(neutral["label"], "neutral")
+
+    def test_split_reserves_independent_validation_and_test_sets(self):
+        dataset = load_training_dataset()
+        split = split_dataset(dataset)
+
+        train = set(split.train_texts)
+        validation = set(split.validation_texts)
+        test = set(split.test_texts)
+        self.assertFalse(train & validation)
+        self.assertFalse(train & test)
+        self.assertFalse(validation & test)
+        self.assertEqual(len(train | validation | test), len(dataset.texts))
+        for labels in (
+            split.train_labels,
+            split.validation_labels,
+            split.test_labels,
+        ):
+            self.assertEqual(set(labels), {"attention", "neutral"})
 
 
 class TextReviewApiTests(APITestCase):

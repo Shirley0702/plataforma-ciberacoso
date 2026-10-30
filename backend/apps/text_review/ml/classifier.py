@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from functools import lru_cache
 
 import joblib
@@ -15,13 +16,24 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import ComplementNB
 from sklearn.pipeline import FeatureUnion, Pipeline
 
+from .analysis import write_eda_report
 from .dataset import load_dataset_provenance, load_training_dataset
 from .preprocessing import normalize_spanish_text
 
 
-MODEL_VERSION = "spanish-text-review-v2"
+MODEL_VERSION = "spanish-text-review-v3"
 RANDOM_STATE = 20261029
 POSITIVE_LABEL = "attention"
+
+
+@dataclass(frozen=True)
+class DatasetSplit:
+    train_texts: list[str]
+    train_labels: list[str]
+    validation_texts: list[str]
+    validation_labels: list[str]
+    test_texts: list[str]
+    test_labels: list[str]
 
 
 def _pipeline(classifier):
@@ -101,43 +113,84 @@ def _metrics(expected, predicted):
     }
 
 
+def _select(items, indexes):
+    return [items[index] for index in indexes]
+
+
+def split_dataset(dataset) -> DatasetSplit:
+    indexes = list(range(len(dataset.texts)))
+    train_indexes, holdout_indexes = train_test_split(
+        indexes,
+        test_size=0.40,
+        random_state=RANDOM_STATE,
+        stratify=dataset.labels,
+    )
+    holdout_labels = _select(dataset.labels, holdout_indexes)
+    validation_indexes, test_indexes = train_test_split(
+        holdout_indexes,
+        test_size=0.50,
+        random_state=RANDOM_STATE,
+        stratify=holdout_labels,
+    )
+    return DatasetSplit(
+        train_texts=_select(dataset.texts, train_indexes),
+        train_labels=_select(dataset.labels, train_indexes),
+        validation_texts=_select(dataset.texts, validation_indexes),
+        validation_labels=_select(dataset.labels, validation_indexes),
+        test_texts=_select(dataset.texts, test_indexes),
+        test_labels=_select(dataset.labels, test_indexes),
+    )
+
+
 def train_and_save_classifier(model_path=None):
     target_path = model_path or settings.TEXT_REVIEW_MODEL_PATH
     dataset = load_training_dataset()
     provenance = load_dataset_provenance()
-    train_texts, test_texts, train_labels, test_labels = train_test_split(
-        dataset.texts,
-        dataset.labels,
-        test_size=0.25,
-        random_state=RANDOM_STATE,
-        stratify=dataset.labels,
-    )
+    eda_report = write_eda_report(dataset)
+    split = split_dataset(dataset)
 
-    evaluations = {}
+    validation_evaluations = {}
     candidates = _candidate_models()
     for name, candidate in candidates.items():
-        candidate.fit(train_texts, train_labels)
-        evaluations[name] = _metrics(test_labels, candidate.predict(test_texts))
+        candidate.fit(split.train_texts, split.train_labels)
+        validation_evaluations[name] = _metrics(
+            split.validation_labels,
+            candidate.predict(split.validation_texts),
+        )
 
     selected_name = max(
-        evaluations,
+        validation_evaluations,
         key=lambda name: (
-            evaluations[name]["f1"],
-            evaluations[name]["recall"],
-            evaluations[name]["accuracy"],
+            validation_evaluations[name]["f1"],
+            validation_evaluations[name]["recall"],
+            validation_evaluations[name]["accuracy"],
         ),
     )
     selected_model = candidates[selected_name]
-    selected_model.fit(dataset.texts, dataset.labels)
+    development_texts = split.train_texts + split.validation_texts
+    development_labels = split.train_labels + split.validation_labels
+    selected_model.fit(development_texts, development_labels)
+    test_metrics = _metrics(
+        split.test_labels,
+        selected_model.predict(split.test_texts),
+    )
     artifact = {
         "model": selected_model,
         "version": MODEL_VERSION,
         "selected_algorithm": selected_name,
-        "evaluations": evaluations,
+        "selection_metric": "validation_f1",
+        "validation_evaluations": validation_evaluations,
+        "test_metrics": test_metrics,
+        "split_sizes": {
+            "train": len(split.train_texts),
+            "validation": len(split.validation_texts),
+            "test": len(split.test_texts),
+        },
         "class_order": list(selected_model.classes_),
         "dataset_fingerprint": dataset.fingerprint,
         "dataset_size": len(dataset.texts),
         "dataset_source_sizes": dataset.source_sizes,
+        "eda_summary": eda_report,
         "training_source": provenance["source"],
         "supplemental_source": {
             "name": "expert_scenario_examples",

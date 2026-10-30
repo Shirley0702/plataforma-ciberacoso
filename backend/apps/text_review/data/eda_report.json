@@ -1,0 +1,85 @@
+{
+  "dataset_fingerprint": "c8188b4202f39ce22178f9d7ec4a795367fde34fddbf0dd2a8fae688d7c4d1b3",
+  "records": 826,
+  "source_distribution": {
+    "domain_examples.csv": 120,
+    "training_examples.csv": 706
+  },
+  "class_distribution": {
+    "attention": {
+      "count": 413,
+      "proportion": 0.5
+    },
+    "neutral": {
+      "count": 413,
+      "proportion": 0.5
+    }
+  },
+  "text_length": {
+    "characters": {
+      "minimum": 20,
+      "maximum": 951,
+      "mean": 142.29,
+      "median": 115.5,
+      "percentile_95": 325.75
+    },
+    "words": {
+      "minimum": 4,
+      "maximum": 145,
+      "mean": 25.35,
+      "median": 20.0,
+      "percentile_95": 59.5
+    }
+  },
+  "quality_checks": {
+    "empty_texts": 0,
+    "duplicate_normalized_texts": 0,
+    "unknown_labels": []
+  },
+  "top_tokens_by_class": {
+    "attention": [
+      {"token": "unos", "frequency": 46},
+      {"token": "eres", "frequency": 39},
+      {"token": "porque", "frequency": 38},
+      {"token": "más", "frequency": 36},
+      {"token": "son", "frequency": 30},
+      {"token": "ser", "frequency": 27},
+      {"token": "todo", "frequency": 26},
+      {"token": "puta", "frequency": 26},
+      {"token": "solo", "frequency": 25},
+      {"token": "qué", "frequency": 23},
+      {"token": "eso", "frequency": 22},
+      {"token": "tiene", "frequency": 22},
+      {"token": "muy", "frequency": 20},
+      {"token": "todos", "frequency": 19},
+      {"token": "hay", "frequency": 18},
+      {"token": "pues", "frequency": 18},
+      {"token": "siempre", "frequency": 18},
+      {"token": "tan", "frequency": 17},
+      {"token": "hacer", "frequency": 17},
+      {"token": "madre", "frequency": 16}
+    ],
+    "neutral": [
+      {"token": "más", "frequency": 42},
+      {"token": "ser", "frequency": 30},
+      {"token": "porque", "frequency": 29},
+      {"token": "hay", "frequency": 29},
+      {"token": "todos", "frequency": 24},
+      {"token": "son", "frequency": 24},
+      {"token": "muy", "frequency": 24},
+      {"token": "nos", "frequency": 23},
+      {"token": "todo", "frequency": 20},
+      {"token": "entre", "frequency": 20},
+      {"token": "también", "frequency": 18},
+      {"token": "tiene", "frequency": 18},
+      {"token": "sobre", "frequency": 17},
+      {"token": "solo", "frequency": 16},
+      {"token": "vida", "frequency": 15},
+      {"token": "soy", "frequency": 15},
+      {"token": "sino", "frequency": 15},
+      {"token": "tan", "frequency": 15},
+      {"token": "eso", "frequency": 15},
+      {"token": "gente", "frequency": 15}
+    ]
+  }
+}
