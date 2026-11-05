@@ -24,6 +24,11 @@ def require_assigned_unit(user):
     return unit
 
 
+def has_completed_course(user):
+    """Indica si el usuario aprobó y certificó su ruta de aprendizaje."""
+    return Certificate.objects.filter(user=user).exists()
+
+
 def build_course_context(user, unit):
     progress = CourseProgress.objects.filter(user=user, lesson__unit=unit)
     return {

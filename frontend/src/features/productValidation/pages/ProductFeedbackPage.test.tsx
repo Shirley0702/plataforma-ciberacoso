@@ -36,12 +36,12 @@ describe('ProductFeedbackPage', () => {
   it('es accesible y exige una respuesta completa', async () => {
     const user = userEvent.setup()
     const { container } = render(<MemoryRouter><ProductFeedbackPage /></MemoryRouter>)
-    await screen.findByRole('button', { name: 'Guardar Mi Opinión' })
+    await screen.findByRole('button', { name: 'Guardar Evaluación' })
 
     const accessibility = await axe(container)
     expect(accessibility.violations).toEqual([])
 
-    await user.click(screen.getByRole('button', { name: 'Guardar Mi Opinión' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar Evaluación' }))
     expect(screen.getByRole('alert')).toHaveTextContent('Responde las cinco preguntas')
     expect(apiMock.post).not.toHaveBeenCalled()
   })
@@ -49,7 +49,7 @@ describe('ProductFeedbackPage', () => {
   it('guarda las cinco métricas y el consentimiento', async () => {
     const user = userEvent.setup()
     render(<MemoryRouter><ProductFeedbackPage /></MemoryRouter>)
-    await screen.findByRole('button', { name: 'Guardar Mi Opinión' })
+    await screen.findByRole('button', { name: 'Guardar Evaluación' })
 
     for (const question of [
       '¿Qué tan fácil fue utilizar la plataforma?',
@@ -61,7 +61,7 @@ describe('ProductFeedbackPage', () => {
       await user.click(screen.getByLabelText(`${question}: 5 de 5`))
     }
     await user.click(screen.getByLabelText(/Acepto que estas respuestas/i))
-    await user.click(screen.getByRole('button', { name: 'Guardar Mi Opinión' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar Evaluación' }))
 
     await waitFor(() => expect(apiMock.post).toHaveBeenCalledWith(
       '/product-validation/feedback/',
@@ -74,6 +74,16 @@ describe('ProductFeedbackPage', () => {
         informed_consent: true,
       }),
     ))
-    expect(screen.getByRole('status')).toHaveTextContent('Tu opinión quedó guardada')
+    expect(screen.getByRole('status')).toHaveTextContent('Tu evaluación quedó guardada')
+  })
+
+  it('no muestra el formulario antes de completar el curso', async () => {
+    apiMock.get.mockRejectedValueOnce(new Error('forbidden'))
+
+    render(<MemoryRouter><ProductFeedbackPage /></MemoryRouter>)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('No fue posible completar la solicitud.')
+    expect(screen.queryByRole('button', { name: 'Guardar Evaluación' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Volver al curso' })).toHaveAttribute('href', '/curso')
   })
 })

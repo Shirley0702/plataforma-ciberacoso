@@ -32,7 +32,7 @@ export function AppRouter() {
               <Route path="/revision-texto" element={<TextReviewPage />} />
               <Route path="/curso" element={<CoursePage />} />
               <Route path="/recursos" element={<ResourcesPage />} />
-              <Route path="/opinion" element={<ProductFeedbackPage />} />
+              <Route path="/evaluar-plataforma" element={<ProductFeedbackPage />} />
               <Route path="/mi-cuenta" element={<AccountPage />} />
             </Route>
           </Route>

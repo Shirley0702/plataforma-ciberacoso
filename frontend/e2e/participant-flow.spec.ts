@@ -51,6 +51,7 @@ test('protege el sistema y completa el recorrido diagnóstico personalizado', as
   await page.getByRole('link', { name: 'Comenzar mi curso personalizado' }).click()
   await expect(page).toHaveURL(/\/curso$/)
   await expect(page.getByRole('region', { name: 'Resumen del curso' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Evaluar la plataforma' })).toHaveCount(0)
   await expectAccessible(page)
 
   await followMainNavigation(page, 'Recursos')
@@ -58,9 +59,4 @@ test('protege el sistema y completa el recorrido diagnóstico personalizado', as
   await expect(page.getByRole('heading', { name: 'Recursos oficiales' })).toBeVisible()
   await expectAccessible(page)
 
-  await followMainNavigation(page, 'Tu Opinión')
-  await expect(page).toHaveURL(/\/opinion$/)
-  await expect(page.getByRole('heading', { name: 'Cuéntanos cómo fue tu experiencia' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Guardar Mi Opinión' })).toBeVisible()
-  await expectAccessible(page)
 })

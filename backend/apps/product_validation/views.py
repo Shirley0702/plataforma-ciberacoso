@@ -6,11 +6,12 @@ from rest_framework.views import APIView
 from apps.users.permissions import IsLearningParticipant
 
 from .models import ParticipantFeedback
+from .permissions import HasCompletedCourse
 from .serializers import ParticipantFeedbackSerializer
 
 
 class ParticipantFeedbackView(APIView):
-    permission_classes = [IsLearningParticipant]
+    permission_classes = [IsLearningParticipant, HasCompletedCourse]
 
     def get(self, request):
         feedback = ParticipantFeedback.objects.filter(

@@ -6,7 +6,7 @@ La plataforma incluye un instrumento para obtener evidencia real de facilidad de
 
 ## Instrumento con participantes
 
-Cada participante puede registrar y actualizar una respuesta por versión. Las cinco preguntas utilizan una escala de 1 a 5 y existe un comentario opcional que advierte no incluir datos sensibles. El consentimiento es obligatorio.
+La evaluación aparece al finalizar y aprobar la ruta personalizada, junto al certificado; no ocupa un lugar permanente en el menú. Solo los participantes con el curso certificado pueden registrar y actualizar una respuesta por versión. Las cinco preguntas utilizan una escala de 1 a 5 y existe un comentario opcional que advierte no incluir datos sensibles. El consentimiento es obligatorio.
 
 La administración muestra los promedios de la selección filtrada sin exponer el nombre en el listado; cada persona se representa con un código interno. Para una prueba formal se debe documentar:
 

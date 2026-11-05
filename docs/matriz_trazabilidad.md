@@ -15,7 +15,7 @@ Esta matriz relaciona los requisitos con su implementación actual, la evidencia
 | RF-07 | Obtener certificado con 80 % o más | `Certificate`, descarga PDF y verificación pública | Aprobación al 80 %, PDF autenticado y código verificable | 7 | Implementado y probado |
 | RF-08 | Recursos de orientación | `apps.resources` | Enlaces, teléfonos y vigencia revisados | 12 | Implementado; requiere revisión periódica externa |
 | RF-09 | Administración de contenidos | Django Admin | Permisos, auditoría y reversibilidad | 9–12 | Implementado para contenidos y evidencia de calidad |
-| RF-10 | Recoger validación del producto | `apps.product_validation` y `ProductFeedbackPage` | Cinco métricas por versión, consentimiento, agregados y matriz ISO/IEC 25010 | 14–15 | Instrumento implementado; resultados dependen de participantes reales |
+| RF-10 | Recoger validación del producto | `apps.product_validation` y `ProductFeedbackPage` | Acceso después de certificar el curso, cinco métricas por versión, consentimiento, agregados y matriz ISO/IEC 25010 | 14–15 | Instrumento implementado; resultados dependen de participantes reales |
 
 ## Requisitos no funcionales
 
@@ -28,7 +28,7 @@ Esta matriz relaciona los requisitos con su implementación actual, la evidencia
 
 ## Cobertura de la línea base
 
-- Backend: 48 pruebas automatizadas en PostgreSQL para autenticación, roles, diagnóstico, personalización, curso, certificación, clasificación de texto, validación del producto y salud operativa.
-- Frontend: 8 pruebas de componentes y accesibilidad, compilación TypeScript de producción y 2 recorridos E2E completos con Chromium (escritorio y móvil), incluida auditoría WCAG en navegador real.
+- Backend: 49 pruebas automatizadas en PostgreSQL para autenticación, roles, diagnóstico, personalización, curso, certificación, clasificación de texto, validación del producto y salud operativa.
+- Frontend: 11 pruebas de componentes y accesibilidad, compilación TypeScript de producción y 2 recorridos E2E completos con Chromium (escritorio y móvil), incluida auditoría WCAG en navegador real.
 - Datos: migraciones iniciales disponibles para todos los módulos.
 - Operación: Docker Compose levanta PostgreSQL, backend y frontend con comprobaciones de salud; GitHub Actions ejecuta CI/E2E, publica imágenes y verifica respaldo/restauración en una base temporal.

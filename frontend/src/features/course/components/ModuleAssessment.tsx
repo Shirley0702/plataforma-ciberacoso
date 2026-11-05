@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
+import { Link } from 'react-router-dom'
 import type { CourseUnit, QuizResult } from '../types'
 
 interface ModuleAssessmentProps {
@@ -73,9 +74,14 @@ export function ModuleAssessment({
             <h2>¡Completaste tu ruta de especialidad!</h2>
             <p>Código verificable: <strong>{unit.certificate.verification_code}</strong></p>
           </div>
-          <button className="btn btn-light" onClick={() => void onDownload(unit)}>
-            Descargar certificado PDF
-          </button>
+          <div className="certificate-actions">
+            <button className="btn btn-light" onClick={() => void onDownload(unit)}>
+              Descargar certificado PDF
+            </button>
+            <Link className="btn btn-outline-light" to="/evaluar-plataforma">
+              Evaluar la plataforma
+            </Link>
+          </div>
         </section>
       )}
     </>

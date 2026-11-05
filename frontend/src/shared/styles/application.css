@@ -271,6 +271,7 @@ p { color: var(--muted); line-height: 1.65; }
 .certificate-card h2 { margin-bottom: .4rem; color: white; }
 .certificate-card p { margin: 0; color: #c5d8dd; }
 .certificate-card strong { color: white; letter-spacing: .06em; }
+.certificate-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem; }
 
 /* Resources */
 .emergency-banner { display: grid; grid-template-columns: auto 1fr auto; gap: 1.5rem; align-items: center; margin-bottom: 2.5rem; padding: 1.7rem; border-radius: var(--radius-lg); background: var(--coral); color: white; }
@@ -384,6 +385,7 @@ p { color: var(--muted); line-height: 1.65; }
   .lesson-list { margin-left: 0; }
   .module-quiz, .quiz-result, .certificate-card { margin-left: 0; }
   .certificate-card { align-items: stretch; flex-direction: column; }
+  .certificate-actions { justify-content: flex-start; }
   .unit-heading { grid-template-columns: 48px 1fr; }
   .unit-count { grid-column: 2; justify-self: start; }
   .emergency-banner { grid-template-columns: 1fr; }

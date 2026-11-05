@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 
 import { api, getErrorMessage } from '../../../shared/api/httpClient'
 import type { ProductFeedback, ProductFeedbackForm } from '../types'
@@ -28,6 +29,7 @@ export function ProductFeedbackPage() {
   const [form, setForm] = useState<ProductFeedbackForm>(emptyForm)
   const [version, setVersion] = useState('')
   const [loading, setLoading] = useState(true)
+  const [canEvaluate, setCanEvaluate] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
@@ -35,6 +37,7 @@ export function ProductFeedbackPage() {
   useEffect(() => {
     api.get<ProductFeedback | null>('/product-validation/feedback/')
       .then(({ data }) => {
+        setCanEvaluate(true)
         if (!data) return
         setVersion(data.app_version)
         setForm({
@@ -72,7 +75,7 @@ export function ProductFeedbackPage() {
     try {
       const { data } = await api.post<ProductFeedback>('/product-validation/feedback/', form)
       setVersion(data.app_version)
-      setMessage('Tu opinión quedó guardada. Puedes actualizarla mientras se evalúe esta versión.')
+      setMessage('Tu evaluación quedó guardada. Puedes actualizarla mientras se revise esta versión.')
     } catch (requestError) {
       setError(getErrorMessage(requestError))
     } finally {
@@ -84,22 +87,25 @@ export function ProductFeedbackPage() {
     <div className="page-wrap feedback-page">
       <header className="page-header">
         <div>
-          <span className="eyebrow">Validación del Producto</span>
-          <h1>Cuéntanos cómo fue tu experiencia</h1>
+          <span className="eyebrow">{canEvaluate ? 'Curso completado' : 'Evaluación de la plataforma'}</span>
+          <h1>Evalúa la plataforma</h1>
           <p>Esta encuesta breve permite evaluar la facilidad de uso, claridad, utilidad educativa, satisfacción y accesibilidad de la plataforma.</p>
         </div>
       </header>
 
-      <aside className="privacy-banner" role="note">
-        <span className="privacy-icon" aria-hidden="true">i</span>
-        <p><strong>No incluyas información sensible.</strong> Describe únicamente tu experiencia con la plataforma. Tu respuesta se analizará de forma agrupada.</p>
-      </aside>
+      {canEvaluate && (
+        <aside className="privacy-banner" role="note">
+          <span className="privacy-icon" aria-hidden="true">i</span>
+          <p><strong>No incluyas información sensible.</strong> Describe únicamente tu experiencia con la plataforma. Tu respuesta se analizará de forma agrupada.</p>
+        </aside>
+      )}
 
       {loading && <div className="skeleton-block" aria-label="Cargando encuesta" />}
       {error && <div className="alert alert-danger" role="alert">{error}</div>}
+      {error && !canEvaluate && <p><Link to="/curso">Volver al curso</Link></p>}
       {message && <div className="alert alert-success" role="status">{message}</div>}
 
-      {!loading && (
+      {!loading && canEvaluate && (
         <form className="feedback-form" onSubmit={handleSubmit} noValidate>
           {version && <p className="feedback-version">Respuesta registrada para la versión {version}</p>}
           <p className="feedback-instructions" id="rating-help">Selecciona una opción entre 1 (muy bajo) y 5 (muy alto).</p>
@@ -154,7 +160,7 @@ export function ProductFeedbackPage() {
           </div>
 
           <button className="btn btn-primary btn-lg" type="submit" disabled={submitting}>
-            {submitting ? 'Guardando…' : 'Guardar Mi Opinión'}
+            {submitting ? 'Guardando…' : 'Guardar Evaluación'}
           </button>
         </form>
       )}

@@ -9,7 +9,6 @@ const links = [
   { to: '/panel', icon: '◇', label: 'Panel personalizado' },
   { to: '/curso', icon: '▤', label: 'Curso' },
   { to: '/recursos', icon: '+', label: 'Recursos' },
-  { to: '/opinion', icon: '☆', label: 'Tu Opinión' },
   { to: '/mi-cuenta', icon: '●', label: 'Mi Cuenta' },
 ]
 
@@ -20,7 +19,7 @@ const pageTitles: Record<string, string> = {
   '/panel': 'Panel Personalizado',
   '/curso': 'Curso',
   '/recursos': 'Recursos',
-  '/opinion': 'Tu Opinión',
+  '/evaluar-plataforma': 'Evaluar la Plataforma',
   '/mi-cuenta': 'Mi Cuenta',
 }
 

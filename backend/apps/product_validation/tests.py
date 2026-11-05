@@ -3,6 +3,8 @@ from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from apps.courses.models import Certificate, CourseUnit
+
 from .models import ParticipantFeedback
 
 
@@ -14,6 +16,16 @@ class ParticipantFeedbackApiTests(APITestCase):
         self.user = get_user_model().objects.create_user(
             username="participant",
             password="TestSegura2026!",
+        )
+        self.unit = CourseUnit.objects.create(
+            title="Ruta de prueba",
+            slug="ruta-prueba-validacion",
+            description="Contenido de prueba",
+        )
+        Certificate.objects.create(
+            user=self.user,
+            unit=self.unit,
+            verification_code="VALIDACION-TEST-001",
         )
         self.payload = {
             "ease_of_use": 4,
@@ -28,6 +40,18 @@ class ParticipantFeedbackApiTests(APITestCase):
     def test_requires_authentication(self):
         response = self.client.get(self.endpoint)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_requires_a_completed_course(self):
+        participant = get_user_model().objects.create_user(
+            username="course-pending",
+            password="TestSegura2026!",
+        )
+        self.client.force_authenticate(participant)
+
+        response = self.client.get(self.endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn("Completa y aprueba tu curso", response.data["detail"])
 
     def test_participant_can_create_and_update_one_response_per_version(self):
         self.client.force_authenticate(self.user)
