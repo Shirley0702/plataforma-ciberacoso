@@ -189,7 +189,7 @@ p { color: var(--muted); line-height: 1.65; }
 .scenario-enter { animation: scenario-enter .3s ease both; }
 .scenario-card-top { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1.4rem; color: var(--teal-dark); font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .scenario-card-actions { display: flex; align-items: center; gap: 1rem; }
-.quick-exit-button { padding: .55rem .8rem; border: 1px solid var(--color-danger); border-radius: 9px; background: var(--color-panic); color: var(--color-panic-text); font-size: 1.2rem; font-weight: 800; letter-spacing: 0; text-transform: none; transition: filter .2s ease, transform .2s ease; }
+.quick-exit-button { padding: .45rem .65rem; border: 1px solid var(--color-danger); border-radius: 9px; background: var(--color-panic); color: var(--color-panic-text); font-size: .82rem; font-weight: 800; letter-spacing: 0; text-transform: none; transition: filter .2s ease, transform .2s ease; }
 .quick-exit-button:hover, .quick-exit-button:focus-visible { border-color: var(--color-danger); background: var(--color-panic); color: var(--color-panic-text); filter: saturate(1.12); transform: translateY(-1px); }
 .scenario-card h2 { max-width: 850px; margin-bottom: 1.6rem; font-size: clamp(1.35rem, 2.7vw, 2rem); line-height: 1.35; }
 .scenario-options { display: grid; gap: .8rem; }
