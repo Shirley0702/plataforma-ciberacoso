@@ -12,8 +12,11 @@ async function expectAccessible(page: Page) {
 }
 
 async function followMainNavigation(page: Page, linkName: string) {
-  const menuButton = page.getByRole('button', { name: 'Abrir menú' })
-  if (await menuButton.isVisible()) await menuButton.click()
+  const menuButton = page.locator('button[aria-controls="navegacion-principal"]')
+  if (await menuButton.isVisible()) {
+    await menuButton.press('Enter')
+    await expect(menuButton).toHaveAttribute('aria-expanded', 'true')
+  }
   await page.getByRole('link', { name: linkName, exact: true }).click()
 }
 
