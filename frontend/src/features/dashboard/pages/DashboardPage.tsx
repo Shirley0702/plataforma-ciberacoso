@@ -55,13 +55,13 @@ export function DashboardPage() {
 
           <section className="metric-grid" aria-label="Resumen de actividad">
             <article className="metric-card">
-              <div className="metric-label"><span className="metric-icon mint">✓</span> Ruta asignada</div>
+              <div className="metric-label"><span className="metric-icon accent">✓</span> Ruta asignada</div>
               <strong>{data.diagnostic?.suggested_unit.title}</strong>
               <p>Evaluación procesada el {data.diagnostic && dateFormatter.format(new Date(data.diagnostic.created_at))}.</p>
               <Link to="/evaluacion">Volver a realizar el test <span aria-hidden="true">→</span></Link>
             </article>
             <article className="metric-card">
-              <div className="metric-label"><span className="metric-icon amber">▤</span> Curso</div>
+              <div className="metric-label"><span className="metric-icon primary">▤</span> Curso</div>
               <strong>{data.course.percentage}% completado</strong>
               <div className="progress" role="progressbar" aria-label="Progreso del curso" aria-valuenow={data.course.percentage} aria-valuemin={0} aria-valuemax={100}>
                 <div className="progress-bar" style={{ width: `${data.course.percentage}%` }} />
@@ -70,7 +70,7 @@ export function DashboardPage() {
               <Link to="/curso">Ir al curso <span aria-hidden="true">→</span></Link>
             </article>
             <article className="metric-card">
-              <div className="metric-label"><span className="metric-icon mint">◫</span> Revisión de Texto</div>
+              <div className="metric-label"><span className="metric-icon accent">◫</span> Revisión de Texto</div>
               <strong>{data.text_review ? 'Orientación disponible' : 'Explora una situación'}</strong>
               <p>
                 {data.text_review

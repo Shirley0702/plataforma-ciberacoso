@@ -30,26 +30,26 @@ def build_certificate_pdf(certificate):
     buffer = BytesIO()
     page_width, page_height = landscape(A4)
     pdf = canvas.Canvas(buffer, pagesize=(page_width, page_height))
-    navy = HexColor("#102F3C")
-    teal = HexColor("#0F7B74")
-    mint = HexColor("#C9EBE1")
-    muted = HexColor("#60777F")
+    dark_panel = HexColor("#2D2342")
+    primary = HexColor("#8B5CF6")
+    accent = HexColor("#06B6D4")
+    text_muted = HexColor("#64557A")
 
-    pdf.setFillColor(navy)
+    pdf.setFillColor(dark_panel)
     pdf.rect(0, 0, page_width, page_height, fill=1, stroke=0)
     pdf.setFillColor(HexColor("#FFFFFF"))
     pdf.roundRect(28, 28, page_width - 56, page_height - 56, 18, fill=1, stroke=0)
-    pdf.setStrokeColor(mint)
+    pdf.setStrokeColor(primary)
     pdf.setLineWidth(3)
     pdf.roundRect(42, 42, page_width - 84, page_height - 84, 14, fill=0, stroke=1)
 
-    pdf.setFillColor(teal)
+    pdf.setFillColor(accent)
     pdf.setFont("Helvetica-Bold", 15)
     pdf.drawCentredString(page_width / 2, page_height - 95, "CIBERSEGURA")
-    pdf.setFillColor(navy)
+    pdf.setFillColor(dark_panel)
     pdf.setFont("Helvetica-Bold", 30)
     pdf.drawCentredString(page_width / 2, page_height - 145, "CERTIFICADO DE FINALIZACIÓN")
-    pdf.setFillColor(muted)
+    pdf.setFillColor(text_muted)
     pdf.setFont("Helvetica", 13)
     pdf.drawCentredString(page_width / 2, page_height - 180, "Se certifica que")
 
@@ -59,21 +59,21 @@ def build_certificate_pdf(certificate):
         if profile and profile.full_name
         else certificate.user.username
     )
-    pdf.setFillColor(navy)
+    pdf.setFillColor(dark_panel)
     pdf.setFont("Helvetica-Bold", 24)
     pdf.drawCentredString(page_width / 2, page_height - 225, full_name)
-    pdf.setStrokeColor(teal)
+    pdf.setStrokeColor(accent)
     pdf.setLineWidth(1)
     pdf.line(190, page_height - 238, page_width - 190, page_height - 238)
 
-    pdf.setFillColor(muted)
+    pdf.setFillColor(text_muted)
     pdf.setFont("Helvetica", 12)
     pdf.drawCentredString(
         page_width / 2,
         page_height - 275,
         "completó la ruta adaptativa y aprobó el cuestionario del módulo",
     )
-    pdf.setFillColor(teal)
+    pdf.setFillColor(primary)
     pdf.setFont("Helvetica-Bold", 18)
     y = _centered_wrapped_text(
         pdf,
@@ -85,12 +85,12 @@ def build_certificate_pdf(certificate):
         leading=22,
     )
 
-    pdf.setFillColor(navy)
+    pdf.setFillColor(dark_panel)
     pdf.setFont("Helvetica-Bold", 10)
     pdf.drawCentredString(
         page_width / 2, max(112, y - 45), "Aprobación mínima alcanzada: 80%"
     )
-    pdf.setFillColor(muted)
+    pdf.setFillColor(text_muted)
     pdf.setFont("Helvetica", 10)
     pdf.drawString(
         80, 82, f"Fecha de emisión: {certificate.issued_at.strftime('%d/%m/%Y')}"

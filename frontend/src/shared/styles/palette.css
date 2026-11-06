@@ -18,7 +18,7 @@
   --color-panic: #fda4af;
   --color-panic-text: #881337;
   --color-panic-strong: #9f1239;
-  --color-danger-label: #9f1239;
+  --color-panic-label: #9f1239;
   --color-panic-soft: #ffe4e6;
   --color-dark-panel: #2d2342;
   --color-dark-panel-raised: #45345f;
@@ -28,9 +28,6 @@
   --color-link: #6d28d9;
   --color-interactive-text: #0e0a16;
   --color-backdrop: rgba(14, 10, 22, .58);
-  --color-warning: #f59e0b;
-  --color-warning-text: #78350f;
-  --color-warning-soft: #fef3c7;
   --color-skeleton-start: #e9e2f2;
   --color-skeleton-middle: #faf8fd;
 
@@ -38,41 +35,6 @@
   --shadow: 0 18px 44px rgba(139, 92, 246, .09);
   --shadow-soft: 0 4px 20px rgba(139, 92, 246, .06);
 
-  /* Tokens semánticos consumidos por los componentes. */
-  --color-background: var(--color-bg);
-  --color-text: var(--color-text-main);
-  --color-dark-surface: var(--color-dark-panel);
-  --color-dark-surface-raised: var(--color-dark-panel-raised);
-  --color-trust: var(--color-primary);
-  --color-trust-dark: var(--color-primary-solid);
-  --color-trust-soft: var(--color-primary-soft);
-  --color-action: var(--color-accent);
-  --color-action-dark: var(--color-accent-strong);
-  --color-action-soft: var(--color-accent-soft);
-  --color-danger: var(--color-panic);
-  --color-danger-dark: var(--color-panic-strong);
-  --color-danger-soft: var(--color-panic-soft);
-  --color-support: var(--color-primary);
-  --color-support-dark: var(--color-primary-solid);
-  --color-support-soft: var(--color-primary-soft);
-  --color-warning-dark: var(--color-warning-text);
-
-  /* Alias de componentes existentes mientras conservan nombres de dominio. */
-  --ink: var(--color-text);
-  --navy: var(--color-text);
-  --navy-soft: var(--color-dark-surface-raised);
-  --teal: var(--color-trust);
-  --teal-dark: var(--color-link);
-  --mint: var(--color-action-soft);
-  --mint-pale: var(--color-trust-soft);
-  --coral: var(--color-danger);
-  --coral-pale: var(--color-danger-soft);
-  --amber: var(--color-warning);
-  --paper: var(--color-surface);
-  --canvas: var(--color-background);
-  --line: var(--color-border);
-  --border: var(--color-border);
-  --muted: var(--color-text-muted);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -95,7 +57,7 @@
     --color-panic: #f43f5e;
     --color-panic-text: #3f0014;
     --color-panic-strong: #9f1239;
-    --color-danger-label: #fb7185;
+    --color-panic-label: #fb7185;
     --color-panic-soft: #4c0519;
     --color-dark-panel: #0e0a16;
     --color-dark-panel-raised: #191224;
@@ -104,9 +66,6 @@
     --color-border: #3c2b50;
     --color-link: #d8b4fe;
     --color-backdrop: rgba(5, 3, 9, .74);
-    --color-warning: #fbbf24;
-    --color-warning-text: #fde68a;
-    --color-warning-soft: #3f2a0a;
     --color-skeleton-start: #271b35;
     --color-skeleton-middle: #362548;
 
