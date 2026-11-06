@@ -43,7 +43,7 @@ export function DashboardPage() {
               <p>
                 {data.diagnostic?.suggested_unit.description}
               </p>
-              <Link className="btn btn-light" to="/curso">Comenzar mi curso personalizado</Link>
+              <Link className="btn btn-primary" to="/curso">Comenzar mi curso personalizado</Link>
             </div>
             <div className="hero-orbit" aria-hidden="true">
               <div className="orbit orbit-one" />

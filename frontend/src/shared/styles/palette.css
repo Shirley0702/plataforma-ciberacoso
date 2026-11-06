@@ -1,0 +1,53 @@
+/* Paleta semántica "Espacio Seguro y Privacidad". */
+:root {
+  color-scheme: light;
+
+  --color-background: #f4f7fc;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f8fafc;
+  --color-dark-surface: #0f172a;
+  --color-dark-surface-raised: #1e293b;
+
+  --color-text: #1e293b;
+  --color-text-muted: #475569;
+  --color-on-dark: #f8fafc;
+  --color-on-dark-muted: #cbd5e1;
+  --color-border: #d8e2f0;
+
+  --color-trust: #3b82f6;
+  --color-trust-dark: #1d4ed8;
+  --color-trust-soft: #dbeafe;
+  --color-action: #10b981;
+  --color-action-dark: #047857;
+  --color-action-soft: #d1fae5;
+  --color-danger: #ef4444;
+  --color-danger-dark: #b91c1c;
+  --color-danger-soft: #fee2e2;
+  --color-support: #8b5cf6;
+  --color-support-dark: #6d28d9;
+  --color-support-soft: #ede9fe;
+  --color-warning: #f59e0b;
+  --color-warning-dark: #92400e;
+  --color-warning-soft: #fef3c7;
+
+  --focus-ring: 0 0 0 .2rem rgba(59, 130, 246, .2);
+  --shadow: 0 18px 44px rgba(15, 23, 42, .09);
+  --shadow-soft: 0 10px 30px rgba(15, 23, 42, .06);
+
+  /* Alias de componentes existentes mientras conservan nombres de dominio. */
+  --ink: var(--color-text);
+  --navy: var(--color-dark-surface);
+  --navy-soft: var(--color-dark-surface-raised);
+  --teal: var(--color-trust);
+  --teal-dark: var(--color-trust-dark);
+  --mint: var(--color-action-soft);
+  --mint-pale: var(--color-trust-soft);
+  --coral: var(--color-danger);
+  --coral-pale: var(--color-danger-soft);
+  --amber: var(--color-warning);
+  --paper: var(--color-surface);
+  --canvas: var(--color-background);
+  --line: var(--color-border);
+  --border: var(--color-border);
+  --muted: var(--color-text-muted);
+}

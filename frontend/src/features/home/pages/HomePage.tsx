@@ -32,7 +32,7 @@ export function HomePage() {
             Avanza a tu ritmo; este espacio es privado y orientativo.
           </p>
           <div className="welcome-actions">
-            <Link className="btn btn-light btn-lg" to={hasDiagnostic ? '/panel' : '/evaluacion'}>
+            <Link className="btn btn-primary btn-lg" to={hasDiagnostic ? '/panel' : '/evaluacion'}>
               {hasDiagnostic ? 'Continuar con mi ruta' : 'Comenzar mi evaluación'}
             </Link>
             {hasDiagnostic && <Link className="btn btn-outline-light" to="/evaluacion">Repetir evaluación</Link>}
