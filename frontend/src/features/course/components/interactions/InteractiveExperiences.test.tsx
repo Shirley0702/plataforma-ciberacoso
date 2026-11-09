@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { ChecklistInteraction } from './ChecklistInteraction'
 import { ChoiceInteraction } from './ChoiceInteraction'
 import { GuidedExploration } from './GuidedExploration'
+import { VideoExperience } from './VideoExperience'
 
 describe('experiencias interactivas del curso', () => {
   it('exige explorar todas las tarjetas antes de completar', async () => {
@@ -79,5 +80,41 @@ describe('experiencias interactivas del curso', () => {
     expect(screen.getByRole('button', { name: 'Guardar plan seguro' })).toBeDisabled()
     await user.click(screen.getByRole('checkbox', { name: /Persona de confianza/ }))
     expect(onChange).toHaveBeenCalledWith(['persona'])
+  })
+
+  it('presenta un microvideo sin reproducción automática y exige una comprobación', async () => {
+    const user = userEvent.setup()
+    const onSelect = vi.fn()
+    render(
+      <VideoExperience
+        lessonId={4}
+        checkpointPrompt="¿Qué idea protege mejor la convivencia?"
+        config={{
+          video_url: 'https://www.youtube-nocookie.com/embed/video-seguro',
+          video_watch_url: 'https://www.youtube.com/watch?v=video-seguro',
+          video_title: 'Convivencia respetuosa',
+          source_label: 'Fuente educativa',
+          accessible_summary: 'Resumen disponible sin reproducir el video.',
+          key_points: ['Idea principal'],
+          options: [
+            { id: 'dialogo', label: 'Dialogar con criterios', feedback: 'Correcto' },
+          ],
+        }}
+        completed={false}
+        saving={false}
+        onSelect={onSelect}
+        onCompletion={vi.fn()}
+      />,
+    )
+
+    const video = screen.getByTitle('Convivencia respetuosa')
+    expect(video).toHaveAttribute('loading', 'lazy')
+    expect(video).not.toHaveAttribute('autoplay')
+    expect(screen.getByText(/no se reproduce automáticamente/)).toBeVisible()
+    expect(screen.getByRole('heading', { name: '¿Qué idea protege mejor la convivencia?' })).toBeVisible()
+    await user.click(screen.getByText('Leer resumen accesible del video'))
+    expect(screen.getByText('Resumen disponible sin reproducir el video.')).toBeVisible()
+    await user.click(screen.getByRole('radio', { name: 'Dialogar con criterios' }))
+    expect(onSelect).toHaveBeenCalledWith('dialogo')
   })
 })

@@ -9,7 +9,6 @@ import type {
 
 export function useCourse() {
   const [units, setUnits] = useState<CourseUnit[]>([])
-  const [openLessonId, setOpenLessonId] = useState<number | null>(null)
   const [interactionResponses, setInteractionResponses] = useState<
     Record<number, InteractionResponse>
   >({})
@@ -34,12 +33,6 @@ export function useCourse() {
         ]),
       )
       setInteractionResponses((current) => ({ ...storedResponses, ...current }))
-      setOpenLessonId((current) => (
-        current
-        ?? data.flatMap((unit) => unit.lessons).find((lesson) => !lesson.completed)?.id
-        ?? data[0]?.lessons[0]?.id
-        ?? null
-      ))
     } catch (requestError) {
       setError(getErrorMessage(requestError))
     }
@@ -49,11 +42,10 @@ export function useCourse() {
     void loadCourse()
   }, [loadCourse])
 
-  const progress = useMemo(() => {
+  const progressPercentage = useMemo(() => {
     const lessons = units.flatMap((unit) => unit.lessons)
     const completed = lessons.filter((lesson) => lesson.completed).length
-    const percentage = lessons.length ? Math.round(completed / lessons.length * 100) : 0
-    return { completed, total: lessons.length, percentage }
+    return lessons.length ? Math.round(completed / lessons.length * 100) : 0
   }, [units])
 
   const setInteractionResponse = (lessonId: number, response: InteractionResponse) => {
@@ -78,8 +70,10 @@ export function useCourse() {
       }))
       if (!completed) setInteractionResponse(lesson.id, {})
       await loadCourse()
+      return true
     } catch (requestError) {
       setError(getErrorMessage(requestError))
+      return false
     } finally {
       setSavingLessonId(null)
     }
@@ -91,7 +85,7 @@ export function useCourse() {
     )
     if (hasUnansweredQuestion) {
       setError('Responde todas las preguntas del cuestionario antes de enviarlo.')
-      return
+      return false
     }
     setSubmittingUnitId(unit.id)
     setError('')
@@ -108,8 +102,10 @@ export function useCourse() {
       document.getElementById(`resultado-cuestionario-${unit.id}`)?.scrollIntoView({
         behavior: 'smooth',
       })
+      return data.passed
     } catch (requestError) {
       setError(getErrorMessage(requestError))
+      return false
     } finally {
       setSubmittingUnitId(null)
     }
@@ -132,10 +128,8 @@ export function useCourse() {
 
   return {
     units,
-    progress,
+    progressPercentage,
     error,
-    openLessonId,
-    setOpenLessonId,
     interactionResponses,
     setInteractionResponse,
     interactionFeedback,

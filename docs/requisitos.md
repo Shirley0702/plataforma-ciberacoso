@@ -6,7 +6,7 @@
 - **RF-02:** completar una evaluación diagnóstica formada por escenarios y opciones indirectas.
 - **RF-03:** construir un perfil de cuatro dimensiones mediante una escala ordinal uniforme, conservar empates y seleccionar hasta los dos niveles positivos con mayor prioridad.
 - **RF-04:** asignar una ruta preventiva general cuando todas las dimensiones sean neutrales y mostrar en el panel todas las unidades recomendadas.
-- **RF-05:** presentar cinco experiencias interactivas por unidad y registrar únicamente identificadores de progreso de las unidades recomendadas, sin solicitar relatos personales.
+- **RF-05:** presentar secuencialmente seis experiencias por unidad —incluido un microvideo con alternativa textual— y registrar únicamente identificadores de progreso de las unidades recomendadas, sin solicitar relatos personales.
 - **RF-06:** consultar recursos de orientación.
 - **RF-07:** administrar escenarios, opciones, módulos, lecciones y recursos.
 
@@ -24,6 +24,6 @@
 3. El algoritmo construye el perfil multidimensional, conserva empates y selecciona los dos primeros niveles positivos.
 4. Si todo es neutral, el sistema asigna la ruta preventiva general.
 5. El panel presenta todas las unidades sugeridas y el acceso al curso personalizado.
-6. El usuario recorre las lecciones asignadas y registra su progreso.
+6. El usuario recorre una unidad y una experiencia a la vez; la siguiente unidad se desbloquea al certificar la anterior.
 7. El usuario consulta recursos de orientación.
 8. El administrador modifica contenidos desde Django Admin.

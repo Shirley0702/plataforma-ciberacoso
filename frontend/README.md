@@ -41,6 +41,12 @@ Cada funcionalidad puede contener:
 - `context/`: estado compartido por varias pantallas de la funcionalidad.
 - `types.ts`: contratos exclusivos de esa funcionalidad.
 
+En `features/course`, `CoursePage.tsx` compone el reproductor secuencial,
+`useCourse.ts` concentra las operaciones remotas, los navegadores de unidad y
+paso controlan el desbloqueo, y `components/interactions/` contiene el
+microvideo y las actividades especializadas. La pantalla nunca presenta todas
+las unidades o tareas simultáneamente.
+
 En `features/auth`, `registrationValidation.ts` concentra las reglas del
 formulario y `verificationStorage.ts` conserva únicamente el correo pendiente
 durante la sesión del navegador. `VerifyEmailPage.tsx` controla la activación de

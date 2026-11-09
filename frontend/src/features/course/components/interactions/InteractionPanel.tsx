@@ -2,6 +2,7 @@ import type { InteractionResponse, LearningItem } from '../../types'
 import { ChecklistInteraction } from './ChecklistInteraction'
 import { ChoiceInteraction } from './ChoiceInteraction'
 import { GuidedExploration } from './GuidedExploration'
+import { VideoExperience } from './VideoExperience'
 
 interface InteractionPanelProps {
   lesson: LearningItem
@@ -21,6 +22,22 @@ export function InteractionPanel({
   onCompletion,
 }: InteractionPanelProps) {
   const config = lesson.interaction_config
+
+  if (lesson.interaction_type === 'video') {
+    return (
+      <VideoExperience
+        lessonId={lesson.id}
+        checkpointPrompt={lesson.interaction_prompt}
+        config={config}
+        selectedOption={response.selected_option}
+        completed={lesson.completed}
+        feedback={feedback}
+        saving={saving}
+        onSelect={(selectedOption) => onResponseChange({ selected_option: selectedOption })}
+        onCompletion={onCompletion}
+      />
+    )
+  }
 
   if (lesson.interaction_type === 'guided') {
     return (

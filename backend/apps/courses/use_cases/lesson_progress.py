@@ -67,6 +67,7 @@ def _validated_interaction(lesson, response):
     if lesson.interaction_type == Lesson.InteractionType.GUIDED:
         return {}, lesson.interaction_config.get("completion_message", "")
     if lesson.interaction_type in {
+        Lesson.InteractionType.VIDEO,
         Lesson.InteractionType.DECISION,
         Lesson.InteractionType.PRACTICE,
     }:
