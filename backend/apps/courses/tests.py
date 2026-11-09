@@ -1,10 +1,57 @@
 from django.contrib.auth import get_user_model
+from django.test import SimpleTestCase
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from apps.diagnostics.models import DiagnosticAttempt, DiagnosticResult
+from initial_data.catalog.course_units import COURSE_UNITS
 
-from .models import Certificate, CourseUnit, Lesson, ModuleQuizOption, ModuleQuizQuestion
+from .models import (
+    Certificate,
+    CourseProgress,
+    CourseUnit,
+    Lesson,
+    ModuleQuizOption,
+    ModuleQuizQuestion,
+)
+
+
+class CourseCatalogTests(SimpleTestCase):
+    def test_every_unit_contains_the_five_learning_experiences(self):
+        expected_types = {
+            "guided",
+            "decision",
+            "checklist",
+            "practice",
+            "safety_plan",
+        }
+        self.assertEqual(len(COURSE_UNITS), 5)
+        for unit in COURSE_UNITS:
+            self.assertEqual(len(unit["learning_items"]), 5)
+            self.assertEqual(
+                {item["interaction_type"] for item in unit["learning_items"]},
+                expected_types,
+                msg=unit["slug"],
+            )
+
+    def test_units_have_specific_quizzes_and_no_free_text_interactions(self):
+        question_sets = []
+        allowed_config_keys = {
+            "cards",
+            "options",
+            "items",
+            "completion_message",
+            "completion_feedback",
+            "privacy_note",
+        }
+        for unit in COURSE_UNITS:
+            self.assertEqual(len(unit["quiz"]), 5)
+            question_sets.append(tuple(question["text"] for question in unit["quiz"]))
+            for item in unit["learning_items"]:
+                self.assertTrue(
+                    set(item["interaction_config"]).issubset(allowed_config_keys)
+                )
+        self.assertEqual(len(set(question_sets)), len(COURSE_UNITS))
 
 
 class CourseProgressTests(APITestCase):
@@ -110,21 +157,87 @@ class CourseProgressTests(APITestCase):
             title="Actividad",
             summary="Simulación",
             content="Caso",
-            kind="activity",
+            interaction_type=Lesson.InteractionType.DECISION,
             order=2,
-            activity_options=[
-                {"id": "reportar", "label": "Reportar", "feedback": "Bien"}
-            ],
+            interaction_config={
+                "options": [
+                    {"id": "reportar", "label": "Reportar", "feedback": "Bien"}
+                ]
+            },
         )
         invalid = self.client.post(f"/api/courses/lessons/{activity.id}/complete/")
         self.assertEqual(invalid.status_code, 400)
+        malformed = self.client.post(
+            f"/api/courses/lessons/{activity.id}/complete/",
+            {"interaction_response": ["reportar"]},
+            format="json",
+        )
+        self.assertEqual(malformed.status_code, 400)
         valid = self.client.post(
             f"/api/courses/lessons/{activity.id}/complete/",
-            {"activity_choice": "reportar"},
+            {
+                "interaction_response": {
+                    "selected_option": "reportar",
+                    "private_story": "Este dato no debe almacenarse",
+                }
+            },
             format="json",
         )
         self.assertEqual(valid.status_code, 200)
         self.assertEqual(valid.data["feedback"], "Bien")
+        progress = CourseProgress.objects.get(user=self.user, lesson=activity)
+        self.assertEqual(progress.interaction_response, {"selected_option": "reportar"})
+
+    def test_checklist_requires_every_configured_item(self):
+        checklist = Lesson.objects.create(
+            unit=self.assigned_unit,
+            title="Lista interactiva",
+            summary="Señales observables",
+            content="Marca cada señal",
+            interaction_type=Lesson.InteractionType.CHECKLIST,
+            order=2,
+            interaction_config={
+                "items": [
+                    {"id": "contexto", "label": "Conservar el contexto"},
+                    {"id": "apoyo", "label": "Buscar apoyo"},
+                ],
+                "completion_feedback": "Lista completada",
+            },
+        )
+        incomplete = self.client.post(
+            f"/api/courses/lessons/{checklist.id}/complete/",
+            {"interaction_response": {"selected_items": ["contexto"]}},
+            format="json",
+        )
+        self.assertEqual(incomplete.status_code, 400)
+
+        valid = self.client.post(
+            f"/api/courses/lessons/{checklist.id}/complete/",
+            {
+                "interaction_response": {
+                    "selected_items": ["apoyo", "contexto"],
+                    "student_name": "No guardar",
+                }
+            },
+            format="json",
+        )
+        self.assertEqual(valid.status_code, 200)
+        self.assertEqual(valid.data["feedback"], "Lista completada")
+        progress = CourseProgress.objects.get(user=self.user, lesson=checklist)
+        self.assertEqual(
+            progress.interaction_response,
+            {"selected_items": ["contexto", "apoyo"]},
+        )
+
+    def test_guided_exploration_does_not_store_personal_content(self):
+        response = self.client.post(
+            f"/api/courses/lessons/{self.lesson.id}/complete/",
+            {"interaction_response": {"free_text": "Información privada"}},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        progress = CourseProgress.objects.get(user=self.user, lesson=self.lesson)
+        self.assertEqual(progress.interaction_response, {})
 
     def test_quiz_is_locked_until_learning_items_are_complete(self):
         response = self.client.post(

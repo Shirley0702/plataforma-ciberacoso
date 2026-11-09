@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
+import { CourseSafetyBanner } from '../components/CourseSafetyBanner'
 import { LearningItemCard } from '../components/LearningItemCard'
 import { ModuleAssessment } from '../components/ModuleAssessment'
 import { useCourse } from '../hooks/useCourse'
@@ -25,7 +26,7 @@ export function CoursePage() {
           style={{ '--course-progress': `${course.progress.percentage * 3.6}deg` } as CSSProperties}
         >
           <span>{course.progress.percentage}%</span>
-          <small>microcontenidos</small>
+          <small>experiencias</small>
         </div>
       </header>
 
@@ -35,9 +36,10 @@ export function CoursePage() {
 
       {primaryUnit && (
         <>
+          <CourseSafetyBanner />
           <section className="course-overview" aria-label="Resumen del curso">
             <div><strong>{course.units.length}</strong><span>{course.units.length === 1 ? 'unidad asignada' : 'unidades priorizadas'}</span></div>
-            <div><strong>{course.progress.total}</strong><span>microcontenidos</span></div>
+            <div><strong>{course.progress.total}</strong><span>experiencias</span></div>
             <div><strong>{course.progress.completed}</strong><span>completados</span></div>
           </section>
 
@@ -65,15 +67,15 @@ export function CoursePage() {
                     position={index + 1}
                     isOpen={course.openLessonId === lesson.id}
                     saving={course.savingLessonId === lesson.id}
-                    selectedChoice={course.activityChoices[lesson.id]}
-                    feedback={course.activityFeedback[lesson.id]}
+                    response={course.interactionResponses[lesson.id] ?? {}}
+                    feedback={course.interactionFeedback[lesson.id]}
                     onToggle={() => course.setOpenLessonId(
                       course.openLessonId === lesson.id ? null : lesson.id,
                     )}
-                    onChoice={(choice) => course.setActivityChoices((current) => ({
-                      ...current,
-                      [lesson.id]: choice,
-                    }))}
+                    onResponseChange={(response) => course.setInteractionResponse(
+                      lesson.id,
+                      response,
+                    )}
                     onCompletion={course.updateCompletion}
                   />
                 ))}

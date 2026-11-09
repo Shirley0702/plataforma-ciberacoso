@@ -57,7 +57,7 @@ class CompleteLessonView(APIView):
             request.user,
             lesson,
             completed,
-            request.data.get("activity_choice"),
+            request.data.get("interaction_response"),
         )
         return Response(result)
 

@@ -6,7 +6,7 @@
 - **RF-02:** completar una evaluación diagnóstica formada por escenarios y opciones indirectas.
 - **RF-03:** construir un perfil de cuatro dimensiones mediante una escala ordinal uniforme, conservar empates y seleccionar hasta los dos niveles positivos con mayor prioridad.
 - **RF-04:** asignar una ruta preventiva general cuando todas las dimensiones sean neutrales y mostrar en el panel todas las unidades recomendadas.
-- **RF-05:** registrar el progreso únicamente sobre las lecciones de las unidades recomendadas.
+- **RF-05:** presentar cinco experiencias interactivas por unidad y registrar únicamente identificadores de progreso de las unidades recomendadas, sin solicitar relatos personales.
 - **RF-06:** consultar recursos de orientación.
 - **RF-07:** administrar escenarios, opciones, módulos, lecciones y recursos.
 

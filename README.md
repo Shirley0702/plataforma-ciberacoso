@@ -15,7 +15,7 @@ Flujo educativo obligatorio: **Registro/Login → Verificación del correo → E
 - Banco de 16 escenarios: cuatro por cada dimensión educativa, con una escala ordinal uniforme no expuesta al frontend.
 - Perfil multidimensional que conserva empates, prioriza los dos niveles más relevantes y utiliza una ruta preventiva general cuando todas las respuestas son neutrales.
 - Curso capaz de presentar y registrar progreso en todas las unidades recomendadas.
-- Ruta de microaprendizaje con cuatro lecciones, una actividad de decisión y un cuestionario final por módulo.
+- Ruta dinámica con cinco experiencias por unidad: exploración guiada, decisión con consecuencias, lista de señales observables, práctica de respuesta y plan personal seguro; cada unidad tiene un cuestionario propio.
 - Certificado individual al obtener al menos 80 %, descargable en PDF y verificable mediante código público.
 - Interfaz responsiva, navegación por teclado, etiquetas accesibles y mensajes claros.
 - Encuesta versionada de usabilidad, claridad, utilidad, satisfacción y accesibilidad.

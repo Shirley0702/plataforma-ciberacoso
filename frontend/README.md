@@ -22,7 +22,7 @@ src/
 |   |                        (`admin` se dirige al panel Django separado)
 |   |-- diagnostic/         Evaluación por escenarios
 |   |-- dashboard/          Panel personalizado
-|   |-- course/             Microcontenidos, cuestionario y certificado
+|   |-- course/             Experiencias interactivas, cuestionario y certificado
 |   `-- resources/          Recursos oficiales
 |-- shared/                 Código compartido entre funcionalidades
 |   |-- api/                Cliente HTTP

@@ -1,14 +1,23 @@
-import type { LearningItem } from '../types'
+import type { InteractionResponse, InteractionType, LearningItem } from '../types'
+import { InteractionPanel } from './interactions/InteractionPanel'
+
+const INTERACTION_LABELS: Record<InteractionType, string> = {
+  guided: 'Exploración guiada',
+  decision: 'Decisión con consecuencias',
+  checklist: 'Lista interactiva',
+  practice: 'Práctica segura',
+  safety_plan: 'Plan personal seguro',
+}
 
 interface LearningItemCardProps {
   lesson: LearningItem
   position: number
   isOpen: boolean
   saving: boolean
-  selectedChoice?: string
+  response: InteractionResponse
   feedback?: string
   onToggle: () => void
-  onChoice: (choice: string) => void
+  onResponseChange: (response: InteractionResponse) => void
   onCompletion: (lesson: LearningItem, completed: boolean) => Promise<void>
 }
 
@@ -17,17 +26,16 @@ export function LearningItemCard({
   position,
   isOpen,
   saving,
-  selectedChoice,
+  response,
   feedback,
   onToggle,
-  onChoice,
+  onResponseChange,
   onCompletion,
 }: LearningItemCardProps) {
-  const isActivity = lesson.kind === 'activity'
-  const status = lesson.completed ? '✓' : isActivity ? '◆' : position
+  const status = lesson.completed ? '✓' : position
 
   return (
-    <article className={`lesson-card ${lesson.completed ? 'completed' : ''} ${isActivity ? 'activity-card' : ''}`}>
+    <article className={`lesson-card interaction-${lesson.interaction_type} ${lesson.completed ? 'completed' : ''}`}>
       <button
         className="lesson-toggle"
         type="button"
@@ -38,7 +46,9 @@ export function LearningItemCard({
         <span className="lesson-status" aria-hidden="true">{status}</span>
         <span>
           <strong>{lesson.title}</strong>
-          <small>{isActivity ? 'Actividad interactiva' : `Lección ${position}`} · {lesson.duration_minutes} min · {lesson.summary}</small>
+          <small>
+            {INTERACTION_LABELS[lesson.interaction_type]} · {lesson.duration_minutes} min · {lesson.summary}
+          </small>
         </span>
         <span className="chevron" aria-hidden="true">⌄</span>
       </button>
@@ -46,43 +56,17 @@ export function LearningItemCard({
       {isOpen && (
         <div className="lesson-body" id={`lesson-body-${lesson.id}`}>
           <p>{lesson.content}</p>
-          {isActivity ? (
-            <div className="interactive-activity">
-              <h3>{lesson.activity_prompt}</h3>
-              <div className="activity-options">
-                {lesson.activity_options.map((option) => (
-                  <label className={selectedChoice === option.id ? 'selected' : ''} key={option.id}>
-                    <input
-                      type="radio"
-                      name={`activity-${lesson.id}`}
-                      checked={selectedChoice === option.id}
-                      onChange={() => onChoice(option.id)}
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-              {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
-              <button
-                className="btn btn-primary"
-                disabled={saving || (!lesson.completed && !selectedChoice)}
-                onClick={() => void onCompletion(lesson, !lesson.completed)}
-              >
-                {saving ? 'Guardando…' : lesson.completed ? 'Actividad completada' : 'Confirmar decisión'}
-              </button>
-            </div>
-          ) : (
-            <div className="lesson-action">
-              <span>{lesson.completed ? 'Lección completada' : '¿Terminaste de leer y reflexionar?'}</span>
-              <button
-                className={`btn ${lesson.completed ? 'btn-outline-primary' : 'btn-primary'}`}
-                disabled={saving}
-                onClick={() => void onCompletion(lesson, !lesson.completed)}
-              >
-                {saving ? 'Guardando…' : lesson.completed ? 'Marcar como pendiente' : 'Marcar como completada'}
-              </button>
-            </div>
-          )}
+          <section className="interactive-activity" aria-label={INTERACTION_LABELS[lesson.interaction_type]}>
+            <h3>{lesson.interaction_prompt}</h3>
+            <InteractionPanel
+              lesson={lesson}
+              response={response}
+              feedback={feedback}
+              saving={saving}
+              onResponseChange={onResponseChange}
+              onCompletion={(completed) => onCompletion(lesson, completed)}
+            />
+          </section>
         </div>
       )}
     </article>
