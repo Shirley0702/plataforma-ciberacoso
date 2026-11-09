@@ -8,7 +8,7 @@ interface ModuleAssessmentProps {
   setAnswers: Dispatch<SetStateAction<Record<number, number>>>
   result: QuizResult | null
   submitting: boolean
-  onSubmit: (unit: CourseUnit) => Promise<void>
+  onSubmit: (unit: CourseUnit) => Promise<boolean>
   onDownload: (unit: CourseUnit) => Promise<void>
 }
 
@@ -30,7 +30,7 @@ export function ModuleAssessment({
         <span className="eyebrow">Evaluación final del módulo</span>
         <h2 id={quizTitleId}>Cuestionario obligatorio · aprobación mínima 80%</h2>
         {!unit.quiz_unlocked ? (
-          <p>Completa todos los microcontenidos y la actividad interactiva para desbloquearlo.</p>
+          <p>Completa las experiencias de esta unidad para desbloquear la evaluación final.</p>
         ) : (
           <>
             {unit.quiz_questions.map((question, index) => (

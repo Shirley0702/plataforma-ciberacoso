@@ -17,8 +17,9 @@ from .models import (
 
 
 class CourseCatalogTests(SimpleTestCase):
-    def test_every_unit_contains_the_five_learning_experiences(self):
+    def test_every_unit_contains_the_six_learning_experiences(self):
         expected_types = {
+            "video",
             "guided",
             "decision",
             "checklist",
@@ -27,7 +28,7 @@ class CourseCatalogTests(SimpleTestCase):
         }
         self.assertEqual(len(COURSE_UNITS), 5)
         for unit in COURSE_UNITS:
-            self.assertEqual(len(unit["learning_items"]), 5)
+            self.assertEqual(len(unit["learning_items"]), 6)
             self.assertEqual(
                 {item["interaction_type"] for item in unit["learning_items"]},
                 expected_types,
@@ -43,6 +44,12 @@ class CourseCatalogTests(SimpleTestCase):
             "completion_message",
             "completion_feedback",
             "privacy_note",
+            "video_url",
+            "video_watch_url",
+            "video_title",
+            "source_label",
+            "accessible_summary",
+            "key_points",
         }
         for unit in COURSE_UNITS:
             self.assertEqual(len(unit["quiz"]), 5)
@@ -228,6 +235,42 @@ class CourseProgressTests(APITestCase):
             progress.interaction_response,
             {"selected_items": ["contexto", "apoyo"]},
         )
+
+    def test_video_requires_a_valid_checkpoint_without_storing_free_text(self):
+        video = Lesson.objects.create(
+            unit=self.assigned_unit,
+            title="Microvideo",
+            summary="Resumen",
+            content="Contenido",
+            interaction_type=Lesson.InteractionType.VIDEO,
+            order=2,
+            interaction_config={
+                "video_url": "https://www.youtube-nocookie.com/embed/example",
+                "options": [
+                    {
+                        "id": "apoyo",
+                        "label": "Buscar apoyo",
+                        "feedback": "Respuesta segura",
+                    }
+                ],
+            },
+        )
+        invalid = self.client.post(f"/api/courses/lessons/{video.id}/complete/")
+        self.assertEqual(invalid.status_code, 400)
+
+        valid = self.client.post(
+            f"/api/courses/lessons/{video.id}/complete/",
+            {
+                "interaction_response": {
+                    "selected_option": "apoyo",
+                    "personal_detail": "No guardar",
+                }
+            },
+            format="json",
+        )
+        self.assertEqual(valid.status_code, 200)
+        progress = CourseProgress.objects.get(user=self.user, lesson=video)
+        self.assertEqual(progress.interaction_response, {"selected_option": "apoyo"})
 
     def test_guided_exploration_does_not_store_personal_content(self):
         response = self.client.post(

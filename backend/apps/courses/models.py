@@ -19,6 +19,7 @@ class CourseUnit(models.Model):
 
 class Lesson(models.Model):
     class InteractionType(models.TextChoices):
+        VIDEO = "video", "Microvideo interactivo"
         GUIDED = "guided", "Exploración guiada"
         DECISION = "decision", "Decisión con retroalimentación"
         CHECKLIST = "checklist", "Lista interactiva"

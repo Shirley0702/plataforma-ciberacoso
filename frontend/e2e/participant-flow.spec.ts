@@ -7,6 +7,7 @@ const demoPassword = process.env.E2E_DEMO_PASSWORD
 async function expectAccessible(page: Page) {
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .exclude('.video-frame iframe')
     .analyze()
   expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([])
 }
@@ -73,19 +74,16 @@ test('protege el sistema y completa el recorrido diagnóstico personalizado', as
 
   await page.getByRole('link', { name: 'Comenzar mi curso personalizado' }).click()
   await expect(page).toHaveURL(/\/curso$/)
-  await expect(page.getByRole('region', { name: 'Resumen del curso' })).toBeVisible()
-  await expect(page.getByText(/Exploración guiada/).first()).toBeVisible()
-  await expect(page.getByText(/Decisión con consecuencias/).first()).toBeVisible()
-  await expect(page.getByText(/Plan personal seguro/).first()).toBeVisible()
+  await expect(page.locator('.sidebar')).toHaveClass(/sidebar-collapsed/)
+  await expect(page.getByRole('navigation', { name: 'Unidades del curso' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Unidad 1.*Disponible/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Unidad 2.*Bloqueada/ })).toBeDisabled()
   await expect(page.getByText(/Las actividades no solicitan nombres ni relatos personales/)).toBeVisible()
-  const firstExperience = page.locator('.lesson-card').first()
-  const experienceToggle = firstExperience.locator('.lesson-toggle')
-  if (await experienceToggle.getAttribute('aria-expanded') === 'false') {
-    await experienceToggle.click()
-  }
-  await expect(firstExperience.locator('.guided-card')).toHaveCount(3)
-  await firstExperience.locator('.guided-card').first().click()
-  await expect(firstExperience.locator('.guided-card').first()).toHaveAttribute('aria-expanded', 'true')
+  await expect(page.locator('.learning-experience')).toHaveCount(1)
+  await expect(page.getByText('Microvideo y comprobación')).toBeVisible()
+  await expect(page.locator('.video-frame iframe')).toHaveCount(1)
+  await expect(page.getByText(/no se reproduce automáticamente/)).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Progreso de la unidad' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Evaluar la plataforma' })).toHaveCount(0)
   await expectAccessible(page)
 

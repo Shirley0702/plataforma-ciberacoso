@@ -16,6 +16,37 @@ def _guided(title, summary, content, cards, duration=6):
     }
 
 
+def _video(
+    title,
+    summary,
+    content,
+    video_id,
+    source_label,
+    accessible_summary,
+    key_points,
+    prompt,
+    options,
+    duration=5,
+):
+    return {
+        "title": title,
+        "summary": summary,
+        "content": content,
+        "duration": duration,
+        "interaction_type": "video",
+        "interaction_prompt": prompt,
+        "interaction_config": {
+            "video_url": f"https://www.youtube-nocookie.com/embed/{video_id}?rel=0&modestbranding=1",
+            "video_watch_url": f"https://www.youtube.com/watch?v={video_id}",
+            "video_title": title,
+            "source_label": source_label,
+            "accessible_summary": accessible_summary,
+            "key_points": key_points,
+            "options": options,
+        },
+    }
+
+
 def _choice(interaction_type, title, summary, content, prompt, options, duration=7):
     return {
         "title": title,
@@ -98,7 +129,7 @@ COURSE_UNITS = (
         "slug": "acoso-vertical",
         "title": "Límites en Relaciones de Autoridad",
         "description": "Practica cómo reconocer límites, conservar hechos y pedir acompañamiento ante una relación de autoridad.",
-        "duration": 36,
+        "duration": 41,
         "learning_items": (
             _guided(
                 "Exigencia académica o trato que cruza un límite",
@@ -163,6 +194,25 @@ COURSE_UNITS = (
                 "Tu plan básico está preparado. Puedes cambiarlo cuando lo necesites y pedir acompañamiento antes de actuar.",
                 privacy_note="No guardes aquí nombres, capturas ni información personal.",
             ),
+            _video(
+                "Video: la convivencia también se aprende",
+                "Observa cómo los acuerdos y el diálogo construyen relaciones educativas respetuosas.",
+                "El video introduce una idea clave: la autoridad también participa en la creación de un entorno donde sea posible preguntar, disentir y aprender sin humillaciones.",
+                "cfEJ1XRWMvk",
+                "Ministerio de Educación de Chile",
+                "La convivencia se construye en las relaciones diarias. Las normas claras, el diálogo y la participación ayudan a que enseñar y aprender no dependan del miedo ni de la obediencia personal.",
+                (
+                    "Una corrección útil se centra en criterios y tareas.",
+                    "El diálogo permite aclarar dudas sin represalias.",
+                    "Pedir acompañamiento es una forma válida de cuidado.",
+                ),
+                "Después del video, ¿qué práctica favorece una relación académica segura?",
+                (
+                    _option("criterios", "Explicar criterios y permitir preguntas.", "Los criterios claros y el diálogo separan la exigencia académica del trato personal intimidatorio.", True),
+                    _option("obediencia", "Exigir obediencia fuera de la actividad académica.", "La autoridad académica no justifica controlar decisiones personales."),
+                    _option("exposicion", "Corregir mediante burlas públicas.", "La humillación no es necesaria para ofrecer retroalimentación."),
+                ),
+            ),
         ),
         "quiz": (
             _quiz("¿Qué caracteriza una retroalimentación académica saludable?", ("Se enfoca en criterios y permite aclaraciones", "Expone errores para avergonzar", "Exige disponibilidad sin límites"), 0),
@@ -175,7 +225,7 @@ COURSE_UNITS = (
         "slug": "acoso-horizontal",
         "title": "Convivencia y Presión entre Pares",
         "description": "Practica límites, apoyo entre compañeros y respuestas seguras ante exclusión o presión grupal.",
-        "duration": 35,
+        "duration": 40,
         "learning_items": (
             _guided(
                 "Del desacuerdo a un patrón de presión",
@@ -240,6 +290,25 @@ COURSE_UNITS = (
                 "Tu red básica está identificada sin guardar información sensible.",
                 privacy_note="Los nombres de tus contactos deben permanecer fuera de esta plataforma.",
             ),
+            _video(
+                "Video: comprender la presión y el daño entre pares",
+                "Reconoce por qué participar, reenviar o guardar silencio puede sostener un patrón grupal.",
+                "Este video ofrece una explicación visual de las dinámicas entre pares y sirve como punto de partida para practicar apoyo sin confrontaciones que aumenten el riesgo.",
+                "SEC_dOWFN5M",
+                "PantallasAmigas",
+                "Las conductas repetidas entre pares pueden continuar fuera del aula y amplificarse en espacios digitales. Detener la difusión, acercarse en privado y buscar acompañamiento reduce el aislamiento.",
+                (
+                    "No reenviar evita nuevas exposiciones.",
+                    "Apoyar en privado devuelve control a la persona.",
+                    "Una red de apoyo es más segura que enfrentar al grupo a solas.",
+                ),
+                "¿Cuál es una primera respuesta de apoyo que evita ampliar la situación?",
+                (
+                    _option("privado", "No difundir y conversar en privado con la persona.", "Esta respuesta reduce la exposición y permite acordar juntos el siguiente paso.", True),
+                    _option("publicar", "Publicar los nombres de todo el grupo.", "La exposición pública puede escalar el conflicto y quitar control a la persona afectada."),
+                    _option("reenviar", "Reenviar para conseguir más opiniones.", "Cada reenvío crea nuevas copias y aumenta el alcance."),
+                ),
+            ),
         ),
         "quiz": (
             _quiz("¿Qué diferencia un conflicto puntual de un patrón grupal?", ("Que ocurra entre estudiantes", "La repetición, coordinación e impacto", "Que suceda fuera del aula"), 1),
@@ -252,7 +321,7 @@ COURSE_UNITS = (
         "slug": "acoso-tecnologico",
         "title": "Bienestar y Seguridad Digital",
         "description": "Recupera control sobre contenido, cuentas y evidencia sin aumentar la difusión.",
-        "duration": 38,
+        "duration": 43,
         "learning_items": (
             _guided(
                 "Control, consentimiento y alcance digital",
@@ -317,6 +386,25 @@ COURSE_UNITS = (
                 "Tu plan digital básico está listo y no contiene datos privados.",
                 privacy_note="Nunca escribas aquí contraseñas, usuarios, enlaces privados ni el contenido recibido.",
             ),
+            _video(
+                "Video: privacidad y consentimiento al compartir",
+                "Observa cómo una publicación aparentemente pequeña puede afectar a otra persona.",
+                "El video permite analizar el consentimiento antes de publicar imágenes o información y prepara la práctica de decisiones digitales seguras.",
+                "ELDlQj1aLmo",
+                "PantallasAmigas",
+                "Cada persona puede tener límites de privacidad distintos. Antes de publicar una imagen donde aparece otra persona, es necesario pedir permiso y respetar un no, aunque el grupo sea privado.",
+                (
+                    "Tener una imagen no equivale a tener permiso para publicarla.",
+                    "Una audiencia pequeña también puede generar copias.",
+                    "Preguntar antes de compartir mantiene el control en la persona.",
+                ),
+                "¿Qué deberías comprobar antes de compartir una imagen de otra persona?",
+                (
+                    _option("permiso", "Que la persona autorizó esa publicación.", "El consentimiento debe existir antes de compartir y puede retirarse.", True),
+                    _option("grupo", "Que el grupo tenga pocas personas.", "Un grupo pequeño no sustituye el permiso y tampoco impide nuevas copias."),
+                    _option("borrar", "Que puedas borrarla después.", "Borrar tu publicación no elimina las copias que otras personas hayan guardado."),
+                ),
+            ),
         ),
         "quiz": (
             _quiz("¿Qué acción aumenta la difusión de contenido privado?", ("Conservar una copia privada", "Reenviarlo para conseguir testigos", "Usar el reporte de la plataforma"), 1),
@@ -329,7 +417,7 @@ COURSE_UNITS = (
         "slug": "acoso-vulnerabilidad",
         "title": "Respeto a la Diversidad e Identidad",
         "description": "Practica cómo responder a prejuicios, proteger la privacidad y buscar un trato digno.",
-        "duration": 36,
+        "duration": 41,
         "learning_items": (
             _guided(
                 "Trato digno en situaciones cotidianas",
@@ -394,6 +482,25 @@ COURSE_UNITS = (
                 "Tu plan protege la privacidad y deja abiertas varias formas de pedir apoyo.",
                 privacy_note="No registres aquí diagnósticos, identidad, orientación, origen ni otros datos sensibles.",
             ),
+            _video(
+                "Video: convivir respetando las diferencias",
+                "Reflexiona sobre el valor de las diferencias y el trato digno en un grupo.",
+                "El video presenta la diversidad como parte normal de la convivencia. Después podrás practicar cómo intervenir sin revelar información privada ni hablar por otra persona.",
+                "xXL2LSyAqDY",
+                "Recurso educativo de convivencia escolar",
+                "Las personas de un grupo tienen identidades, capacidades, historias y formas de participar diferentes. Respetar esas diferencias implica valorar aportes por su contenido y evitar convertir una característica personal en una barrera.",
+                (
+                    "La diferencia no reduce el valor de una persona.",
+                    "El trato digno se observa en oportunidades y participación.",
+                    "Apoyar también significa respetar la privacidad y las decisiones.",
+                ),
+                "¿Qué acción favorece una convivencia respetuosa?",
+                (
+                    _option("aporte", "Valorar el aporte por su contenido y permitir la participación.", "La participación justa evita que una característica personal se convierta en una barrera.", True),
+                    _option("decidir", "Decidir por la persona sin consultarle.", "Ayudar sin preguntar puede quitarle control sobre su propia situación."),
+                    _option("broma", "Usar diferencias personales como bromas si el grupo se ríe.", "La reacción del grupo no reemplaza el consentimiento de la persona."),
+                ),
+            ),
         ),
         "quiz": (
             _quiz("¿Qué permite observar una diferencia de trato?", ("Comparar situaciones semejantes y sus consecuencias", "Adivinar la intención", "Contar cuántas personas estaban presentes"), 0),
@@ -406,7 +513,7 @@ COURSE_UNITS = (
         "slug": "fundamentos-preventivos",
         "title": "Convivencia y Autocuidado Preventivo",
         "description": "Fortalece acuerdos, privacidad, límites y redes de apoyo antes de una situación difícil.",
-        "duration": 34,
+        "duration": 39,
         "learning_items": (
             _guided(
                 "Acuerdos que crean un espacio seguro",
@@ -470,6 +577,25 @@ COURSE_UNITS = (
                 ),
                 "Tu plan preventivo básico está listo y puedes revisarlo cuando cambien tus circunstancias.",
                 privacy_note="Mantén nombres, teléfonos personales y detalles sensibles fuera de la plataforma.",
+            ),
+            _video(
+                "Video: protege tu cuenta con un segundo paso",
+                "Comprende de forma visual por qué una contraseña no siempre es suficiente.",
+                "El video introduce una medida concreta de autocuidado digital que puedes activar antes de una situación de riesgo.",
+                "6nWOijDWOag",
+                "Computer Hoy",
+                "La verificación en dos pasos añade una comprobación adicional al iniciar sesión. Si alguien obtiene la contraseña, todavía necesitará ese segundo factor para entrar a la cuenta.",
+                (
+                    "Usa contraseñas únicas para cada servicio.",
+                    "Activa un segundo factor cuando esté disponible.",
+                    "Guarda los códigos de recuperación en un lugar privado.",
+                ),
+                "¿Qué ventaja aporta la verificación en dos pasos?",
+                (
+                    _option("barrera", "Añade una barrera aunque se conozca la contraseña.", "El segundo factor dificulta el acceso no autorizado y permite responder mejor ante una contraseña expuesta.", True),
+                    _option("publica", "Permite usar la misma contraseña en todas las cuentas.", "Reutilizar contraseñas aumenta el impacto si una de ellas se filtra."),
+                    _option("anonima", "Oculta automáticamente todo lo publicado.", "El segundo factor protege el acceso, pero no cambia la privacidad de las publicaciones."),
+                ),
             ),
         ),
         "quiz": (

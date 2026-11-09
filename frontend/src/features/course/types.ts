@@ -1,4 +1,5 @@
 export type InteractionType =
+  | 'video'
   | 'guided'
   | 'decision'
   | 'checklist'
@@ -30,6 +31,12 @@ export interface InteractionConfig {
   completion_message?: string
   completion_feedback?: string
   privacy_note?: string
+  video_url?: string
+  video_watch_url?: string
+  video_title?: string
+  source_label?: string
+  accessible_summary?: string
+  key_points?: string[]
 }
 
 export interface InteractionResponse {

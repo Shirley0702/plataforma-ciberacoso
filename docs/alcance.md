@@ -17,7 +17,7 @@ Los jóvenes pueden experimentar o presenciar conductas de hostigamiento digital
 - Perfil multidimensional con escala ordinal uniforme, conservación de empates y dos niveles de prioridad.
 - Ruta preventiva general cuando todas las respuestas son neutrales.
 - Panel personal con las unidades educativas recomendadas.
-- Curso filtrado a todas las unidades priorizadas, con cinco experiencias interactivas distintas, retroalimentación, plan seguro sin texto libre y avance registrado por unidad.
+- Curso filtrado a todas las unidades priorizadas, mostradas secuencialmente, con microvideo y cinco experiencias interactivas, retroalimentación, plan seguro sin texto libre y avance registrado por unidad.
 - Cuestionario final obligatorio y certificado del módulo al alcanzar al menos 80 %.
 - Recursos oficiales de orientación.
 - Administración mediante Django Admin.
@@ -28,4 +28,4 @@ Chat en tiempo real, aplicación móvil nativa, lectura directa de redes sociale
 
 ## Criterio de éxito
 
-Una persona puede registrarse como participante, completar la evaluación por escenarios, recibir un perfil orientativo y sus unidades priorizadas, terminar los microcontenidos, aprobar cada cuestionario con al menos 80 %, descargar certificados verificables, consultar orientación y cerrar sesión. `demo` permite probar ese mismo recorrido. La cuenta `admin` puede actualizar los contenidos desde un panel protegido, pero no puede utilizar las API educativas.
+Una persona puede registrarse como participante, completar la evaluación por escenarios, recibir un perfil orientativo y sus unidades priorizadas, avanzar por una experiencia a la vez, aprobar cada cuestionario con al menos 80 %, descargar certificados verificables, consultar orientación y cerrar sesión. `demo` permite probar ese mismo recorrido. La cuenta `admin` puede actualizar los contenidos desde un panel protegido, pero no puede utilizar las API educativas.
