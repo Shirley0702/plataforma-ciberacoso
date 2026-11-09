@@ -43,8 +43,13 @@ test('protege el sistema y completa el recorrido diagnóstico personalizado', as
 
   await page.getByLabel('Correo institucional').fill('demo')
   await page.locator('#password').fill(demoPassword as string)
+  const authenticationResponse = page.waitForResponse((response) => (
+    response.url().endsWith('/api/auth/token/')
+      && response.request().method() === 'POST'
+  ))
   await page.getByRole('button', { name: 'Entrar a mi espacio' }).click()
-  await expect(page).toHaveURL(/\/inicio$/)
+  expect((await authenticationResponse).status()).toBe(200)
+  await expect(page).toHaveURL(/\/inicio$/, { timeout: 15_000 })
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Hola')
 
   await followMainNavigation(page, 'Evaluación')
