@@ -70,14 +70,14 @@ export function DashboardPage() {
               <Link to="/curso">Ir al curso <span aria-hidden="true">→</span></Link>
             </article>
             <article className="metric-card">
-              <div className="metric-label"><span className="metric-icon accent">◫</span> Revisión de Texto</div>
+              <div className="metric-label"><span className="metric-icon accent">◫</span> Orientación Privada</div>
               <strong>{data.text_review ? 'Orientación disponible' : 'Explora una situación'}</strong>
               <p>
                 {data.text_review
                   ? 'Puedes volver a revisar una situación sin guardar el texto original.'
                   : 'Describe una situación y recibe pasos personalizados junto con tu ruta.'}
               </p>
-              <Link to="/revision-texto">Ir a Revisión de Texto <span aria-hidden="true">→</span></Link>
+              <Link to="/orientacion-privada">Recibir orientación <span aria-hidden="true">→</span></Link>
             </article>
           </section>
 

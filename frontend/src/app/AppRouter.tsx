@@ -29,7 +29,7 @@ export function AppRouter() {
               <Route path="/inicio" element={<HomePage />} />
               <Route path="/panel" element={<DashboardPage />} />
               <Route path="/evaluacion" element={<DiagnosticPage />} />
-              <Route path="/revision-texto" element={<TextReviewPage />} />
+              <Route path="/orientacion-privada" element={<TextReviewPage />} />
               <Route path="/curso" element={<CoursePage />} />
               <Route path="/recursos" element={<ResourcesPage />} />
               <Route path="/evaluar-plataforma" element={<ProductFeedbackPage />} />

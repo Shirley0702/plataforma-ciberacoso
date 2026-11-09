@@ -65,7 +65,7 @@ describe('TextReviewPage', () => {
     renderPage()
     const description = 'Comparten capturas para burlarse y continúan aunque se pidió que se detuvieran.'
 
-    await user.type(screen.getByLabelText('Situación a Revisar'), description)
+    await user.type(screen.getByLabelText('Describe la Situación'), description)
     await user.click(screen.getByRole('button', { name: 'Obtener Orientación' }))
 
     await waitFor(() => {

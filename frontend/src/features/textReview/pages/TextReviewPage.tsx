@@ -53,9 +53,9 @@ export function TextReviewPage() {
     <div className="page-wrap text-review-page">
       <header className="page-header text-review-header">
         <div>
-          <span className="eyebrow">Orientación Personalizada</span>
-          <h1>Revisa una Situación Escrita</h1>
-          <p>Describe lo ocurrido con tus propias palabras. Recibirás una orientación inicial y opciones para continuar.</p>
+          <span className="eyebrow">Orientación Privada</span>
+          <h1>Cuéntanos una Situación</h1>
+          <p>Si lo deseas, describe lo ocurrido con tus propias palabras. Recibirás una orientación inicial y opciones para continuar.</p>
         </div>
         <button className="quick-exit-button" type="button" onClick={quickExit}>× Salir Rápido (Esc)</button>
       </header>
@@ -79,7 +79,7 @@ export function TextReviewPage() {
           <p>Incluye el contexto y si la situación ocurrió más de una vez, sin identificar a las personas.</p>
         </div>
         <form onSubmit={(event) => void submit(event)}>
-          <label className="form-label" htmlFor="situation-text">Situación a Revisar</label>
+          <label className="form-label" htmlFor="situation-text">Describe la Situación</label>
           <textarea
             id="situation-text"
             className="form-control text-review-input"
@@ -94,7 +94,7 @@ export function TextReviewPage() {
           <div className="text-review-form-footer">
             <span aria-live="polite">{text.length} de {MAX_LENGTH} caracteres</span>
             <button className="btn btn-primary btn-lg" type="submit" disabled={submitting || text.trim().length < 20}>
-              {submitting ? 'Revisando de Forma Segura…' : 'Obtener Orientación'}
+              {submitting ? 'Preparando tu Orientación…' : 'Obtener Orientación'}
             </button>
           </div>
         </form>

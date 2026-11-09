@@ -14,7 +14,7 @@ La interfaz se desarrolla tomando WCAG 2.2 nivel AA como referencia. Las comprob
 - controles operables con teclado, incluidos el menú y la visualización temporal de contraseña;
 - alternativa de movimiento reducido mediante `prefers-reduced-motion`;
 - diseño adaptable para pantallas pequeñas y contenido con zoom;
-- auditorías automáticas con `axe` sobre acceso, registro, navegación autenticada, evaluación, recursos y revisión de texto, sin excluir la regla de contraste.
+- auditorías automáticas con `axe` sobre acceso, registro, navegación autenticada, evaluación, recursos y orientación privada, sin excluir la regla de contraste.
 
 ## Protocolo manual antes de cada liberación
 

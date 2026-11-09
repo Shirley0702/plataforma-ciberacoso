@@ -5,7 +5,7 @@ import { useAuth } from '../../features/auth/context/AuthContext'
 const links = [
   { to: '/inicio', icon: '⌂', label: 'Inicio' },
   { to: '/evaluacion', icon: '✓', label: 'Evaluación' },
-  { to: '/revision-texto', icon: '◫', label: 'Revisión de Texto' },
+  { to: '/orientacion-privada', icon: '◫', label: 'Orientación Privada' },
   { to: '/panel', icon: '◇', label: 'Panel personalizado' },
   { to: '/curso', icon: '▤', label: 'Curso' },
   { to: '/recursos', icon: '+', label: 'Recursos' },
@@ -15,7 +15,7 @@ const links = [
 const pageTitles: Record<string, string> = {
   '/inicio': 'Inicio',
   '/evaluacion': 'Evaluación',
-  '/revision-texto': 'Revisión de Texto',
+  '/orientacion-privada': 'Orientación Privada',
   '/panel': 'Panel Personalizado',
   '/curso': 'Curso',
   '/recursos': 'Recursos',
