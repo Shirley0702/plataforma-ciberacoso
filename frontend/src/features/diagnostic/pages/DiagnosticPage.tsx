@@ -87,8 +87,8 @@ export function DiagnosticPage() {
       <header className="page-header scenario-header">
         <div>
           <span className="eyebrow">Situaciones Cotidianas</span>
-          <h1>¿Qué harías o qué ocurre en esta situación?</h1>
-          <p>Lee cada situación con calma y elige la alternativa que más se acerque a tu experiencia. Puedes avanzar a tu ritmo.</p>
+          <h1>¿Qué suele pasar en estas situaciones?</h1>
+          <p>Elige la opción que más se parece a lo que has visto o vivido en la universidad. No hay respuestas correctas o incorrectas.</p>
         </div>
         <div className="progress-summary" aria-label={`Escenario ${questions.length ? currentIndex + 1 : 0} de ${questions.length}`}>
           <strong>{questions.length ? currentIndex + 1 : 0} de {questions.length}</strong>

@@ -1,8 +1,11 @@
+from collections import Counter
+
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from apps.courses.models import CourseUnit
+from initial_data.catalog.diagnostic_scenarios import DIAGNOSTIC_SCENARIOS
 
 from .models import DiagnosticOption, DiagnosticQuestion, DiagnosticResult
 
@@ -144,3 +147,27 @@ class DiagnosticTests(APITestCase):
         self.assertNotIn("primary_unit", response.data[0])
         self.assertNotIn("weight", response.data[0]["options"][0])
         self.assertNotIn("destination_unit", response.data[0]["options"][0])
+
+
+class DiagnosticCatalogTests(APITestCase):
+    def test_catalog_balances_dimensions_and_ordinal_values(self):
+        scenarios_per_dimension = Counter(
+            scenario["unit_slug"] for scenario in DIAGNOSTIC_SCENARIOS
+        )
+
+        self.assertEqual(len(DIAGNOSTIC_SCENARIOS), 16)
+        self.assertEqual(set(scenarios_per_dimension.values()), {4})
+        for scenario in DIAGNOSTIC_SCENARIOS:
+            self.assertEqual(len(scenario["options"]), 4)
+            self.assertEqual(
+                {weight for _, weight in scenario["options"]},
+                {0, 1, 2, 3},
+            )
+
+    def test_catalog_does_not_repeat_the_same_weight_order(self):
+        weight_orders = {
+            tuple(weight for _, weight in scenario["options"])
+            for scenario in DIAGNOSTIC_SCENARIOS
+        }
+
+        self.assertGreater(len(weight_orders), 4)
