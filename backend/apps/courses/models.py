@@ -18,16 +18,25 @@ class CourseUnit(models.Model):
 
 
 class Lesson(models.Model):
-    KINDS = [("lesson", "Lección"), ("activity", "Actividad interactiva")]
+    class InteractionType(models.TextChoices):
+        GUIDED = "guided", "Exploración guiada"
+        DECISION = "decision", "Decisión con retroalimentación"
+        CHECKLIST = "checklist", "Lista interactiva"
+        PRACTICE = "practice", "Práctica de respuesta"
+        SAFETY_PLAN = "safety_plan", "Plan personal de seguridad"
 
     unit = models.ForeignKey(CourseUnit, on_delete=models.CASCADE, related_name="lessons")
     title = models.CharField(max_length=160)
     summary = models.CharField(max_length=260)
     content = models.TextField()
-    kind = models.CharField(max_length=20, choices=KINDS, default="lesson")
+    interaction_type = models.CharField(
+        max_length=30,
+        choices=InteractionType.choices,
+        default=InteractionType.GUIDED,
+    )
     duration_minutes = models.PositiveIntegerField(default=5)
-    activity_prompt = models.TextField(blank=True)
-    activity_options = models.JSONField(default=list, blank=True)
+    interaction_prompt = models.TextField(blank=True)
+    interaction_config = models.JSONField(default=dict, blank=True)
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -44,7 +53,7 @@ class CourseProgress(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="progress")
     completed = models.BooleanField(default=False)
     completed_at = models.DateTimeField(null=True, blank=True)
-    activity_response = models.CharField(max_length=260, blank=True)
+    interaction_response = models.JSONField(default=dict, blank=True)
 
     class Meta:
         constraints = [

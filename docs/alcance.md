@@ -17,7 +17,7 @@ Los jóvenes pueden experimentar o presenciar conductas de hostigamiento digital
 - Perfil multidimensional con escala ordinal uniforme, conservación de empates y dos niveles de prioridad.
 - Ruta preventiva general cuando todas las respuestas son neutrales.
 - Panel personal con las unidades educativas recomendadas.
-- Curso filtrado a todas las unidades priorizadas, con lecciones, actividad interactiva y avance registrado por unidad.
+- Curso filtrado a todas las unidades priorizadas, con cinco experiencias interactivas distintas, retroalimentación, plan seguro sin texto libre y avance registrado por unidad.
 - Cuestionario final obligatorio y certificado del módulo al alcanzar al menos 80 %.
 - Recursos oficiales de orientación.
 - Administración mediante Django Admin.

@@ -74,6 +74,18 @@ test('protege el sistema y completa el recorrido diagnóstico personalizado', as
   await page.getByRole('link', { name: 'Comenzar mi curso personalizado' }).click()
   await expect(page).toHaveURL(/\/curso$/)
   await expect(page.getByRole('region', { name: 'Resumen del curso' })).toBeVisible()
+  await expect(page.getByText(/Exploración guiada/).first()).toBeVisible()
+  await expect(page.getByText(/Decisión con consecuencias/).first()).toBeVisible()
+  await expect(page.getByText(/Plan personal seguro/).first()).toBeVisible()
+  await expect(page.getByText(/Las actividades no solicitan nombres ni relatos personales/)).toBeVisible()
+  const firstExperience = page.locator('.lesson-card').first()
+  const experienceToggle = firstExperience.locator('.lesson-toggle')
+  if (await experienceToggle.getAttribute('aria-expanded') === 'false') {
+    await experienceToggle.click()
+  }
+  await expect(firstExperience.locator('.guided-card')).toHaveCount(3)
+  await firstExperience.locator('.guided-card').first().click()
+  await expect(firstExperience.locator('.guided-card').first()).toHaveAttribute('aria-expanded', 'true')
   await expect(page.getByRole('link', { name: 'Evaluar la plataforma' })).toHaveCount(0)
   await expectAccessible(page)
 

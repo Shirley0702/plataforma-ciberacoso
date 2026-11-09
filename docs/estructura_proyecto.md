@@ -61,7 +61,9 @@ La funcionalidad del curso se divide además en:
 
 - `pages/CoursePage.tsx`: composición visual de la pantalla.
 - `hooks/useCourse.ts`: estado, carga y acciones del curso.
-- `components/LearningItemCard.tsx`: lección o actividad interactiva.
+- `components/LearningItemCard.tsx`: estructura y estado visual de cada experiencia.
+- `components/interactions/`: exploración guiada, decisiones, prácticas, listas y planes seguros.
+- `components/CourseSafetyBanner.tsx`: privacidad, recursos y salida rápida durante el recorrido.
 - `components/ModuleAssessment.tsx`: cuestionario, resultado y certificado.
 
 ## Flujo principal

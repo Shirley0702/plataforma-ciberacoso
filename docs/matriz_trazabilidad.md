@@ -11,7 +11,7 @@ Esta matriz relaciona los requisitos con su implementación actual, la evidencia
 | RF-03 | Construir perfil multidimensional y conservar empates | `SubmitDiagnosticView`, `DiagnosticResult.profile` y versión `multidimensional-profile-v2` | Dos niveles positivos, empates con igual prioridad y ruta preventiva neutral | 4–5 | Implementado y probado; validación de campo pendiente |
 | RF-04 | Dashboard y curso personalizados | `DashboardView`, `CourseUnitListView` y páginas React | Se muestran todas las unidades recomendadas en orden de prioridad | 5–7 | Implementado y probado |
 | RF-05 | Progreso limitado a las unidades recomendadas | `CompleteLessonView` | Aceptación de unidades secundarias recomendadas y rechazo de módulos ajenos | 6–7 | Implementado y probado |
-| RF-06 | Completar actividad y cuestionario del módulo | `CompleteLessonView`, `SubmitModuleQuizView` y `CoursePage` | Bloqueo previo, respuesta válida, cálculo de puntuación e intentos | 6–7 | Implementado y probado |
+| RF-06 | Completar experiencias y cuestionario del módulo | `CompleteLessonView`, componentes `interactions`, `SubmitModuleQuizView` y `CoursePage` | Cinco dinámicas por unidad, respuesta validada, privacidad, cálculo de puntuación e intentos | 6–7 | Implementado y probado |
 | RF-07 | Obtener certificado con 80 % o más | `Certificate`, descarga PDF y verificación pública | Aprobación al 80 %, PDF autenticado y código verificable | 7 | Implementado y probado |
 | RF-08 | Recursos de orientación | `apps.resources` | Enlaces, teléfonos y vigencia revisados | 12 | Implementado; requiere revisión periódica externa |
 | RF-09 | Administración de contenidos | Django Admin | Permisos, auditoría y reversibilidad | 9–12 | Implementado para contenidos y evidencia de calidad |
@@ -28,7 +28,8 @@ Esta matriz relaciona los requisitos con su implementación actual, la evidencia
 
 ## Cobertura de la línea base
 
-- Backend: 50 pruebas automatizadas en PostgreSQL para autenticación, roles, perfil orientativo, personalización, curso, certificación, clasificación de texto, validación del producto y salud operativa.
+- Backend: 56 pruebas automatizadas en PostgreSQL para autenticación, roles, perfil orientativo, personalización, curso dinámico, privacidad, certificación, clasificación de texto, validación del producto y salud operativa.
+- Frontend: 14 pruebas de componentes y accesibilidad, incluidas las experiencias interactivas del curso.
 - Frontend: 11 pruebas de componentes y accesibilidad, compilación TypeScript de producción y 3 recorridos E2E completos con Chromium (escritorio, móvil y modo oscuro), incluida auditoría WCAG en navegador real.
 - Datos: migraciones iniciales disponibles para todos los módulos.
 - Operación: Docker Compose levanta PostgreSQL, backend y frontend con comprobaciones de salud; GitHub Actions ejecuta CI/E2E, publica imágenes y verifica respaldo/restauración en una base temporal.

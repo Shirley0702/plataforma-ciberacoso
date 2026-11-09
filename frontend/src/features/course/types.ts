@@ -1,12 +1,52 @@
+export type InteractionType =
+  | 'guided'
+  | 'decision'
+  | 'checklist'
+  | 'practice'
+  | 'safety_plan'
+
+export interface InteractionCard {
+  title: string
+  body: string
+}
+
+export interface InteractionOption {
+  id: string
+  label: string
+  feedback: string
+  recommended?: boolean
+}
+
+export interface InteractionItem {
+  id: string
+  label: string
+  detail: string
+}
+
+export interface InteractionConfig {
+  cards?: InteractionCard[]
+  options?: InteractionOption[]
+  items?: InteractionItem[]
+  completion_message?: string
+  completion_feedback?: string
+  privacy_note?: string
+}
+
+export interface InteractionResponse {
+  selected_option?: string
+  selected_items?: string[]
+}
+
 export interface LearningItem {
   id: number
   title: string
   summary: string
   content: string
-  kind: 'lesson' | 'activity'
+  interaction_type: InteractionType
   duration_minutes: number
-  activity_prompt: string
-  activity_options: { id: string; label: string; feedback: string }[]
+  interaction_prompt: string
+  interaction_config: InteractionConfig
+  interaction_response: InteractionResponse
   completed: boolean
 }
 

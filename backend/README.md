@@ -40,7 +40,7 @@ necesario para que los imports sean predecibles.
 ```text
 apps/courses/use_cases/
 |-- course_assignment.py     Obtiene la ruta asignada y su estado
-|-- lesson_progress.py       Completa lecciones y actividades
+|-- lesson_progress.py       Valida y completa experiencias interactivas
 `-- module_quiz.py           Califica y emite el certificado
 
 apps/diagnostics/use_cases/

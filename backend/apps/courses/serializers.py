@@ -12,7 +12,7 @@ from .models import (
 
 class LessonSerializer(serializers.ModelSerializer):
     completed = serializers.SerializerMethodField()
-    activity_response = serializers.SerializerMethodField()
+    interaction_response = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
@@ -21,20 +21,20 @@ class LessonSerializer(serializers.ModelSerializer):
             "title",
             "summary",
             "content",
-            "kind",
+            "interaction_type",
             "duration_minutes",
-            "activity_prompt",
-            "activity_options",
+            "interaction_prompt",
+            "interaction_config",
             "order",
             "completed",
-            "activity_response",
+            "interaction_response",
         )
 
     def get_completed(self, obj):
         return obj.id in self.context.get("completed_ids", set())
 
-    def get_activity_response(self, obj):
-        return self.context.get("activity_responses", {}).get(obj.id, "")
+    def get_interaction_response(self, obj):
+        return self.context.get("interaction_responses", {}).get(obj.id, {})
 
 
 class ModuleQuizOptionSerializer(serializers.ModelSerializer):

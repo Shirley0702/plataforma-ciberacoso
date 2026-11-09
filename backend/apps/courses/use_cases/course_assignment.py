@@ -61,9 +61,9 @@ def build_course_context(user, units):
         "completed_ids": set(
             progress.filter(completed=True).values_list("lesson_id", flat=True)
         ),
-        "activity_responses": dict(
-            progress.exclude(activity_response="").values_list(
-                "lesson_id", "activity_response"
+        "interaction_responses": dict(
+            progress.exclude(interaction_response={}).values_list(
+                "lesson_id", "interaction_response"
             )
         ),
         "latest_quizzes": {

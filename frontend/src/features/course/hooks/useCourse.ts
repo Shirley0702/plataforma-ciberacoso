@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api, getErrorMessage } from '../../../shared/api/httpClient'
-import type { CourseUnit, LearningItem, QuizResult } from '../types'
+import type {
+  CourseUnit,
+  InteractionResponse,
+  LearningItem,
+  QuizResult,
+} from '../types'
 
 export function useCourse() {
   const [units, setUnits] = useState<CourseUnit[]>([])
   const [openLessonId, setOpenLessonId] = useState<number | null>(null)
-  const [activityChoices, setActivityChoices] = useState<Record<number, string>>({})
-  const [activityFeedback, setActivityFeedback] = useState<Record<number, string>>({})
+  const [interactionResponses, setInteractionResponses] = useState<
+    Record<number, InteractionResponse>
+  >({})
+  const [interactionFeedback, setInteractionFeedback] = useState<Record<number, string>>({})
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({})
   const [quizResults, setQuizResults] = useState<Record<number, QuizResult | null>>({})
   const [error, setError] = useState('')
@@ -20,6 +27,13 @@ export function useCourse() {
       setQuizResults(Object.fromEntries(
         data.map((unit) => [unit.id, unit.latest_quiz]),
       ))
+      const storedResponses = Object.fromEntries(
+        data.flatMap((unit) => unit.lessons).map((lesson) => [
+          lesson.id,
+          lesson.interaction_response ?? {},
+        ]),
+      )
+      setInteractionResponses((current) => ({ ...storedResponses, ...current }))
       setOpenLessonId((current) => (
         current
         ?? data.flatMap((unit) => unit.lessons).find((lesson) => !lesson.completed)?.id
@@ -42,24 +56,27 @@ export function useCourse() {
     return { completed, total: lessons.length, percentage }
   }, [units])
 
+  const setInteractionResponse = (lessonId: number, response: InteractionResponse) => {
+    setInteractionResponses((current) => ({ ...current, [lessonId]: response }))
+  }
+
   const updateCompletion = async (lesson: LearningItem, completed: boolean) => {
     setSavingLessonId(lesson.id)
     setError('')
     try {
-      const payload: { completed: boolean; activity_choice?: string } = { completed }
-      if (lesson.kind === 'activity' && completed) {
-        payload.activity_choice = activityChoices[lesson.id]
+      const payload = {
+        completed,
+        interaction_response: completed ? interactionResponses[lesson.id] ?? {} : {},
       }
       const { data } = await api.post<{ feedback?: string }>(
         `/courses/lessons/${lesson.id}/complete/`,
         payload,
       )
-      if (data.feedback) {
-        setActivityFeedback((current) => ({
-          ...current,
-          [lesson.id]: data.feedback ?? '',
-        }))
-      }
+      setInteractionFeedback((current) => ({
+        ...current,
+        [lesson.id]: data.feedback ?? '',
+      }))
+      if (!completed) setInteractionResponse(lesson.id, {})
       await loadCourse()
     } catch (requestError) {
       setError(getErrorMessage(requestError))
@@ -119,9 +136,9 @@ export function useCourse() {
     error,
     openLessonId,
     setOpenLessonId,
-    activityChoices,
-    setActivityChoices,
-    activityFeedback,
+    interactionResponses,
+    setInteractionResponse,
+    interactionFeedback,
     quizAnswers,
     setQuizAnswers,
     quizResults,
