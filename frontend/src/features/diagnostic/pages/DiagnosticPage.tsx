@@ -98,7 +98,7 @@ export function DiagnosticPage() {
 
       <div className="privacy-banner" role="note">
         <span className="privacy-icon" aria-hidden="true">i</span>
-        <p><strong>Tu espacio es privado.</strong> Tus respuestas se utilizan únicamente para organizar tu recorrido de aprendizaje.</p>
+        <p><strong>Tu espacio es privado.</strong> Tus respuestas organizan un recorrido educativo; el resultado es orientativo y no constituye un diagnóstico profesional.</p>
       </div>
 
       {error && <div className="alert alert-danger" role="alert">{error}</div>}

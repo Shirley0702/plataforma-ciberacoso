@@ -13,10 +13,11 @@ Los jóvenes pueden experimentar o presenciar conductas de hostigamiento digital
 
 - Registro, inicio y cierre de sesión de participantes con JWT.
 - Acceso separado de la cuenta `admin` mediante Django Admin.
-- Evaluación diagnóstica de ocho escenarios universitarios.
-- Algoritmo de filtrado que suma pesos por módulo y prioriza la mayor puntuación.
-- Panel personal con la ruta educativa asignada.
-- Curso filtrado al módulo sugerido con cuatro lecciones, una actividad interactiva y avance registrado.
+- Evaluación orientativa de 16 escenarios universitarios, con cuatro escenarios por dimensión.
+- Perfil multidimensional con escala ordinal uniforme, conservación de empates y dos niveles de prioridad.
+- Ruta preventiva general cuando todas las respuestas son neutrales.
+- Panel personal con las unidades educativas recomendadas.
+- Curso filtrado a todas las unidades priorizadas, con lecciones, actividad interactiva y avance registrado por unidad.
 - Cuestionario final obligatorio y certificado del módulo al alcanzar al menos 80 %.
 - Recursos oficiales de orientación.
 - Administración mediante Django Admin.
@@ -27,4 +28,4 @@ Chat en tiempo real, aplicación móvil nativa, lectura directa de redes sociale
 
 ## Criterio de éxito
 
-Una persona puede registrarse como participante, completar la evaluación por escenarios, recibir un módulo priorizado, terminar sus microcontenidos, aprobar el cuestionario con al menos 80 %, descargar un certificado verificable, consultar orientación y cerrar sesión. `demo` permite probar ese mismo recorrido. La cuenta `admin` puede actualizar los contenidos desde un panel protegido, pero no puede utilizar las API educativas.
+Una persona puede registrarse como participante, completar la evaluación por escenarios, recibir un perfil orientativo y sus unidades priorizadas, terminar los microcontenidos, aprobar cada cuestionario con al menos 80 %, descargar certificados verificables, consultar orientación y cerrar sesión. `demo` permite probar ese mismo recorrido. La cuenta `admin` puede actualizar los contenidos desde un panel protegido, pero no puede utilizar las API educativas.

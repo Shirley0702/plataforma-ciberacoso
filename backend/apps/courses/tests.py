@@ -19,11 +19,23 @@ class CourseProgressTests(APITestCase):
         self.other_unit = CourseUnit.objects.create(
             title="Otra ruta", slug="otra-ruta", description="Otra", order=2
         )
+        self.unassigned_unit = CourseUnit.objects.create(
+            title="Ruta no asignada",
+            slug="ruta-no-asignada",
+            description="No asignada",
+            order=3,
+        )
         self.lesson = Lesson.objects.create(
             unit=self.assigned_unit, title="Lección", summary="Resumen", content="Contenido"
         )
         self.other_lesson = Lesson.objects.create(
             unit=self.other_unit,
+            title="Segunda lección asignada",
+            summary="Resumen",
+            content="Contenido",
+        )
+        self.unassigned_lesson = Lesson.objects.create(
+            unit=self.unassigned_unit,
             title="Lección ajena",
             summary="Resumen",
             content="Contenido",
@@ -36,6 +48,14 @@ class CourseProgressTests(APITestCase):
             suggested_unit=self.assigned_unit,
             maximum_score=10,
             scores={str(self.assigned_unit.id): 10},
+            profile={
+                "recommended_unit_ids": [self.assigned_unit.id, self.other_unit.id],
+                "route_type": "prioritized",
+                "dimensions": [
+                    {"unit_id": self.assigned_unit.id, "priority": 1},
+                    {"unit_id": self.other_unit.id, "priority": 2},
+                ],
+            },
         )
         self.quiz_questions = []
         for order in range(1, 6):
@@ -50,19 +70,29 @@ class CourseProgressTests(APITestCase):
             )
             self.quiz_questions.append((question, correct, wrong))
 
-    def test_course_only_returns_the_assigned_module(self):
+    def test_course_returns_all_prioritized_modules_in_profile_order(self):
         response = self.client.get("/api/courses/units/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual([unit["id"] for unit in response.data], [self.assigned_unit.id])
+        self.assertEqual(
+            [unit["id"] for unit in response.data],
+            [self.assigned_unit.id, self.other_unit.id],
+        )
+        self.assertEqual([unit["priority"] for unit in response.data], [1, 2])
 
     def test_complete_lesson(self):
         response = self.client.post(f"/api/courses/lessons/{self.lesson.id}/complete/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["progress"], 100)
 
-    def test_cannot_complete_a_lesson_outside_assigned_module(self):
+    def test_can_complete_a_lesson_in_a_secondary_prioritized_module(self):
         response = self.client.post(
             f"/api/courses/lessons/{self.other_lesson.id}/complete/"
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_cannot_complete_a_lesson_outside_prioritized_modules(self):
+        response = self.client.post(
+            f"/api/courses/lessons/{self.unassigned_lesson.id}/complete/"
         )
         self.assertEqual(response.status_code, 404)
 
@@ -97,7 +127,11 @@ class CourseProgressTests(APITestCase):
         self.assertEqual(valid.data["feedback"], "Bien")
 
     def test_quiz_is_locked_until_learning_items_are_complete(self):
-        response = self.client.post("/api/courses/quiz/submit/", {"answers": []}, format="json")
+        response = self.client.post(
+            "/api/courses/quiz/submit/",
+            {"unit_id": self.assigned_unit.id, "answers": []},
+            format="json",
+        )
         self.assertEqual(response.status_code, 403)
 
     def test_passing_quiz_generates_verifiable_pdf_certificate(self):
@@ -111,7 +145,9 @@ class CourseProgressTests(APITestCase):
                 }
             )
         response = self.client.post(
-            "/api/courses/quiz/submit/", {"answers": answers}, format="json"
+            "/api/courses/quiz/submit/",
+            {"unit_id": self.assigned_unit.id, "answers": answers},
+            format="json",
         )
         self.assertEqual(response.status_code, 201)
         self.assertTrue(response.data["passed"])

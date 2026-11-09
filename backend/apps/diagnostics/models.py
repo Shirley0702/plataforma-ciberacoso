@@ -74,13 +74,16 @@ class DiagnosticResult(models.Model):
         DiagnosticAttempt, on_delete=models.CASCADE, related_name="result"
     )
     scores = models.JSONField(default=dict)
+    profile = models.JSONField(default=dict)
     suggested_unit = models.ForeignKey(
         "courses.CourseUnit",
         on_delete=models.PROTECT,
         related_name="diagnostic_results",
     )
     maximum_score = models.PositiveIntegerField(default=0)
-    scoring_version = models.CharField(max_length=40, default="weighted-scores-v1")
+    scoring_version = models.CharField(
+        max_length=40, default="multidimensional-profile-v2"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

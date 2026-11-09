@@ -14,6 +14,7 @@ from .use_cases import (
     PASSING_SCORE_PERCENT,
     build_course_context,
     require_assigned_unit,
+    require_assigned_units,
     submit_module_quiz,
     update_lesson_progress,
 )
@@ -23,11 +24,15 @@ class CourseUnitListView(APIView):
     permission_classes = [IsLearningParticipant]
 
     def get(self, request):
-        unit = require_assigned_unit(request.user)
-        units = CourseUnit.objects.filter(active=True, id=unit.id).prefetch_related(
-            "lessons", "quiz_questions__options"
+        assigned_units = require_assigned_units(request.user)
+        unit_ids = [unit.id for unit in assigned_units]
+        units_by_id = (
+            CourseUnit.objects.filter(active=True, id__in=unit_ids)
+            .prefetch_related("lessons", "quiz_questions__options")
+            .in_bulk()
         )
-        context = build_course_context(request.user, unit)
+        units = [units_by_id[unit_id] for unit_id in unit_ids if unit_id in units_by_id]
+        context = build_course_context(request.user, units)
         return Response(CourseUnitSerializer(units, many=True, context=context).data)
 
 
@@ -35,12 +40,12 @@ class CompleteLessonView(APIView):
     permission_classes = [IsLearningParticipant]
 
     def post(self, request, lesson_id):
-        unit = require_assigned_unit(request.user)
+        assigned_units = require_assigned_units(request.user)
         lesson = get_object_or_404(
             Lesson,
             id=lesson_id,
             unit__active=True,
-            unit_id=unit.id,
+            unit_id__in=[unit.id for unit in assigned_units],
         )
         completed = request.data.get("completed", True)
         if not isinstance(completed, bool):
@@ -61,7 +66,14 @@ class SubmitModuleQuizView(APIView):
     permission_classes = [IsLearningParticipant]
 
     def post(self, request):
-        unit = require_assigned_unit(request.user)
+        try:
+            unit_id = int(request.data.get("unit_id"))
+        except (TypeError, ValueError):
+            return Response(
+                {"unit_id": ["Selecciona un módulo válido."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        unit = require_assigned_unit(request.user, unit_id)
         attempt, certificate = submit_module_quiz(
             request.user,
             unit,

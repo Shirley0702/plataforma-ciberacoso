@@ -18,6 +18,9 @@ export function DashboardPage() {
 
   if (!data && !error) return <LoadingScreen label="Preparando tu panel…" />
   if (data && !data.diagnostic) return <Navigate to="/inicio" replace />
+  const mainPriorities = data?.diagnostic?.recommended_units.filter(
+    (unit) => unit.priority === 1,
+  ) ?? []
 
   return (
     <div className="page-wrap">
@@ -38,10 +41,16 @@ export function DashboardPage() {
             <div className="hero-copy">
               <span className="status-pill">Siguiente paso recomendado</span>
               <h2 id="next-step-title">
-                Tu ruta recomendada: {data.diagnostic?.suggested_unit.title}
+                {data.diagnostic?.route_type === 'preventive_general'
+                  ? 'Tu ruta preventiva está lista'
+                  : mainPriorities.length > 1
+                    ? `Prioridades principales: ${mainPriorities.map((unit) => unit.title).join(' y ')}`
+                    : `Primera prioridad: ${data.diagnostic?.suggested_unit.title}`}
               </h2>
               <p>
-                {data.diagnostic?.suggested_unit.description}
+                {data.diagnostic?.route_type === 'preventive_general'
+                  ? 'Tus respuestas orientan a un recorrido general de convivencia, límites y autocuidado.'
+                  : `Tu recorrido incluye ${data.diagnostic?.recommended_units.length} ${data.diagnostic?.recommended_units.length === 1 ? 'unidad priorizada' : 'unidades priorizadas'} sin descartar resultados empatados.`}
               </p>
               <Link className="btn btn-primary" to="/curso">Comenzar mi curso personalizado</Link>
             </div>
@@ -55,8 +64,10 @@ export function DashboardPage() {
 
           <section className="metric-grid" aria-label="Resumen de actividad">
             <article className="metric-card">
-              <div className="metric-label"><span className="metric-icon accent">✓</span> Ruta asignada</div>
-              <strong>{data.diagnostic?.suggested_unit.title}</strong>
+              <div className="metric-label"><span className="metric-icon accent">✓</span> Ruta orientativa</div>
+              <strong>
+                {data.diagnostic?.recommended_units.map((unit) => unit.title).join(' · ')}
+              </strong>
               <p>Evaluación procesada el {data.diagnostic && dateFormatter.format(new Date(data.diagnostic.created_at))}.</p>
               <Link to="/evaluacion">Volver a realizar el test <span aria-hidden="true">→</span></Link>
             </article>

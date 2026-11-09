@@ -52,37 +52,70 @@ class DiagnosticSubmissionSerializer(serializers.Serializer):
 
 class DiagnosticResultSerializer(serializers.ModelSerializer):
     suggested_unit = serializers.SerializerMethodField()
-    module_scores = serializers.SerializerMethodField()
+    recommended_units = serializers.SerializerMethodField()
+    dimension_profile = serializers.SerializerMethodField()
+    route_type = serializers.CharField(source="profile.route_type", read_only=True)
+    validation_status = serializers.CharField(
+        source="profile.validation_status", read_only=True
+    )
 
     class Meta:
         model = DiagnosticResult
         fields = (
             "id",
             "suggested_unit",
+            "recommended_units",
             "maximum_score",
-            "module_scores",
+            "dimension_profile",
+            "route_type",
+            "validation_status",
             "created_at",
         )
 
     def get_suggested_unit(self, obj):
-        unit = obj.suggested_unit
-        return {
+        return self._unit_summary(obj.suggested_unit)
+
+    def get_recommended_units(self, obj):
+        unit_ids = obj.profile.get("recommended_unit_ids") or [obj.suggested_unit_id]
+        units = self._units_by_id(unit_ids)
+        priorities = {
+            dimension["unit_id"]: dimension.get("priority")
+            for dimension in obj.profile.get("dimensions", [])
+        }
+        return [
+            self._unit_summary(units[unit_id], priorities.get(unit_id) or 1)
+            for unit_id in unit_ids
+            if unit_id in units
+        ]
+
+    def get_dimension_profile(self, obj):
+        dimensions = obj.profile.get("dimensions", [])
+        units = self._units_by_id(
+            [dimension.get("unit_id") for dimension in dimensions]
+        )
+        return [
+            {
+                **dimension,
+                "title": units[dimension["unit_id"]].title,
+            }
+            for dimension in dimensions
+            if dimension.get("unit_id") in units
+        ]
+
+    @staticmethod
+    def _unit_summary(unit, priority=None):
+        summary = {
             "id": unit.id,
             "title": unit.title,
             "slug": unit.slug,
             "description": unit.description,
         }
+        if priority is not None:
+            summary["priority"] = priority
+        return summary
 
-    def get_module_scores(self, obj):
+    @staticmethod
+    def _units_by_id(unit_ids):
         from apps.courses.models import CourseUnit
 
-        units = CourseUnit.objects.filter(id__in=obj.scores.keys()).in_bulk()
-        return [
-            {
-                "unit_id": unit_id,
-                "title": units[int(unit_id)].title,
-                "score": score,
-            }
-            for unit_id, score in obj.scores.items()
-            if int(unit_id) in units
-        ]
+        return CourseUnit.objects.filter(id__in=unit_ids).in_bulk()

@@ -7,10 +7,10 @@ Esta matriz relaciona los requisitos con su implementación actual, la evidencia
 | ID | Resultado esperado | Implementación actual | Evidencia mínima | Semana de cierre | Estado de línea base |
 |---|---|---|---|---:|---|
 | RF-01 | Registro universitario verificado y acceso separado de `admin` | `apps.users`, catálogo internacional de dominios universitarios, código temporal, permisos por rol, JWT y Django Admin | Aceptación de distintos dominios universitarios, rechazo de correos personales y claves débiles, activación por código, login participante y rechazo admin en API | 2 | Implementado y probado |
-| RF-02 | Completar ocho escenarios diagnósticos | `apps.diagnostics` y `DiagnosticPage` | Envío completo, incompleto y opciones válidas | 4–5 | Implementado y probado |
-| RF-03 | Priorizar módulo por suma de pesos | `SubmitDiagnosticView` y `DiagnosticResult` | Mayor puntuación y salida neutral preventiva | 4–5 | Implementado y probado |
-| RF-04 | Dashboard y curso personalizados | `DashboardView`, `CourseUnitListView` y páginas React | Solo se muestra el módulo asignado | 5–7 | Implementado y probado |
-| RF-05 | Progreso limitado a la ruta asignada | `CompleteLessonView` | Rechazo de lecciones pertenecientes a otros módulos | 6–7 | Implementado y probado |
+| RF-02 | Completar 16 escenarios orientativos, cuatro por dimensión | `apps.diagnostics`, catálogo declarativo y `DiagnosticPage` | Envío completo, incompleto, opciones válidas y ocultamiento de la escala | 4–5 | Implementado y probado |
+| RF-03 | Construir perfil multidimensional y conservar empates | `SubmitDiagnosticView`, `DiagnosticResult.profile` y versión `multidimensional-profile-v2` | Dos niveles positivos, empates con igual prioridad y ruta preventiva neutral | 4–5 | Implementado y probado; validación de campo pendiente |
+| RF-04 | Dashboard y curso personalizados | `DashboardView`, `CourseUnitListView` y páginas React | Se muestran todas las unidades recomendadas en orden de prioridad | 5–7 | Implementado y probado |
+| RF-05 | Progreso limitado a las unidades recomendadas | `CompleteLessonView` | Aceptación de unidades secundarias recomendadas y rechazo de módulos ajenos | 6–7 | Implementado y probado |
 | RF-06 | Completar actividad y cuestionario del módulo | `CompleteLessonView`, `SubmitModuleQuizView` y `CoursePage` | Bloqueo previo, respuesta válida, cálculo de puntuación e intentos | 6–7 | Implementado y probado |
 | RF-07 | Obtener certificado con 80 % o más | `Certificate`, descarga PDF y verificación pública | Aprobación al 80 %, PDF autenticado y código verificable | 7 | Implementado y probado |
 | RF-08 | Recursos de orientación | `apps.resources` | Enlaces, teléfonos y vigencia revisados | 12 | Implementado; requiere revisión periódica externa |
@@ -28,7 +28,7 @@ Esta matriz relaciona los requisitos con su implementación actual, la evidencia
 
 ## Cobertura de la línea base
 
-- Backend: 49 pruebas automatizadas en PostgreSQL para autenticación, roles, diagnóstico, personalización, curso, certificación, clasificación de texto, validación del producto y salud operativa.
-- Frontend: 11 pruebas de componentes y accesibilidad, compilación TypeScript de producción y 2 recorridos E2E completos con Chromium (escritorio y móvil), incluida auditoría WCAG en navegador real.
+- Backend: 50 pruebas automatizadas en PostgreSQL para autenticación, roles, perfil orientativo, personalización, curso, certificación, clasificación de texto, validación del producto y salud operativa.
+- Frontend: 11 pruebas de componentes y accesibilidad, compilación TypeScript de producción y 3 recorridos E2E completos con Chromium (escritorio, móvil y modo oscuro), incluida auditoría WCAG en navegador real.
 - Datos: migraciones iniciales disponibles para todos los módulos.
 - Operación: Docker Compose levanta PostgreSQL, backend y frontend con comprobaciones de salud; GitHub Actions ejecuta CI/E2E, publica imágenes y verifica respaldo/restauración en una base temporal.

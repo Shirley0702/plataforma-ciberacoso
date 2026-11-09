@@ -8,16 +8,18 @@ export function useCourse() {
   const [activityChoices, setActivityChoices] = useState<Record<number, string>>({})
   const [activityFeedback, setActivityFeedback] = useState<Record<number, string>>({})
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({})
-  const [quizResult, setQuizResult] = useState<QuizResult | null>(null)
+  const [quizResults, setQuizResults] = useState<Record<number, QuizResult | null>>({})
   const [error, setError] = useState('')
   const [savingLessonId, setSavingLessonId] = useState<number | null>(null)
-  const [submittingQuiz, setSubmittingQuiz] = useState(false)
+  const [submittingUnitId, setSubmittingUnitId] = useState<number | null>(null)
 
   const loadCourse = useCallback(async () => {
     try {
       const { data } = await api.get<CourseUnit[]>('/courses/units/')
       setUnits(data)
-      setQuizResult(data[0]?.latest_quiz ?? null)
+      setQuizResults(Object.fromEntries(
+        data.map((unit) => [unit.id, unit.latest_quiz]),
+      ))
       setOpenLessonId((current) => (
         current
         ?? data.flatMap((unit) => unit.lessons).find((lesson) => !lesson.completed)?.id
@@ -67,26 +69,32 @@ export function useCourse() {
   }
 
   const submitQuiz = async (unit: CourseUnit) => {
-    if (Object.keys(quizAnswers).length !== unit.quiz_questions.length) {
+    const hasUnansweredQuestion = unit.quiz_questions.some(
+      (question) => !quizAnswers[question.id],
+    )
+    if (hasUnansweredQuestion) {
       setError('Responde todas las preguntas del cuestionario antes de enviarlo.')
       return
     }
-    setSubmittingQuiz(true)
+    setSubmittingUnitId(unit.id)
     setError('')
     try {
       const { data } = await api.post<QuizResult>('/courses/quiz/submit/', {
+        unit_id: unit.id,
         answers: unit.quiz_questions.map((question) => ({
           question_id: question.id,
           option_id: quizAnswers[question.id],
         })),
       })
-      setQuizResult(data)
+      setQuizResults((current) => ({ ...current, [unit.id]: data }))
       await loadCourse()
-      document.getElementById('resultado-cuestionario')?.scrollIntoView({ behavior: 'smooth' })
+      document.getElementById(`resultado-cuestionario-${unit.id}`)?.scrollIntoView({
+        behavior: 'smooth',
+      })
     } catch (requestError) {
       setError(getErrorMessage(requestError))
     } finally {
-      setSubmittingQuiz(false)
+      setSubmittingUnitId(null)
     }
   }
 
@@ -116,9 +124,9 @@ export function useCourse() {
     activityFeedback,
     quizAnswers,
     setQuizAnswers,
-    quizResult,
+    quizResults,
     savingLessonId,
-    submittingQuiz,
+    submittingUnitId,
     updateCompletion,
     submitQuiz,
     downloadCertificate,

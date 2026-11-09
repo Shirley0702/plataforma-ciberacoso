@@ -10,8 +10,8 @@ erDiagram
     DIAGNOSTIC_QUESTION ||--o{ DIAGNOSTIC_ANSWER : responde
     DIAGNOSTIC_OPTION ||--o{ DIAGNOSTIC_ANSWER : selecciona
     COURSE_UNIT ||--o{ DIAGNOSTIC_QUESTION : contextualiza
-    COURSE_UNIT ||--o{ DIAGNOSTIC_OPTION : recibe_peso
-    COURSE_UNIT ||--o{ DIAGNOSTIC_RESULT : es_sugerido
+    COURSE_UNIT ||--o{ DIAGNOSTIC_OPTION : recibe_valor_ordinal
+    COURSE_UNIT ||--o{ DIAGNOSTIC_RESULT : es_prioridad_principal
     COURSE_UNIT ||--o{ LESSON : contiene
     COURSE_UNIT ||--o{ MODULE_QUIZ_QUESTION : evalua
     MODULE_QUIZ_QUESTION ||--o{ MODULE_QUIZ_OPTION : ofrece
@@ -23,4 +23,4 @@ erDiagram
     COURSE_UNIT ||--o{ CERTIFICATE : acredita
 ```
 
-`DiagnosticOption.destination_unit` y `DiagnosticOption.weight` implementan el filtrado. `DiagnosticResult` conserva el módulo sugerido, la puntuación máxima y los totales por módulo. Cada módulo tiene cuatro lecciones y una actividad; `CourseProgress.activity_response` conserva la decisión tomada. El cuestionario final registra intentos y puntuación sin exponer las respuestas correctas. `Certificate` acredita una sola vez la combinación usuario-módulo, almacena un código público único y permite generar el PDF bajo demanda. Se reutiliza el usuario autenticado de Django en lugar de duplicar una tabla de credenciales. `OrientationResource` permanece como catálogo independiente.
+`DiagnosticOption.destination_unit` y `DiagnosticOption.weight` conservan la dimensión y el valor ordinal uniforme de cada alternativa. `DiagnosticResult.profile` guarda la versión del instrumento, las cuatro dimensiones, sus porcentajes, los niveles de prioridad, los empates y todas las unidades recomendadas; `suggested_unit` se mantiene como referencia a la primera unidad para compatibilidad. Cada módulo tiene cuatro lecciones y una actividad; `CourseProgress.activity_response` conserva la decisión tomada. El cuestionario final registra intentos y puntuación sin exponer las respuestas correctas. `Certificate` acredita una sola vez la combinación usuario-módulo, almacena un código público único y permite generar el PDF bajo demanda. Se reutiliza el usuario autenticado de Django en lugar de duplicar una tabla de credenciales. `OrientationResource` permanece como catálogo independiente.

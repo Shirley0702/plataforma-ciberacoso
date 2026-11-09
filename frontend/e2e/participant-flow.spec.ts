@@ -54,19 +54,21 @@ test('protege el sistema y completa el recorrido diagnóstico personalizado', as
 
   await followMainNavigation(page, 'Evaluación')
   await expect(page).toHaveURL(/\/evaluacion$/)
-  await expect(page.getByText('Escenario 1 de 8')).toBeVisible()
+  await expect(page.getByText('Escenario 1 de 16')).toBeVisible()
   await expectAccessible(page)
 
-  for (let scenario = 1; scenario <= 8; scenario += 1) {
+  for (let scenario = 1; scenario <= 16; scenario += 1) {
     await page.getByRole('radio').first().check()
-    const buttonName = scenario === 8
+    const buttonName = scenario === 16
       ? 'Generar mi curso personalizado'
       : 'Siguiente escenario'
     await page.getByRole('button', { name: buttonName }).click()
   }
 
   await expect(page).toHaveURL(/\/panel$/)
-  await expect(page.getByRole('heading', { name: /Tu ruta recomendada:/ })).toBeVisible()
+  await expect(page.getByRole('heading', {
+    name: /Tu ruta preventiva está lista|Primera prioridad:|Prioridades principales:/,
+  })).toBeVisible()
   await expectAccessible(page)
 
   await page.getByRole('link', { name: 'Comenzar mi curso personalizado' }).click()

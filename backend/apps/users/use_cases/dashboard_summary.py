@@ -1,6 +1,7 @@
 """Construye el resumen personalizado que consume el dashboard."""
 
-from apps.courses.models import CourseProgress, Lesson
+from apps.courses.models import CourseProgress, CourseUnit, Lesson
+from apps.courses.use_cases.course_assignment import get_assigned_units
 from apps.diagnostics.models import DiagnosticResult
 from apps.text_review.models import TextReview
 
@@ -12,18 +13,21 @@ def build_dashboard_summary(user):
         .order_by("-created_at")
         .first()
     )
-    assigned_unit_id = latest_result.suggested_unit_id if latest_result else None
+    assigned_units = get_assigned_units(user) if latest_result else []
+    assigned_unit_ids = [unit.id for unit in assigned_units]
     completed_lessons = CourseProgress.objects.filter(
         user=user,
         completed=True,
-        lesson__unit_id=assigned_unit_id,
+        lesson__unit_id__in=assigned_unit_ids,
     ).count()
     total_lessons = (
-        Lesson.objects.filter(unit_id=assigned_unit_id).count() if latest_result else 0
+        Lesson.objects.filter(unit_id__in=assigned_unit_ids).count()
+        if latest_result
+        else 0
     )
     latest_text_review = TextReview.objects.filter(user=user).first()
     return {
-        "diagnostic": _diagnostic_summary(latest_result),
+        "diagnostic": _diagnostic_summary(latest_result, assigned_units),
         "text_review": _text_review_summary(latest_text_review),
         "course": {
             "completed": completed_lessons,
@@ -47,15 +51,42 @@ def _text_review_summary(review):
     }
 
 
-def _diagnostic_summary(result):
+def _diagnostic_summary(result, recommended_units):
     if result is None:
         return None
+    dimensions = result.profile.get("dimensions", [])
+    dimension_units = {
+        unit.id: unit
+        for unit in CourseUnit.objects.filter(
+            id__in=[dimension.get("unit_id") for dimension in dimensions]
+        )
+    }
+    priorities = {
+        dimension["unit_id"]: dimension.get("priority") for dimension in dimensions
+    }
     return {
-        "suggested_unit": {
-            "id": result.suggested_unit.id,
-            "title": result.suggested_unit.title,
-            "slug": result.suggested_unit.slug,
-            "description": result.suggested_unit.description,
-        },
+        "suggested_unit": _unit_summary(result.suggested_unit),
+        "recommended_units": [
+            _unit_summary(unit, priorities.get(unit.id) or 1)
+            for unit in recommended_units
+        ],
+        "route_type": result.profile.get("route_type", "prioritized"),
+        "dimension_profile": [
+            {**dimension, "title": dimension_units[dimension["unit_id"]].title}
+            for dimension in dimensions
+            if dimension.get("unit_id") in dimension_units
+        ],
         "created_at": result.created_at,
     }
+
+
+def _unit_summary(unit, priority=None):
+    summary = {
+        "id": unit.id,
+        "title": unit.title,
+        "slug": unit.slug,
+        "description": unit.description,
+    }
+    if priority is not None:
+        summary["priority"] = priority
+    return summary

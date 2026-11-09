@@ -30,7 +30,10 @@ export interface CertificateData {
 export interface CourseUnit {
   id: number
   title: string
+  slug: string
   description: string
+  order: number
+  priority: number
   duration_minutes: number
   lessons: LearningItem[]
   quiz_unlocked: boolean

@@ -13,70 +13,114 @@ class DiagnosticTests(APITestCase):
             "demo", password="TestSegura2026!"
         )
         self.client.force_authenticate(self.user)
-        self.vertical = CourseUnit.objects.create(
-            title="Acoso Vertical", slug="acoso-vertical", description="Vertical", order=1
+        self.units = [
+            CourseUnit.objects.create(
+                title="Relaciones de autoridad",
+                slug="acoso-vertical",
+                description="Autoridad",
+                order=1,
+            ),
+            CourseUnit.objects.create(
+                title="Relaciones entre pares",
+                slug="acoso-horizontal",
+                description="Pares",
+                order=2,
+            ),
+            CourseUnit.objects.create(
+                title="Seguridad digital",
+                slug="acoso-tecnologico",
+                description="Digital",
+                order=3,
+            ),
+            CourseUnit.objects.create(
+                title="Diversidad",
+                slug="acoso-vulnerabilidad",
+                description="Diversidad",
+                order=4,
+            ),
+        ]
+        self.preventive = CourseUnit.objects.create(
+            title="Ruta preventiva",
+            slug="fundamentos-preventivos",
+            description="Prevención",
+            order=5,
         )
-        self.technology = CourseUnit.objects.create(
-            title="Acoso Tecnológico",
-            slug="acoso-tecnologico",
-            description="Tecnológico",
-            order=3,
-        )
-        self.question_one = DiagnosticQuestion.objects.create(
-            text="Escenario uno", primary_unit=self.vertical, order=1
-        )
-        self.question_two = DiagnosticQuestion.objects.create(
-            text="Escenario dos", primary_unit=self.technology, order=2
-        )
-        self.vertical_option = DiagnosticOption.objects.create(
-            question=self.question_one,
-            label="Situación vertical",
-            destination_unit=self.vertical,
-            weight=10,
-            order=1,
-        )
-        self.technology_option = DiagnosticOption.objects.create(
-            question=self.question_two,
-            label="Situación tecnológica",
-            destination_unit=self.technology,
-            weight=5,
-            order=1,
-        )
-        self.neutral_one = DiagnosticOption.objects.create(
-            question=self.question_one, label="Situación respetuosa", weight=0, order=2
-        )
-        self.neutral_two = DiagnosticOption.objects.create(
-            question=self.question_two, label="Situación respetuosa", weight=0, order=2
-        )
+        weights = (3, 2, 2, 1)
+        self.questions = []
+        self.weighted_options = []
+        self.neutral_options = []
+        for order, (unit, weight) in enumerate(zip(self.units, weights), start=1):
+            question = DiagnosticQuestion.objects.create(
+                text=f"Escenario {order}", primary_unit=unit, order=order
+            )
+            self.questions.append(question)
+            self.weighted_options.append(
+                DiagnosticOption.objects.create(
+                    question=question,
+                    label="Patrón observado",
+                    destination_unit=unit,
+                    weight=weight,
+                    order=1,
+                )
+            )
+            self.neutral_options.append(
+                DiagnosticOption.objects.create(
+                    question=question,
+                    label="Dinámica respetuosa",
+                    destination_unit=unit,
+                    weight=0,
+                    order=2,
+                )
+            )
 
-    def submit(self, first_option, second_option):
+    def submit(self, options):
         return self.client.post(
             "/api/diagnostics/submit/",
             {
                 "answers": [
-                    {"question_id": self.question_one.id, "option_id": first_option.id},
-                    {"question_id": self.question_two.id, "option_id": second_option.id},
+                    {"question_id": question.id, "option_id": option.id}
+                    for question, option in zip(self.questions, options)
                 ]
             },
             format="json",
         )
 
-    def test_submit_uses_weighted_scores_for_a_clear_pattern(self):
-        response = self.submit(self.vertical_option, self.technology_option)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["suggested_unit"]["id"], self.vertical.id)
-        self.assertEqual(response.data["maximum_score"], 10)
-        self.assertEqual(len(response.data["module_scores"]), 2)
-        result = DiagnosticResult.objects.latest("id")
-        self.assertEqual(result.scoring_version, "weighted-scores-v1")
+    def test_submit_builds_profile_and_preserves_ties_in_top_two_bands(self):
+        response = self.submit(self.weighted_options)
 
-    def test_submit_uses_preventive_technology_route_for_neutral_answers(self):
-        response = self.submit(self.neutral_one, self.neutral_two)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["suggested_unit"]["id"], self.technology.id)
-        self.assertEqual(response.data["maximum_score"], 0)
+        self.assertEqual(response.data["suggested_unit"]["id"], self.units[0].id)
+        self.assertEqual(
+            [unit["id"] for unit in response.data["recommended_units"]],
+            [self.units[0].id, self.units[1].id, self.units[2].id],
+        )
+        self.assertEqual(response.data["route_type"], "prioritized")
+        self.assertEqual(len(response.data["dimension_profile"]), 4)
+        priorities = {
+            dimension["unit_id"]: dimension["priority"]
+            for dimension in response.data["dimension_profile"]
+        }
+        self.assertEqual(priorities[self.units[0].id], 1)
+        self.assertEqual(priorities[self.units[1].id], 2)
+        self.assertEqual(priorities[self.units[2].id], 2)
         result = DiagnosticResult.objects.latest("id")
-        self.assertEqual(result.scoring_version, "weighted-scores-v1")
+        self.assertEqual(result.scoring_version, "multidimensional-profile-v2")
+        self.assertEqual(
+            result.profile["recommended_unit_ids"],
+            [self.units[0].id, self.units[1].id, self.units[2].id],
+        )
+
+    def test_submit_uses_general_preventive_route_for_neutral_answers(self):
+        response = self.submit(self.neutral_options)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["suggested_unit"]["id"], self.preventive.id)
+        self.assertEqual(response.data["maximum_score"], 0)
+        self.assertEqual(response.data["route_type"], "preventive_general")
+        self.assertEqual(
+            [unit["id"] for unit in response.data["recommended_units"]],
+            [self.preventive.id],
+        )
 
     def test_submit_requires_every_active_scenario(self):
         response = self.client.post(
@@ -84,8 +128,8 @@ class DiagnosticTests(APITestCase):
             {
                 "answers": [
                     {
-                        "question_id": self.question_one.id,
-                        "option_id": self.vertical_option.id,
+                        "question_id": self.questions[0].id,
+                        "option_id": self.weighted_options[0].id,
                     }
                 ]
             },
@@ -93,9 +137,10 @@ class DiagnosticTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_question_api_does_not_reveal_module_or_weights(self):
+    def test_question_api_does_not_reveal_dimensions_or_weights(self):
         response = self.client.get("/api/diagnostics/questions/")
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotIn("module_title", response.data[0])
+        self.assertNotIn("primary_unit", response.data[0])
         self.assertNotIn("weight", response.data[0]["options"][0])
         self.assertNotIn("destination_unit", response.data[0]["options"][0])

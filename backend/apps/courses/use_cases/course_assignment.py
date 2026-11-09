@@ -1,36 +1,62 @@
-"""Obtiene la ruta asignada por el diagnóstico y prepara su estado."""
+"""Obtiene las rutas asignadas por el perfil y prepara su estado."""
 
 from rest_framework.exceptions import PermissionDenied
 
 from apps.diagnostics.models import DiagnosticResult
 
-from ..models import Certificate, CourseProgress, ModuleQuizAttempt
+from ..models import Certificate, CourseProgress, CourseUnit, ModuleQuizAttempt
 
 
-def get_assigned_unit(user):
-    result = (
+def _latest_result(user):
+    return (
         DiagnosticResult.objects.filter(attempt__user=user)
         .select_related("suggested_unit")
         .order_by("-created_at")
         .first()
     )
-    return result.suggested_unit if result else None
 
 
-def require_assigned_unit(user):
-    unit = get_assigned_unit(user)
-    if unit is None:
+def get_assigned_units(user):
+    result = _latest_result(user)
+    if result is None:
+        return []
+    unit_ids = result.profile.get("recommended_unit_ids") or [result.suggested_unit_id]
+    units = CourseUnit.objects.filter(id__in=unit_ids, active=True).in_bulk()
+    return [units[unit_id] for unit_id in unit_ids if unit_id in units]
+
+
+def require_assigned_units(user):
+    units = get_assigned_units(user)
+    if not units:
         raise PermissionDenied("Completa primero la evaluación para generar tu curso.")
-    return unit
+    return units
+
+
+def require_assigned_unit(user, unit_id):
+    units = require_assigned_units(user)
+    for unit in units:
+        if unit.id == unit_id:
+            return unit
+    raise PermissionDenied("El módulo no forma parte de tu ruta actual.")
 
 
 def has_completed_course(user):
-    """Indica si el usuario aprobó y certificó su ruta de aprendizaje."""
+    """Indica si el usuario aprobó al menos una ruta de aprendizaje."""
     return Certificate.objects.filter(user=user).exists()
 
 
-def build_course_context(user, unit):
-    progress = CourseProgress.objects.filter(user=user, lesson__unit=unit)
+def build_course_context(user, units):
+    unit_ids = [unit.id for unit in units]
+    result = _latest_result(user)
+    priority_levels = {
+        dimension["unit_id"]: dimension.get("priority")
+        for dimension in (result.profile.get("dimensions", []) if result else [])
+    }
+    progress = CourseProgress.objects.filter(user=user, lesson__unit_id__in=unit_ids)
+    latest_quizzes = {}
+    for attempt in ModuleQuizAttempt.objects.filter(user=user, unit_id__in=unit_ids):
+        latest_quizzes.setdefault(attempt.unit_id, attempt)
+    certificates = Certificate.objects.filter(user=user, unit_id__in=unit_ids)
     return {
         "completed_ids": set(
             progress.filter(completed=True).values_list("lesson_id", flat=True)
@@ -40,6 +66,13 @@ def build_course_context(user, unit):
                 "lesson_id", "activity_response"
             )
         ),
-        "latest_quiz": ModuleQuizAttempt.objects.filter(user=user, unit=unit).first(),
-        "certificate": Certificate.objects.filter(user=user, unit=unit).first(),
+        "latest_quizzes": {
+            unit_id: attempt for unit_id, attempt in latest_quizzes.items()
+        },
+        "certificates": {
+            certificate.unit_id: certificate for certificate in certificates
+        },
+        "priority_levels": {
+            unit_id: priority_levels.get(unit_id) or 1 for unit_id in unit_ids
+        },
     }

@@ -80,6 +80,7 @@ class CertificateSerializer(serializers.ModelSerializer):
 
 
 class CourseUnitSerializer(serializers.ModelSerializer):
+    priority = serializers.SerializerMethodField()
     lessons = serializers.SerializerMethodField()
     quiz_unlocked = serializers.SerializerMethodField()
     quiz_questions = serializers.SerializerMethodField()
@@ -94,6 +95,7 @@ class CourseUnitSerializer(serializers.ModelSerializer):
             "slug",
             "description",
             "order",
+            "priority",
             "duration_minutes",
             "lessons",
             "quiz_unlocked",
@@ -104,6 +106,9 @@ class CourseUnitSerializer(serializers.ModelSerializer):
 
     def get_lessons(self, obj):
         return LessonSerializer(obj.lessons.all(), many=True, context=self.context).data
+
+    def get_priority(self, obj):
+        return self.context.get("priority_levels", {}).get(obj.id, 1)
 
     def get_quiz_unlocked(self, obj):
         lesson_ids = {lesson.id for lesson in obj.lessons.all()}
@@ -117,9 +122,9 @@ class CourseUnitSerializer(serializers.ModelSerializer):
         return ModuleQuizQuestionSerializer(questions, many=True).data
 
     def get_latest_quiz(self, obj):
-        attempt = self.context.get("latest_quiz")
+        attempt = self.context.get("latest_quizzes", {}).get(obj.id)
         return ModuleQuizAttemptSerializer(attempt).data if attempt else None
 
     def get_certificate(self, obj):
-        certificate = self.context.get("certificate")
+        certificate = self.context.get("certificates", {}).get(obj.id)
         return CertificateSerializer(certificate).data if certificate else None

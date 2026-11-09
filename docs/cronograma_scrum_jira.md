@@ -11,11 +11,11 @@
 
 ## Diagnóstico del estado actual
 
-La revisión técnica confirmó que el MVP implementa registro universitario internacional con verificación, cuentas iniciales `demo` y `admin` con roles separados, evaluación de ocho escenarios, filtrado por pesos, dashboard y curso personalizados, recursos y administración. El frontend compila correctamente dentro de Docker y las 28 pruebas backend existentes pasan.
+La revisión técnica confirmó que el MVP implementa registro universitario internacional con verificación, cuentas iniciales `demo` y `admin` con roles separados, evaluación de 16 escenarios, perfil multidimensional, dashboard y curso con varias unidades recomendadas, recursos y administración. El frontend compila dentro de Docker y las suites automatizadas backend, frontend y E2E están activas.
 
 Pendientes y riesgos que justifican el backlog:
 
-- Existen 28 pruebas backend y todavía no hay pruebas automatizadas del frontend ni E2E persistentes.
+- La cobertura automatizada ya incluye backend, frontend y E2E; todavía debe complementarse con validación de campo y pruebas con usuarios reales.
 - Las evaluaciones y el curso requieren mayor profundidad pedagógica, historial, comparación y seguimiento.
 - Faltan límites de frecuencia, auditoría, cabeceras de seguridad, monitoreo y pipeline CI/CD.
 - Hay secretos y credenciales de demostración por defecto que deben quedar prohibidos en producción.

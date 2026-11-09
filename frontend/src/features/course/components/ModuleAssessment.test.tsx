@@ -9,7 +9,10 @@ import { ModuleAssessment } from './ModuleAssessment'
 const completedUnit: CourseUnit = {
   id: 1,
   title: 'Ruta personalizada',
+  slug: 'ruta-personalizada',
   description: 'Ruta de prueba',
+  order: 1,
+  priority: 1,
   duration_minutes: 20,
   lessons: [],
   quiz_unlocked: true,

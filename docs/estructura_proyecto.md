@@ -30,6 +30,7 @@ Paquetes especializados:
 
 - `courses/documents/certificate.py`: representación PDF del certificado.
 - `initial_data/seed_catalog.py`: carga idempotente de los contenidos iniciales.
+- `initial_data/catalog/diagnostic_scenarios.py`: banco declarativo de los 16 escenarios y su escala ordinal.
 - `users/management/commands/seed_initial_data.py`: adaptador requerido para exponer el comando a Django.
 
 Los archivos `models.py`, `views.py`, `serializers.py`, `urls.py`, `admin.py` y
@@ -70,9 +71,9 @@ Registro de participante
     -> Verificación del correo institucional
     -> Login de participante
     -> Diagnóstico por escenarios
-    -> Servicio de puntuación y filtrado
+    -> Servicio de perfil multidimensional y priorización
     -> Dashboard personalizado
-    -> Curso del módulo asignado
+    -> Curso de las unidades recomendadas
     -> Cuestionario final
     -> Certificado verificable
 ```

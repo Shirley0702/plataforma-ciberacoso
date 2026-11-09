@@ -7,6 +7,7 @@ from apps.courses.models import CourseUnit, Lesson, ModuleQuizOption, ModuleQuiz
 from apps.diagnostics.models import DiagnosticOption, DiagnosticQuestion
 from apps.resources.models import OrientationResource
 from apps.users.models import UserProfile
+from initial_data.catalog.diagnostic_scenarios import DIAGNOSTIC_SCENARIOS
 
 
 User = get_user_model()
@@ -63,94 +64,29 @@ class SeedInitialDataCommand(BaseCommand):
         admin.user_permissions.clear()
 
     def _seed_questions(self):
-        questions = [
-            (
-                "Cuando los profesores o tutores de tu carrera buscan que los estudiantes alcancen un alto nivel de excelencia, ¿cuál es la dinámica más común en las aulas o laboratorios?",
-                "acoso-vertical",
-                [
-                    ("Se enfocan estrictamente en revisar los datos, la rúbrica y los entregables técnicos de los proyectos.", None, 0),
-                    ("Utilizan la presión social o la exposición de los errores individuales frente al grupo como un método para forzarnos a mejorar.", "acoso-vertical", 10),
-                    ('Mantienen una distancia absoluta; el estudiante debe resolver todo por su cuenta porque "ya es un adulto".', "acoso-vertical", 5),
-                ],
-            ),
-            (
-                "En los proyectos importantes o tesis, ¿cómo se percibe la disponibilidad y el compromiso que un estudiante debe demostrar hacia sus superiores?",
-                "acoso-vertical",
-                [
-                    ("El compromiso se mide entregando los avances acordados dentro de las horas de jornada universitaria.", None, 0),
-                    ("Se valora positivamente estar disponible para responder dudas o avanzar trabajo en cualquier momento (noches o fines de semana) si el proyecto lo requiere.", "acoso-vertical", 10),
-                ],
-            ),
-            (
-                "En tu facultad, cuando se forman los equipos de trabajo para los proyectos más complejos del semestre, las dinámicas de selección suelen basarse en:",
-                "acoso-horizontal",
-                [
-                    ("Afinidades académicas, habilidades técnicas complementarias o sorteos directos del docente.", None, 0),
-                    ("Ciertos grupos o líderes de la clase que deciden de antemano quiénes entran y quiénes quedan rezagados para asegurar sus notas.", "acoso-horizontal", 10),
-                    ("Se permite el uso de apodos, sarcasmo o bromas pesadas dentro de los equipos como una forma natural de romper el hielo y liberar el estrés.", "acoso-horizontal", 10),
-                ],
-            ),
-            (
-                "Respecto a las tradiciones de bienvenida, novatadas o reuniones sociales organizadas por los alumnos de semestres superiores, la percepción general es que:",
-                "acoso-horizontal",
-                [
-                    ("Son eventos puramente recreativos, opcionales y donde cualquiera se siente cómodo desde el primer minuto.", None, 0),
-                    ("Son un filtro necesario; es normal pasar por momentos incómodos o retos pesados para demostrar que tienes el carácter para pertenecer a la facultad.", "acoso-horizontal", 10),
-                ],
-            ),
-            (
-                "Cuando revisas los grupos de WhatsApp académicos o las redes sociales donde interactúan los estudiantes de tu entorno universitario, el contenido que genera más interacción suele ser:",
-                "acoso-tecnologico",
-                [
-                    ("Memes generales de internet, avisos de tareas, fechas de exámenes o enlaces de estudio.", None, 0),
-                    ("Capturas de pantalla de errores que alguien cometió en clase, stickers basados en fotos de compañeros o debates intensos sobre la vida de otros.", "acoso-tecnologico", 10),
-                    ("Suelo mantener estos grupos completamente silenciados o evito abrirlos a menos que sea estrictamente obligatorio para la nota.", "acoso-tecnologico", 10),
-                ],
-            ),
-            (
-                "Si alguien hace una pregunta redundante en los canales digitales oficiales o se equivoca en una exposición virtual, la respuesta colectiva en las redes paralelas suele ser:",
-                "acoso-tecnologico",
-                [
-                    ("Ignorar el error o responder la duda de manera directa y respetuosa.", None, 0),
-                    ("Convertir el momento en el tema de conversación o chiste de la semana a través de comentarios o canales secundarios.", "acoso-tecnologico", 10),
-                ],
-            ),
-            (
-                "En las interacciones individuales fuera del aula con profesores, ayudantes o personal administrativo, ¿cuál de los siguientes ambientes consideras que predomina?",
-                "acoso-vulnerabilidad",
-                [
-                    ("Un trato estrictamente corporativo, plano y enfocado en resolver dudas puntuales de la materia.", None, 0),
-                    ("Un trato muy cercano y personalizado, donde es común recibir elogios sobre la apariencia, comentarios informales o preguntas sobre la vida social o sentimental para generar confianza.", "acoso-vulnerabilidad", 10),
-                ],
-            ),
-            (
-                "Cuando se asignan oportunidades (como becas, ayudantías de cátedra o cupos en proyectos de investigación), la percepción estudiantil es que:",
-                "acoso-vulnerabilidad",
-                [
-                    ("Se otorgan basándose única y transparentemente en el promedio académico y las competencias técnicas del alumno.", None, 0),
-                    ('Influyen mucho ciertos perfiles sociales, asumiendo sutilmente que algunos estudiantes "encajan mejor" o tienen más facilidades que otros por su trasfondo o género.', "acoso-vulnerabilidad", 10),
-                ],
-            ),
-        ]
         units = {unit.slug: unit for unit in CourseUnit.objects.filter(active=True)}
-        DiagnosticQuestion.objects.exclude(order__in=range(1, 9)).update(active=False)
-        for order, (text, unit_slug, options) in enumerate(questions, start=1):
+        active_orders = range(1, len(DIAGNOSTIC_SCENARIOS) + 1)
+        DiagnosticQuestion.objects.exclude(order__in=active_orders).update(active=False)
+        for order, scenario in enumerate(DIAGNOSTIC_SCENARIOS, start=1):
+            unit = units[scenario["unit_slug"]]
             question, _ = DiagnosticQuestion.objects.update_or_create(
                 order=order,
                 defaults={
-                    "text": text,
-                    "primary_unit": units[unit_slug],
+                    "text": scenario["text"],
+                    "primary_unit": unit,
                     "active": True,
                 },
             )
             kept_option_ids = []
-            for option_order, (label, destination_slug, weight) in enumerate(options, start=1):
+            for option_order, (label, weight) in enumerate(
+                scenario["options"], start=1
+            ):
                 option, _ = DiagnosticOption.objects.update_or_create(
                     question=question,
                     order=option_order,
                     defaults={
                         "label": label,
-                        "destination_unit": units.get(destination_slug),
+                        "destination_unit": unit,
                         "weight": weight,
                     },
                 )
@@ -227,6 +163,41 @@ class SeedInitialDataCommand(BaseCommand):
                     "Identifica la conducta concreta, su impacto y el límite que necesitas. Si expresarlo directamente no es seguro, registra el patrón y solicita que una persona de confianza o una instancia institucional te acompañe.",
                 ),
             },
+            {
+                "slug": "fundamentos-preventivos",
+                "title": "Convivencia y Autocuidado Preventivo",
+                "description": "Recursos generales para fortalecer límites, privacidad y redes de apoyo en la vida universitaria.",
+                "duration": 32,
+                "lessons": [
+                    (
+                        "Acuerdos para una convivencia saludable",
+                        "Reconoce prácticas que favorecen el respeto y la colaboración.",
+                        "Los acuerdos claros sobre horarios, comunicación, consentimiento y responsabilidades reducen malentendidos. Una convivencia saludable permite preguntar, disentir y establecer límites sin recibir represalias.",
+                        6,
+                    ),
+                    (
+                        "Límites personales y digitales",
+                        "Define qué información y disponibilidad deseas compartir.",
+                        "Revisa qué canales utilizas, quién puede contactarte y qué contenido puede difundirse. Puedes cambiar de opinión, retirar tu consentimiento y solicitar que se respete un límite sin tener que justificarlo extensamente.",
+                        6,
+                    ),
+                    (
+                        "Redes de apoyo y canales seguros",
+                        "Prepara opciones de acompañamiento antes de necesitarlas.",
+                        "Identifica personas de confianza y los servicios de bienestar o acompañamiento de tu universidad. Conocer de antemano los canales disponibles facilita pedir orientación ante una situación incómoda o confusa.",
+                        6,
+                    ),
+                ],
+                "activity": (
+                    "Simulación: establecer un acuerdo",
+                    "Un equipo nuevo organizará horarios, canales y reglas para compartir archivos. ¿Qué opción ayuda a prevenir conflictos?",
+                ),
+                "follow_up": (
+                    "Tu plan preventivo personal",
+                    "Reúne límites, contactos y ajustes de privacidad.",
+                    "Escribe un límite que quieras comunicar con claridad, una persona a quien puedas pedir apoyo y una configuración de privacidad que revisarás. Este plan es preventivo y puedes actualizarlo cuando cambien tus circunstancias.",
+                ),
+            },
         ]
         activity_options = [
             {"id": "documentar-reportar", "label": "Conservar el contexto, apoyar a la persona afectada y reportar por un canal seguro.", "feedback": "Esta respuesta protege la evidencia, reduce la exposición y activa una red de apoyo."},
@@ -293,7 +264,7 @@ class SeedInitialDataCommand(BaseCommand):
             )
             kept_lesson_ids.append(follow_up.id)
             unit.lessons.exclude(id__in=kept_lesson_ids).delete()
-        CourseUnit.objects.exclude(order__in=range(1, 5)).update(active=False)
+        CourseUnit.objects.exclude(order__in=range(1, 6)).update(active=False)
         self._seed_quizzes()
 
     def _seed_quizzes(self):

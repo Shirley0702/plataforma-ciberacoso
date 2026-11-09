@@ -4,9 +4,9 @@
 
 - **RF-01:** registrar e iniciar sesión de usuarios.
 - **RF-02:** completar una evaluación diagnóstica formada por escenarios y opciones indirectas.
-- **RF-03:** sumar los pesos seleccionados por módulo y elegir de forma determinista el módulo con mayor puntuación.
-- **RF-04:** mostrar en el panel la ruta asignada y filtrar el curso al módulo sugerido.
-- **RF-05:** registrar el progreso únicamente sobre las lecciones de la ruta asignada.
+- **RF-03:** construir un perfil de cuatro dimensiones mediante una escala ordinal uniforme, conservar empates y seleccionar hasta los dos niveles positivos con mayor prioridad.
+- **RF-04:** asignar una ruta preventiva general cuando todas las dimensiones sean neutrales y mostrar en el panel todas las unidades recomendadas.
+- **RF-05:** registrar el progreso únicamente sobre las lecciones de las unidades recomendadas.
 - **RF-06:** consultar recursos de orientación.
 - **RF-07:** administrar escenarios, opciones, módulos, lecciones y recursos.
 
@@ -20,9 +20,10 @@
 ## Casos de uso principales
 
 1. El usuario crea una cuenta e inicia sesión.
-2. Responde los ocho escenarios sin conocer los pesos internos.
-3. El algoritmo agrupa los pesos por módulo y prioriza el total más alto.
-4. El panel presenta el módulo sugerido y el acceso al curso personalizado.
-5. El usuario recorre las lecciones asignadas y registra su progreso.
-6. El usuario consulta recursos de orientación.
-7. El administrador modifica contenidos desde Django Admin.
+2. Responde los 16 escenarios sin conocer la escala ordinal interna.
+3. El algoritmo construye el perfil multidimensional, conserva empates y selecciona los dos primeros niveles positivos.
+4. Si todo es neutral, el sistema asigna la ruta preventiva general.
+5. El panel presenta todas las unidades sugeridas y el acceso al curso personalizado.
+6. El usuario recorre las lecciones asignadas y registra su progreso.
+7. El usuario consulta recursos de orientación.
+8. El administrador modifica contenidos desde Django Admin.

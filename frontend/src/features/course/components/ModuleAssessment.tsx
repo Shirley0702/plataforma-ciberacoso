@@ -22,12 +22,13 @@ export function ModuleAssessment({
   onDownload,
 }: ModuleAssessmentProps) {
   const latestResult = result ?? unit.latest_quiz
+  const quizTitleId = `quiz-title-${unit.id}`
 
   return (
     <>
-      <section className={`module-quiz ${unit.quiz_unlocked ? '' : 'locked'}`} aria-labelledby="quiz-title">
+      <section className={`module-quiz ${unit.quiz_unlocked ? '' : 'locked'}`} aria-labelledby={quizTitleId}>
         <span className="eyebrow">Evaluación final del módulo</span>
-        <h2 id="quiz-title">Cuestionario obligatorio · aprobación mínima 80%</h2>
+        <h2 id={quizTitleId}>Cuestionario obligatorio · aprobación mínima 80%</h2>
         {!unit.quiz_unlocked ? (
           <p>Completa todos los microcontenidos y la actividad interactiva para desbloquearlo.</p>
         ) : (
@@ -60,7 +61,7 @@ export function ModuleAssessment({
       </section>
 
       {latestResult && (
-        <section id="resultado-cuestionario" className={`quiz-result ${latestResult.passed ? 'passed' : 'pending'}`}>
+        <section id={`resultado-cuestionario-${unit.id}`} className={`quiz-result ${latestResult.passed ? 'passed' : 'pending'}`}>
           <span className="eyebrow">Último resultado</span>
           <h2>{latestResult.score_percentage}%</h2>
           <p>{latestResult.passed ? 'Aprobaste el módulo. Tu certificado ya está disponible.' : 'Necesitas al menos 80 %. Revisa las lecciones y vuelve a intentarlo.'}</p>
@@ -71,7 +72,7 @@ export function ModuleAssessment({
         <section className="certificate-card">
           <div>
             <span className="eyebrow light">Certificación emitida</span>
-            <h2>¡Completaste tu ruta de especialidad!</h2>
+            <h2>¡Completaste esta unidad de aprendizaje!</h2>
             <p>Código verificable: <strong>{unit.certificate.verification_code}</strong></p>
           </div>
           <div className="certificate-actions">

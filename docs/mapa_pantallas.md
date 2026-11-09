@@ -2,10 +2,10 @@
 
 ```mermaid
 flowchart LR
-    R["Registro / Login de participante"] --> D["Evaluación de 8 escenarios"]
-    D --> A["Algoritmo: suma de pesos por módulo"]
+    R["Registro / Login de participante"] --> D["Evaluación de 16 escenarios"]
+    D --> A["Perfil multidimensional y prioridades"]
     A --> P["Dashboard personalizado"]
-    P --> C["Curso: módulo priorizado"]
+    P --> C["Curso: unidades recomendadas"]
     C --> L["4 lecciones de microaprendizaje"]
     L --> I["Actividad interactiva"]
     I --> Q["Cuestionario final obligatorio"]
@@ -16,4 +16,4 @@ flowchart LR
     ADM["Inicio de sesión: admin"] --> DA["Django Admin"]
 ```
 
-El sistema mantiene separados los roles: los participantes registrados y `demo` recorren la experiencia educativa; `admin` solo gestiona el sistema mediante Django Admin. La evaluación es obligatoria antes de mostrar el panel y el curso. Si todas las respuestas son neutrales, se asigna la ruta preventiva de bienestar y seguridad digital. El cuestionario se habilita al completar los cinco microcontenidos y el certificado requiere al menos 80 %.
+El sistema mantiene separados los roles: los participantes registrados y `demo` recorren la experiencia educativa; `admin` solo gestiona el sistema mediante Django Admin. La evaluación es obligatoria antes de mostrar el panel y el curso. Los empates conservan el mismo nivel de prioridad. Si todas las respuestas son neutrales, se asigna la ruta general de Convivencia y Autocuidado Preventivo. El cuestionario de cada unidad se habilita al completar sus cinco microcontenidos y el certificado requiere al menos 80 %.
