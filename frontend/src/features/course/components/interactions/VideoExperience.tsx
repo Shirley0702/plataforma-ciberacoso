@@ -6,6 +6,7 @@ import {
   type YouTubePlayerInstance,
   YOUTUBE_VIDEO_ENDED,
 } from '../../services/youtubePlayer'
+import { PuzzleIcon } from '../PuzzleIcon'
 
 interface VideoExperienceProps {
   viewingPrompt: string
@@ -101,16 +102,21 @@ export function VideoExperience({
           </a>
         )}
       </div>
-      <div className={`video-completion-status ${completed ? 'completed' : ''}`} role="status">
-        <span aria-hidden="true">{completed ? '✓' : '○'}</span>
-        <div>
-          <strong>{completed ? 'Hecho: video visto hasta el final' : 'Por hacer: mira el video hasta el final'}</strong>
-          <small>
-            {saving
-              ? 'Registrando tu avance…'
-              : 'Se marcará automáticamente al terminar; no necesitas pulsar ningún botón.'}
-          </small>
-        </div>
+      <div
+        className={`video-completion-card ${completed ? 'completed' : ''}`}
+        role="status"
+        aria-label={completed ? 'Video visto hasta el final' : 'Falta ver el video hasta el final'}
+      >
+        <span className="video-task-pill done">
+          <PuzzleIcon name="check" size={18} />
+          <small>Hecho:</small>
+          <strong>Ver</strong>
+        </span>
+        <span className={`video-task-pill requirement ${completed ? 'done' : ''}`}>
+          {completed && <PuzzleIcon name="check" size={18} />}
+          <small>{completed ? 'Hecho:' : 'Por hacer:'}</small>
+          <strong>{saving ? 'Guardando avance…' : completed ? 'Visto hasta el final' : 'Ver hasta el final'}</strong>
+        </span>
       </div>
       {trackingError && <p className="video-tracking-error" role="alert">{trackingError}</p>}
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}

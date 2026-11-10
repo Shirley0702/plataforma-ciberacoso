@@ -18,9 +18,7 @@ export function CourseStepNavigator({
 
   return (
     <nav className="experience-progress" aria-label="Progreso de la unidad">
-      <span className="experience-progress-label">
-        Paso {activeStep + 1} de {lessons.length + 1}
-      </span>
+      <span className="experience-progress-label">Paso {activeStep + 1} de {lessons.length + 1}</span>
       <div className="experience-steps">
         {lessons.map((lesson, index) => {
           const available = index <= lastAvailableLesson
@@ -30,11 +28,15 @@ export function CourseStepNavigator({
               type="button"
               disabled={!available}
               aria-current={activeStep === index ? 'step' : undefined}
-              aria-label={`Experiencia ${index + 1}: ${lesson.title}${lesson.completed ? ', completada' : ''}`}
               onClick={() => onSelect(index)}
               key={lesson.id}
             >
-              <span aria-hidden="true">{lesson.completed ? '✓' : index + 1}</span>
+              <span className="experience-step-marker" aria-hidden="true">{lesson.completed ? '✓' : index + 1}</span>
+              <span className="experience-step-copy">
+                <strong>Experiencia {index + 1}</strong>
+                <small>{lesson.title}</small>
+                {lesson.completed && <span className="visually-hidden">, completada</span>}
+              </span>
             </button>
           )
         })}
@@ -43,10 +45,13 @@ export function CourseStepNavigator({
           type="button"
           disabled={!quizUnlocked}
           aria-current={activeStep === lessons.length ? 'step' : undefined}
-          aria-label="Reto final de la unidad"
           onClick={() => onSelect(lessons.length)}
         >
-          <span aria-hidden="true">★</span>
+          <span className="experience-step-marker" aria-hidden="true">★</span>
+          <span className="experience-step-copy">
+            <strong>Reto final</strong>
+            <small>Comprueba lo aprendido</small>
+          </span>
         </button>
       </div>
     </nav>

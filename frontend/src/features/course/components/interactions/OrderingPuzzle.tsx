@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { InteractionItem } from '../../types'
+import { PuzzleIcon } from '../PuzzleIcon'
 
 interface OrderingPuzzleProps {
   items: InteractionItem[]
@@ -111,7 +112,9 @@ export function OrderingPuzzle({
             key={item.id}
           >
             <span className="ordering-position" aria-label={`Posición ${index + 1}`}>{index + 1}</span>
-            <span className="ordering-visual" aria-hidden="true">{item.visual || '◆'}</span>
+            <span className="ordering-visual" aria-hidden="true">
+              <PuzzleIcon name={item.visual} size={52} />
+            </span>
             <span className="ordering-copy">
               <strong>{item.label}</strong>
               <small>{item.detail}</small>
