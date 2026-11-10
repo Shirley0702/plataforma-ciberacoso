@@ -19,12 +19,12 @@ class CourseUnit(models.Model):
 
 class Lesson(models.Model):
     class InteractionType(models.TextChoices):
-        VIDEO = "video", "Microvideo interactivo"
-        GUIDED = "guided", "Exploración guiada"
-        DECISION = "decision", "Decisión con retroalimentación"
-        CHECKLIST = "checklist", "Lista interactiva"
-        PRACTICE = "practice", "Práctica de respuesta"
-        SAFETY_PLAN = "safety_plan", "Plan personal de seguridad"
+        VIDEO = "video", "Video de aprendizaje"
+        GUIDED = "guided", "Puzzle de pistas"
+        DECISION = "decision", "Puzzle de caminos"
+        MATCHING = "matching", "Puzzle de conexiones"
+        PRACTICE = "practice", "Laboratorio de respuestas"
+        SAFETY_PLAN = "safety_plan", "Kit personal de apoyo"
 
     unit = models.ForeignKey(CourseUnit, on_delete=models.CASCADE, related_name="lessons")
     title = models.CharField(max_length=160)

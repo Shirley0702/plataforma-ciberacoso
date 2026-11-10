@@ -8,7 +8,7 @@ def _guided(title, summary, content, cards, duration=6):
         "content": content,
         "duration": duration,
         "interaction_type": "guided",
-        "interaction_prompt": "Abre cada tarjeta para reconocer la idea en una situación real.",
+        "interaction_prompt": "Descubre todas las pistas y construye la idea paso a paso.",
         "interaction_config": {
             "cards": cards,
             "completion_message": "Puedes volver a estas ideas cuando necesites comprobar una situación con calma.",
@@ -22,10 +22,6 @@ def _video(
     content,
     video_id,
     source_label,
-    accessible_summary,
-    key_points,
-    prompt,
-    options,
     duration=5,
 ):
     return {
@@ -34,15 +30,12 @@ def _video(
         "content": content,
         "duration": duration,
         "interaction_type": "video",
-        "interaction_prompt": prompt,
+        "interaction_prompt": "Mira el video completo antes de continuar con los puzzles de la unidad.",
         "interaction_config": {
             "video_url": f"https://www.youtube-nocookie.com/embed/{video_id}?rel=0&modestbranding=1",
             "video_watch_url": f"https://www.youtube.com/watch?v={video_id}",
             "video_title": title,
             "source_label": source_label,
-            "accessible_summary": accessible_summary,
-            "key_points": key_points,
-            "options": options,
         },
     }
 
@@ -59,7 +52,7 @@ def _choice(interaction_type, title, summary, content, prompt, options, duration
     }
 
 
-def _checklist(
+def _item_activity(
     interaction_type,
     title,
     summary,
@@ -70,13 +63,18 @@ def _checklist(
     duration=6,
     privacy_note="",
 ):
+    activity_prompt = (
+        "Conecta cada idea con la explicación que le corresponde."
+        if interaction_type == "matching"
+        else prompt
+    )
     return {
         "title": title,
         "summary": summary,
         "content": content,
         "duration": duration,
         "interaction_type": interaction_type,
-        "interaction_prompt": prompt,
+        "interaction_prompt": activity_prompt,
         "interaction_config": {
             "items": items,
             "completion_feedback": completion_feedback,
@@ -85,12 +83,11 @@ def _checklist(
     }
 
 
-def _option(option_id, label, feedback, recommended=False):
+def _option(option_id, label, feedback):
     return {
         "id": option_id,
         "label": label,
         "feedback": feedback,
-        "recommended": recommended,
     }
 
 
@@ -149,12 +146,12 @@ COURSE_UNITS = (
                 "Un tutor ridiculiza un avance frente al grupo y advierte que reclamar puede afectar la nota. ¿Qué harías primero?",
                 (
                     _option("responder-solo", "Enfrentarlo a solas y responder con otra amenaza.", "Puede aumentar el riesgo y dejarte sin acompañamiento. Tomar una pausa también es una decisión válida."),
-                    _option("registrar-apoyo", "Anotar lo ocurrido, conservar mensajes y hablar con una persona de confianza.", "Esta opción conserva hechos y evita que tengas que afrontar la situación sin apoyo.", True),
+                    _option("registrar-apoyo", "Anotar lo ocurrido, conservar mensajes y hablar con una persona de confianza.", "Esta opción conserva hechos y evita que tengas que afrontar la situación sin apoyo."),
                     _option("borrar-ignorar", "Borrar los mensajes y tratar de olvidar lo ocurrido.", "Alejarte puede darte calma momentánea, pero borrar la información limita tus opciones. Puedes conservarla sin revisarla constantemente."),
                 ),
             ),
-            _checklist(
-                "checklist",
+            _item_activity(
+                "matching",
                 "Mapa de señales observables",
                 "Revisa hechos concretos sin culparte ni sacar conclusiones apresuradas.",
                 "No necesitas decidir aquí cómo llamar a la situación. El objetivo es separar hechos observables de suposiciones.",
@@ -175,11 +172,11 @@ COURSE_UNITS = (
                 "Si fuera seguro responder, ¿qué frase mantiene el límite y se centra en hechos?",
                 (
                     _option("amenaza", "Si vuelve a hacerlo, voy a perjudicarlo también.", "Una amenaza puede escalar la situación y alejar la conversación de los hechos."),
-                    _option("limite", "Necesito que la retroalimentación se centre en mi trabajo y en los criterios de la materia.", "La frase describe el límite sin revelar información personal ni iniciar una confrontación.", True),
+                    _option("limite", "Necesito que la retroalimentación se centre en mi trabajo y en los criterios de la materia.", "La frase describe el límite sin revelar información personal ni iniciar una confrontación."),
                     _option("culpa", "Seguramente todo es mi culpa; no volveré a preguntar.", "Tener dudas o pedir criterios no te convierte en responsable de un trato humillante."),
                 ),
             ),
-            _checklist(
+            _item_activity(
                 "safety_plan",
                 "Tu plan de apoyo en cuatro pasos",
                 "Prepara opciones sin escribir nombres ni detalles sensibles.",
@@ -200,18 +197,6 @@ COURSE_UNITS = (
                 "El video introduce una idea clave: la autoridad también participa en la creación de un entorno donde sea posible preguntar, disentir y aprender sin humillaciones.",
                 "cfEJ1XRWMvk",
                 "Ministerio de Educación de Chile",
-                "La convivencia se construye en las relaciones diarias. Las normas claras, el diálogo y la participación ayudan a que enseñar y aprender no dependan del miedo ni de la obediencia personal.",
-                (
-                    "Una corrección útil se centra en criterios y tareas.",
-                    "El diálogo permite aclarar dudas sin represalias.",
-                    "Pedir acompañamiento es una forma válida de cuidado.",
-                ),
-                "Después del video, ¿qué práctica favorece una relación académica segura?",
-                (
-                    _option("criterios", "Explicar criterios y permitir preguntas.", "Los criterios claros y el diálogo separan la exigencia académica del trato personal intimidatorio.", True),
-                    _option("obediencia", "Exigir obediencia fuera de la actividad académica.", "La autoridad académica no justifica controlar decisiones personales."),
-                    _option("exposicion", "Corregir mediante burlas públicas.", "La humillación no es necesaria para ofrecer retroalimentación."),
-                ),
             ),
         ),
         "quiz": (
@@ -245,12 +230,12 @@ COURSE_UNITS = (
                 "Un equipo comparte una burla sobre un compañero y le oculta información del proyecto. ¿Qué harías?",
                 (
                     _option("reenviar", "Reenviar la burla para preguntar qué opinan otros.", "Aunque la intención sea consultar, reenviar aumenta la exposición."),
-                    _option("apoyo-privado", "No difundirla, hablar en privado con el compañero y acordar juntos a quién pedir apoyo.", "Esta opción reduce la exposición y devuelve a la persona parte del control sobre los siguientes pasos.", True),
+                    _option("apoyo-privado", "No difundirla, hablar en privado con el compañero y acordar juntos a quién pedir apoyo.", "Esta opción reduce la exposición y devuelve a la persona parte del control sobre los siguientes pasos."),
                     _option("enfrentar-grupo", "Insultar públicamente a todo el grupo.", "Puede aumentar el conflicto y el riesgo. Es posible marcar un límite sin responder con otra agresión."),
                 ),
             ),
-            _checklist(
-                "checklist",
+            _item_activity(
+                "matching",
                 "Señales de presión grupal",
                 "Comprueba qué observar antes de actuar.",
                 "Puedes usar esta lista tanto si la situación te ocurre a ti como si la observas en otra persona.",
@@ -271,11 +256,11 @@ COURSE_UNITS = (
                 "¿Qué frase respeta a la persona y marca un límite?",
                 (
                     _option("normalizar", "No exageres, así nos llevamos todos.", "Minimizar puede hacer que la persona se sienta más aislada."),
-                    _option("limite-grupo", "No voy a compartir eso. Si hay un problema con el proyecto, hablemos del trabajo.", "La frase detiene la difusión y devuelve la conversación a un asunto concreto.", True),
+                    _option("limite-grupo", "No voy a compartir eso. Si hay un problema con el proyecto, hablemos del trabajo.", "La frase detiene la difusión y devuelve la conversación a un asunto concreto."),
                     _option("exponer", "Voy a publicar quiénes hicieron esto para que aprendan.", "Publicar nombres puede escalar la situación y exponer también a la persona afectada."),
                 ),
             ),
-            _checklist(
+            _item_activity(
                 "safety_plan",
                 "Red de apoyo sin datos personales",
                 "Prepara alternativas antes de una situación difícil.",
@@ -296,18 +281,6 @@ COURSE_UNITS = (
                 "Este video ofrece una explicación visual de las dinámicas entre pares y sirve como punto de partida para practicar apoyo sin confrontaciones que aumenten el riesgo.",
                 "SEC_dOWFN5M",
                 "PantallasAmigas",
-                "Las conductas repetidas entre pares pueden continuar fuera del aula y amplificarse en espacios digitales. Detener la difusión, acercarse en privado y buscar acompañamiento reduce el aislamiento.",
-                (
-                    "No reenviar evita nuevas exposiciones.",
-                    "Apoyar en privado devuelve control a la persona.",
-                    "Una red de apoyo es más segura que enfrentar al grupo a solas.",
-                ),
-                "¿Cuál es una primera respuesta de apoyo que evita ampliar la situación?",
-                (
-                    _option("privado", "No difundir y conversar en privado con la persona.", "Esta respuesta reduce la exposición y permite acordar juntos el siguiente paso.", True),
-                    _option("publicar", "Publicar los nombres de todo el grupo.", "La exposición pública puede escalar el conflicto y quitar control a la persona afectada."),
-                    _option("reenviar", "Reenviar para conseguir más opiniones.", "Cada reenvío crea nuevas copias y aumenta el alcance."),
-                ),
             ),
         ),
         "quiz": (
@@ -341,12 +314,12 @@ COURSE_UNITS = (
                 "Recibes en un grupo una captura privada usada para burlarse de un estudiante. ¿Qué haces primero?",
                 (
                     _option("reenviar-prueba", "Reenviarla a varios amigos para tener testigos.", "Genera más copias y aumenta la exposición, aunque busques ayuda."),
-                    _option("guardar-reportar", "Conservar el contexto necesario, no reenviar y consultar con la persona afectada o un canal seguro.", "Reduce la difusión, conserva evidencia y respeta el control de la persona afectada.", True),
+                    _option("guardar-reportar", "Conservar el contexto necesario, no reenviar y consultar con la persona afectada o un canal seguro.", "Reduce la difusión, conserva evidencia y respeta el control de la persona afectada."),
                     _option("responder-insulto", "Insultar en el grupo a quien la publicó.", "Puede escalar la conversación y no elimina el contenido."),
                 ),
             ),
-            _checklist(
-                "checklist",
+            _item_activity(
+                "matching",
                 "Protege evidencia y privacidad",
                 "Revisa acciones digitales que mantienen opciones abiertas.",
                 "No subas capturas a este curso. La lista sirve para recordar qué puedes hacer directamente en tu dispositivo.",
@@ -367,11 +340,11 @@ COURSE_UNITS = (
                 "¿Qué mensaje ayuda a detener la cadena?",
                 (
                     _option("curiosidad", "¿Alguien tiene la captura completa? Envíenmela por interno.", "Solicitar más copias aumenta la difusión."),
-                    _option("corte", "No compartamos contenido de otra persona sin permiso. Voy a detener el reenvío.", "El mensaje marca el límite y no repite el contenido.", True),
+                    _option("corte", "No compartamos contenido de otra persona sin permiso. Voy a detener el reenvío.", "El mensaje marca el límite y no repite el contenido."),
                     _option("amenaza", "Si no borran esto, publicaré información de todos.", "Responder con otra exposición puede aumentar el daño y el riesgo."),
                 ),
             ),
-            _checklist(
+            _item_activity(
                 "safety_plan",
                 "Plan digital de recuperación",
                 "Prepara pasos que puedes realizar sin subir información.",
@@ -392,18 +365,6 @@ COURSE_UNITS = (
                 "El video permite analizar el consentimiento antes de publicar imágenes o información y prepara la práctica de decisiones digitales seguras.",
                 "ELDlQj1aLmo",
                 "PantallasAmigas",
-                "Cada persona puede tener límites de privacidad distintos. Antes de publicar una imagen donde aparece otra persona, es necesario pedir permiso y respetar un no, aunque el grupo sea privado.",
-                (
-                    "Tener una imagen no equivale a tener permiso para publicarla.",
-                    "Una audiencia pequeña también puede generar copias.",
-                    "Preguntar antes de compartir mantiene el control en la persona.",
-                ),
-                "¿Qué deberías comprobar antes de compartir una imagen de otra persona?",
-                (
-                    _option("permiso", "Que la persona autorizó esa publicación.", "El consentimiento debe existir antes de compartir y puede retirarse.", True),
-                    _option("grupo", "Que el grupo tenga pocas personas.", "Un grupo pequeño no sustituye el permiso y tampoco impide nuevas copias."),
-                    _option("borrar", "Que puedas borrarla después.", "Borrar tu publicación no elimina las copias que otras personas hayan guardado."),
-                ),
             ),
         ),
         "quiz": (
@@ -437,12 +398,12 @@ COURSE_UNITS = (
                 "En una reunión rechazan varias veces las ideas de una compañera con comentarios sobre su origen. ¿Qué harías?",
                 (
                     _option("decidir-por-ella", "Presentar una queja con todos sus datos sin consultarle.", "La intención puede ser positiva, pero usar sus datos sin permiso le quita control."),
-                    _option("devolver-idea", "Volver a la idea, pedir que se evalúe por su contenido y hablar con ella en privado después.", "Interrumpe el prejuicio sin exponer información adicional y permite acordar el siguiente paso.", True),
+                    _option("devolver-idea", "Volver a la idea, pedir que se evalúe por su contenido y hablar con ella en privado después.", "Interrumpe el prejuicio sin exponer información adicional y permite acordar el siguiente paso."),
                     _option("broma", "Hacer otra broma sobre el grupo para equilibrar la situación.", "Responder con otro prejuicio mantiene una dinámica que puede dañar a más personas."),
                 ),
             ),
-            _checklist(
-                "checklist",
+            _item_activity(
+                "matching",
                 "Observa el trato, no la intención",
                 "Usa hechos para reconocer barreras y patrones.",
                 "No necesitas demostrar qué pensaba otra persona. Puedes observar la conducta y su efecto.",
@@ -463,11 +424,11 @@ COURSE_UNITS = (
                 "¿Qué frase ayuda a restablecer un trato justo?",
                 (
                     _option("ataque", "Ustedes siempre discriminan y son malas personas.", "Etiquetar a todo el grupo puede cerrar la conversación y alejarla del hecho concreto."),
-                    _option("hecho", "Quisiera que revisemos su propuesta por el contenido y que pueda terminar de explicarla.", "La frase devuelve la participación y se centra en una acción observable.", True),
+                    _option("hecho", "Quisiera que revisemos su propuesta por el contenido y que pueda terminar de explicarla.", "La frase devuelve la participación y se centra en una acción observable."),
                     _option("silencio", "Mejor no digamos nada para que ella no se sienta incómoda.", "El silencio puede dejar sola a la persona. También puedes acercarte después si intervenir no es seguro."),
                 ),
             ),
-            _checklist(
+            _item_activity(
                 "safety_plan",
                 "Plan de trato digno y apoyo",
                 "Define opciones sin registrar tu identidad o situación personal.",
@@ -488,18 +449,6 @@ COURSE_UNITS = (
                 "El video presenta la diversidad como parte normal de la convivencia. Después podrás practicar cómo intervenir sin revelar información privada ni hablar por otra persona.",
                 "xXL2LSyAqDY",
                 "Recurso educativo de convivencia escolar",
-                "Las personas de un grupo tienen identidades, capacidades, historias y formas de participar diferentes. Respetar esas diferencias implica valorar aportes por su contenido y evitar convertir una característica personal en una barrera.",
-                (
-                    "La diferencia no reduce el valor de una persona.",
-                    "El trato digno se observa en oportunidades y participación.",
-                    "Apoyar también significa respetar la privacidad y las decisiones.",
-                ),
-                "¿Qué acción favorece una convivencia respetuosa?",
-                (
-                    _option("aporte", "Valorar el aporte por su contenido y permitir la participación.", "La participación justa evita que una característica personal se convierta en una barrera.", True),
-                    _option("decidir", "Decidir por la persona sin consultarle.", "Ayudar sin preguntar puede quitarle control sobre su propia situación."),
-                    _option("broma", "Usar diferencias personales como bromas si el grupo se ríe.", "La reacción del grupo no reemplaza el consentimiento de la persona."),
-                ),
             ),
         ),
         "quiz": (
@@ -533,12 +482,12 @@ COURSE_UNITS = (
                 "Un equipo nuevo organizará su comunicación. ¿Qué propuesta protege mejor a sus integrantes?",
                 (
                     _option("siempre-disponibles", "Todos deben responder a cualquier hora para demostrar compromiso.", "La disponibilidad permanente puede generar presión y no considera las circunstancias de cada persona."),
-                    _option("acuerdo-claro", "Definir horarios, un canal principal y pedir permiso antes de compartir contenido personal.", "Establece expectativas concretas y protege la privacidad desde el inicio.", True),
+                    _option("acuerdo-claro", "Definir horarios, un canal principal y pedir permiso antes de compartir contenido personal.", "Establece expectativas concretas y protege la privacidad desde el inicio."),
                     _option("sin-reglas", "No acordar nada; cada persona sabrá qué hacer.", "Sin acuerdos es más difícil marcar un límite o resolver un malentendido."),
                 ),
             ),
-            _checklist(
-                "checklist",
+            _item_activity(
+                "matching",
                 "Revisión preventiva de bienestar digital",
                 "Comprueba configuraciones antes de necesitarlas.",
                 "Realiza la revisión en tus propias aplicaciones. Esta plataforma no solicita credenciales ni acceso a tus cuentas.",
@@ -559,11 +508,11 @@ COURSE_UNITS = (
                 "Un compañero pide compartir una captura privada en el grupo. ¿Qué responderías?",
                 (
                     _option("ceder", "Está bien, pero bórrenla después.", "Una vez enviada pueden existir nuevas copias y perderse el control."),
-                    _option("limite", "No tengo permiso para compartirla. Podemos explicar el tema sin publicar la captura.", "Marca el límite y ofrece una alternativa que no expone a nadie.", True),
+                    _option("limite", "No tengo permiso para compartirla. Podemos explicar el tema sin publicar la captura.", "Marca el límite y ofrece una alternativa que no expone a nadie."),
                     _option("ataque", "Si insistes, publicaré algo tuyo.", "Responder con otra amenaza crea un nuevo riesgo."),
                 ),
             ),
-            _checklist(
+            _item_activity(
                 "safety_plan",
                 "Plan preventivo de apoyo",
                 "Prepara recursos que puedas usar más adelante.",
@@ -584,18 +533,6 @@ COURSE_UNITS = (
                 "El video introduce una medida concreta de autocuidado digital que puedes activar antes de una situación de riesgo.",
                 "6nWOijDWOag",
                 "Computer Hoy",
-                "La verificación en dos pasos añade una comprobación adicional al iniciar sesión. Si alguien obtiene la contraseña, todavía necesitará ese segundo factor para entrar a la cuenta.",
-                (
-                    "Usa contraseñas únicas para cada servicio.",
-                    "Activa un segundo factor cuando esté disponible.",
-                    "Guarda los códigos de recuperación en un lugar privado.",
-                ),
-                "¿Qué ventaja aporta la verificación en dos pasos?",
-                (
-                    _option("barrera", "Añade una barrera aunque se conozca la contraseña.", "El segundo factor dificulta el acceso no autorizado y permite responder mejor ante una contraseña expuesta.", True),
-                    _option("publica", "Permite usar la misma contraseña en todas las cuentas.", "Reutilizar contraseñas aumenta el impacto si una de ellas se filtra."),
-                    _option("anonima", "Oculta automáticamente todo lo publicado.", "El segundo factor protege el acceso, pero no cambia la privacidad de las publicaciones."),
-                ),
             ),
         ),
         "quiz": (

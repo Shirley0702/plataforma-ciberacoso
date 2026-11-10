@@ -1,7 +1,8 @@
 import type { InteractionResponse, LearningItem } from '../../types'
-import { ChecklistInteraction } from './ChecklistInteraction'
-import { ChoiceInteraction } from './ChoiceInteraction'
+import { ConsequencePuzzle } from './ConsequencePuzzle'
 import { GuidedExploration } from './GuidedExploration'
+import { MatchingPuzzle } from './MatchingPuzzle'
+import { SafetyKitBuilder } from './SafetyKitBuilder'
 import { VideoExperience } from './VideoExperience'
 
 interface InteractionPanelProps {
@@ -26,14 +27,13 @@ export function InteractionPanel({
   if (lesson.interaction_type === 'video') {
     return (
       <VideoExperience
-        lessonId={lesson.id}
-        checkpointPrompt={lesson.interaction_prompt}
+        viewingPrompt={lesson.interaction_prompt}
         config={config}
-        selectedOption={response.selected_option}
+        watched={response.watched ?? false}
         completed={lesson.completed}
         feedback={feedback}
         saving={saving}
-        onSelect={(selectedOption) => onResponseChange({ selected_option: selectedOption })}
+        onWatchedChange={(watched) => onResponseChange({ watched })}
         onCompletion={onCompletion}
       />
     )
@@ -53,29 +53,41 @@ export function InteractionPanel({
 
   if (lesson.interaction_type === 'decision' || lesson.interaction_type === 'practice') {
     return (
-      <ChoiceInteraction
-        lessonId={lesson.id}
+      <ConsequencePuzzle
         options={config.options ?? []}
-        selectedOption={response.selected_option}
+        exploredOptionIds={response.selected_items ?? []}
         completed={lesson.completed}
         feedback={feedback}
         saving={saving}
-        actionLabel={lesson.interaction_type === 'practice' ? 'Practicar respuesta' : 'Confirmar decisión'}
-        onSelect={(selectedOption) => onResponseChange({ selected_option: selectedOption })}
+        actionLabel={lesson.interaction_type === 'practice' ? 'Completar laboratorio' : 'Guardar lo descubierto'}
+        onChange={(selectedItems) => onResponseChange({ selected_items: selectedItems })}
+        onCompletion={onCompletion}
+      />
+    )
+  }
+
+  if (lesson.interaction_type === 'matching') {
+    return (
+      <MatchingPuzzle
+        items={config.items ?? []}
+        matches={response.matches ?? {}}
+        completed={lesson.completed}
+        feedback={feedback}
+        saving={saving}
+        onChange={(matches) => onResponseChange({ matches })}
         onCompletion={onCompletion}
       />
     )
   }
 
   return (
-    <ChecklistInteraction
+    <SafetyKitBuilder
       items={config.items ?? []}
       selectedItems={response.selected_items ?? []}
       completed={lesson.completed}
       feedback={feedback}
       privacyNote={config.privacy_note}
       saving={saving}
-      actionLabel={lesson.interaction_type === 'safety_plan' ? 'Guardar plan seguro' : 'Completar revisión'}
       onChange={(selectedItems) => onResponseChange({ selected_items: selectedItems })}
       onCompletion={onCompletion}
     />

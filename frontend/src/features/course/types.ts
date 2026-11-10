@@ -2,7 +2,7 @@ export type InteractionType =
   | 'video'
   | 'guided'
   | 'decision'
-  | 'checklist'
+  | 'matching'
   | 'practice'
   | 'safety_plan'
 
@@ -15,7 +15,6 @@ export interface InteractionOption {
   id: string
   label: string
   feedback: string
-  recommended?: boolean
 }
 
 export interface InteractionItem {
@@ -35,13 +34,12 @@ export interface InteractionConfig {
   video_watch_url?: string
   video_title?: string
   source_label?: string
-  accessible_summary?: string
-  key_points?: string[]
 }
 
 export interface InteractionResponse {
-  selected_option?: string
   selected_items?: string[]
+  matches?: Record<string, string>
+  watched?: boolean
 }
 
 export interface LearningItem {

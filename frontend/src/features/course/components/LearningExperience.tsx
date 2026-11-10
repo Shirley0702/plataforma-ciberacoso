@@ -2,12 +2,12 @@ import type { InteractionResponse, InteractionType, LearningItem } from '../type
 import { InteractionPanel } from './interactions/InteractionPanel'
 
 const INTERACTION_LABELS: Record<InteractionType, string> = {
-  video: 'Microvideo y comprobación',
-  guided: 'Exploración guiada',
-  decision: 'Decisión con consecuencias',
-  checklist: 'Lista interactiva',
-  practice: 'Práctica segura',
-  safety_plan: 'Plan personal seguro',
+  video: 'Video para aprender',
+  guided: 'Puzzle de pistas',
+  decision: 'Puzzle de caminos',
+  matching: 'Puzzle de conexiones',
+  practice: 'Laboratorio de respuestas',
+  safety_plan: 'Kit personal de apoyo',
 }
 
 interface LearningExperienceProps {
@@ -41,9 +41,18 @@ export function LearningExperience({
         <span className="experience-duration">{lesson.duration_minutes} min</span>
       </header>
       <h2>{lesson.title}</h2>
-      <p className="experience-summary">{lesson.summary}</p>
-      <p className="experience-content">{lesson.content}</p>
+      {lesson.interaction_type !== 'video' && (
+        <section className="learning-concept" aria-labelledby={`concept-${lesson.id}`}>
+          <span className="learning-phase">1 · Aprende</span>
+          <h3 id={`concept-${lesson.id}`}>Idea clave</h3>
+          <p className="experience-summary">{lesson.summary}</p>
+          <p className="experience-content">{lesson.content}</p>
+        </section>
+      )}
       <section className="interactive-activity" aria-label={INTERACTION_LABELS[lesson.interaction_type]}>
+        <span className="learning-phase">
+          {lesson.interaction_type === 'video' ? 'Observa' : '2 · Descubre practicando'}
+        </span>
         {lesson.interaction_type !== 'video' && <h3>{lesson.interaction_prompt}</h3>}
         <InteractionPanel
           lesson={lesson}

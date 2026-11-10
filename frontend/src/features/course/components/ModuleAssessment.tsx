@@ -27,10 +27,10 @@ export function ModuleAssessment({
   return (
     <>
       <section className={`module-quiz ${unit.quiz_unlocked ? '' : 'locked'}`} aria-labelledby={quizTitleId}>
-        <span className="eyebrow">Evaluación final del módulo</span>
-        <h2 id={quizTitleId}>Cuestionario obligatorio · aprobación mínima 80%</h2>
+        <span className="eyebrow">Reto final de la unidad</span>
+        <h2 id={quizTitleId}>Pon en práctica lo aprendido · meta 80%</h2>
         {!unit.quiz_unlocked ? (
-          <p>Completa las experiencias de esta unidad para desbloquear la evaluación final.</p>
+          <p>Completa los videos, puzzles y laboratorios para desbloquear este reto.</p>
         ) : (
           <>
             {unit.quiz_questions.map((question, index) => (
@@ -54,7 +54,7 @@ export function ModuleAssessment({
               disabled={submitting}
               onClick={() => void onSubmit(unit)}
             >
-              {submitting ? 'Calificando…' : 'Enviar cuestionario'}
+              {submitting ? 'Revisando…' : 'Comprobar mi aprendizaje'}
             </button>
           </>
         )}
@@ -64,7 +64,7 @@ export function ModuleAssessment({
         <section id={`resultado-cuestionario-${unit.id}`} className={`quiz-result ${latestResult.passed ? 'passed' : 'pending'}`}>
           <span className="eyebrow">Último resultado</span>
           <h2>{latestResult.score_percentage}%</h2>
-          <p>{latestResult.passed ? 'Aprobaste el módulo. Tu certificado ya está disponible.' : 'Necesitas al menos 80 %. Revisa las lecciones y vuelve a intentarlo.'}</p>
+          <p>{latestResult.passed ? 'Superaste el reto. Tu certificado ya está disponible.' : 'Aún puedes fortalecer algunas ideas. Regresa a los puzzles y vuelve a intentarlo sin penalización.'}</p>
         </section>
       )}
 
