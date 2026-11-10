@@ -264,7 +264,7 @@ p { color: var(--color-text-muted); line-height: 1.65; }
 .experience-step.completed::after { background: var(--color-accent); }
 .experience-step:disabled { opacity: .42; cursor: not-allowed; }
 .course-stage { min-height: 540px; padding: clamp(1.25rem, 3vw, 2.3rem); animation: course-stage-enter .28s ease both; }
-@keyframes course-stage-enter { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes course-stage-enter { from { transform: translateX(12px); } to { transform: translateX(0); } }
 .learning-experience { width: min(100%, 1050px); margin: 0 auto; }
 .learning-experience-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.4rem; }
 .learning-experience-header > div { display: flex; flex-wrap: wrap; gap: .5rem; }
