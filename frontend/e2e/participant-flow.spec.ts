@@ -80,6 +80,7 @@ test('protege el sistema y completa el recorrido diagnóstico personalizado', as
   await expect(page.getByRole('button', { name: /Unidad 2.*Bloqueada/ })).toBeDisabled()
   await expect(page.getByText(/Las actividades no solicitan nombres ni relatos personales/)).toBeVisible()
   await expect(page.locator('.learning-experience')).toHaveCount(1)
+  await page.getByRole('button', { name: /Experiencia 1: Video:/ }).click()
   await expect(page.getByText('Microvideo y comprobación')).toBeVisible()
   await expect(page.locator('.video-frame iframe')).toHaveCount(1)
   await expect(page.getByText(/no se reproduce automáticamente/)).toBeVisible()
