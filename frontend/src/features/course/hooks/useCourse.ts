@@ -52,13 +52,19 @@ export function useCourse() {
     setInteractionResponses((current) => ({ ...current, [lessonId]: response }))
   }
 
-  const updateCompletion = async (lesson: LearningItem, completed: boolean) => {
+  const updateCompletion = async (
+    lesson: LearningItem,
+    completed: boolean,
+    responseOverride?: InteractionResponse,
+  ) => {
     setSavingLessonId(lesson.id)
     setError('')
     try {
       const payload = {
         completed,
-        interaction_response: completed ? interactionResponses[lesson.id] ?? {} : {},
+        interaction_response: completed
+          ? responseOverride ?? interactionResponses[lesson.id] ?? {}
+          : {},
       }
       const { data } = await api.post<{ feedback?: string }>(
         `/courses/lessons/${lesson.id}/complete/`,

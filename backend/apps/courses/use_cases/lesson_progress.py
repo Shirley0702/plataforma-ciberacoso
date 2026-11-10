@@ -83,21 +83,20 @@ def _validate_safety_plan(lesson, response):
     selected_items = response_data.get("selected_items")
     if not isinstance(selected_items, list):
         raise ValidationError(
-            {"interaction_response": ["Añade todos los recursos a tu kit antes de continuar."]}
+            {"interaction_response": ["Ordena todos los pasos antes de continuar."]}
         )
-    configured_ids = _configured_ids(lesson, "items")
-    selected_ids = {str(item_id) for item_id in selected_items}
-    if not configured_ids or selected_ids != configured_ids:
-        raise ValidationError(
-            {"interaction_response": ["Añade todos los recursos a tu kit antes de continuar."]}
-        )
-    ordered_ids = [
+    expected_order = [
         str(item["id"])
-        for item in lesson.interaction_config["items"]
-        if str(item["id"]) in selected_ids
+        for item in lesson.interaction_config.get("items", [])
+        if item.get("id") is not None
     ]
+    submitted_order = [str(item_id) for item_id in selected_items]
+    if not expected_order or submitted_order != expected_order:
+        raise ValidationError(
+            {"interaction_response": ["La secuencia aún no está en el orden seguro."]}
+        )
     return (
-        {"selected_items": ordered_ids},
+        {"selected_items": expected_order},
         lesson.interaction_config.get("completion_feedback", ""),
     )
 

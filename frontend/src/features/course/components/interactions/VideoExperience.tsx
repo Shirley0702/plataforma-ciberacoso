@@ -1,27 +1,78 @@
-import type { InteractionConfig } from '../../types'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { InteractionConfig, InteractionResponse } from '../../types'
+import {
+  buildTrackedVideoUrl,
+  loadYouTubePlayerApi,
+  type YouTubePlayerInstance,
+  YOUTUBE_VIDEO_ENDED,
+} from '../../services/youtubePlayer'
 
 interface VideoExperienceProps {
   viewingPrompt: string
   config: InteractionConfig
-  watched: boolean
   completed: boolean
   feedback?: string
   saving: boolean
-  onWatchedChange: (watched: boolean) => void
-  onCompletion: (completed: boolean) => Promise<void>
+  onCompletion: (
+    completed: boolean,
+    responseOverride?: InteractionResponse,
+    advance?: boolean,
+  ) => Promise<void>
 }
 
 export function VideoExperience({
   viewingPrompt,
   config,
-  watched,
   completed,
   feedback,
   saving,
-  onWatchedChange,
   onCompletion,
 }: VideoExperienceProps) {
-  const videoWatched = completed || watched
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const completionRequested = useRef(false)
+  const completionHandler = useRef(onCompletion)
+  const [trackingError, setTrackingError] = useState('')
+  const trackedVideoUrl = useMemo(
+    () => buildTrackedVideoUrl(config.video_url ?? ''),
+    [config.video_url],
+  )
+
+  useEffect(() => {
+    completionHandler.current = onCompletion
+  }, [onCompletion])
+
+  useEffect(() => {
+    if (completed || !iframeRef.current) return
+    let disposed = false
+    let player: YouTubePlayerInstance | null = null
+
+    void loadYouTubePlayerApi()
+      .then((youtube) => {
+        if (disposed || !iframeRef.current) return
+        player = new youtube.Player(iframeRef.current, {
+          events: {
+            onStateChange: (event) => {
+              if (event.data !== YOUTUBE_VIDEO_ENDED || completionRequested.current) return
+              completionRequested.current = true
+              void completionHandler.current(true, { watched: true }, false)
+                .finally(() => {
+                  completionRequested.current = false
+                })
+            },
+          },
+        })
+      })
+      .catch(() => {
+        if (!disposed) {
+          setTrackingError('No se pudo activar el seguimiento automático. Recarga la página antes de continuar.')
+        }
+      })
+
+    return () => {
+      disposed = true
+      player?.destroy()
+    }
+  }, [completed, trackedVideoUrl])
 
   return (
     <div className="video-experience">
@@ -31,7 +82,8 @@ export function VideoExperience({
       </div>
       <div className="video-frame">
         <iframe
-          src={config.video_url}
+          ref={iframeRef}
+          src={trackedVideoUrl}
           title={config.video_title ?? 'Video educativo'}
           loading="lazy"
           allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -49,31 +101,19 @@ export function VideoExperience({
           </a>
         )}
       </div>
-      <label className={`video-watch-confirmation ${videoWatched ? 'selected' : ''}`}>
-        <input
-          type="checkbox"
-          checked={videoWatched}
-          disabled={completed}
-          onChange={(event) => onWatchedChange(event.target.checked)}
-        />
-        <span>
-          <strong>Terminé de ver el video completo</strong>
-          <small>Márcalo al finalizar. No hay una pregunta ni una calificación.</small>
-        </span>
-      </label>
+      <div className={`video-completion-status ${completed ? 'completed' : ''}`} role="status">
+        <span aria-hidden="true">{completed ? '✓' : '○'}</span>
+        <div>
+          <strong>{completed ? 'Hecho: video visto hasta el final' : 'Por hacer: mira el video hasta el final'}</strong>
+          <small>
+            {saving
+              ? 'Registrando tu avance…'
+              : 'Se marcará automáticamente al terminar; no necesitas pulsar ningún botón.'}
+          </small>
+        </div>
+      </div>
+      {trackingError && <p className="video-tracking-error" role="alert">{trackingError}</p>}
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
-      {completed ? (
-        <p className="puzzle-completed" role="status">✓ Video completado</p>
-      ) : (
-        <button
-          className="btn btn-primary"
-          type="button"
-          disabled={saving || !watched}
-          onClick={() => void onCompletion(true)}
-        >
-          {saving ? 'Guardando…' : 'Continuar a los puzzles'}
-        </button>
-      )}
     </div>
   )
 }

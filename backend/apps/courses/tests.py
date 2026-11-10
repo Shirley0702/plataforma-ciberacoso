@@ -56,6 +56,10 @@ class CourseCatalogTests(SimpleTestCase):
                 self.assertTrue(
                     set(item["interaction_config"]).issubset(allowed_config_keys)
                 )
+                if item["interaction_type"] == "safety_plan":
+                    puzzle_items = item["interaction_config"]["items"]
+                    self.assertEqual(len(puzzle_items), 4)
+                    self.assertTrue(all(puzzle_item.get("visual") for puzzle_item in puzzle_items))
         self.assertEqual(len(set(question_sets)), len(COURSE_UNITS))
 
 
@@ -272,6 +276,48 @@ class CourseProgressTests(APITestCase):
         self.assertEqual(valid.status_code, 200)
         progress = CourseProgress.objects.get(user=self.user, lesson=video)
         self.assertEqual(progress.interaction_response, {"watched": True})
+
+    def test_ordering_puzzle_requires_the_exact_safe_sequence(self):
+        puzzle = Lesson.objects.create(
+            unit=self.assigned_unit,
+            title="Puzzle de secuencia segura",
+            summary="Ordena los pasos",
+            content="Aprende una respuesta gradual",
+            interaction_type=Lesson.InteractionType.SAFETY_PLAN,
+            order=3,
+            interaction_config={
+                "items": [
+                    {"id": "pausa", "label": "Hacer una pausa"},
+                    {"id": "evidencia", "label": "Conservar hechos"},
+                    {"id": "apoyo", "label": "Buscar apoyo"},
+                ],
+                "completion_feedback": "Secuencia aprendida",
+            },
+        )
+        incorrect = self.client.post(
+            f"/api/courses/lessons/{puzzle.id}/complete/",
+            {"interaction_response": {"selected_items": ["apoyo", "evidencia", "pausa"]}},
+            format="json",
+        )
+        self.assertEqual(incorrect.status_code, 400)
+
+        valid = self.client.post(
+            f"/api/courses/lessons/{puzzle.id}/complete/",
+            {
+                "interaction_response": {
+                    "selected_items": ["pausa", "evidencia", "apoyo"],
+                    "private_story": "No debe guardarse",
+                }
+            },
+            format="json",
+        )
+        self.assertEqual(valid.status_code, 200)
+        self.assertEqual(valid.data["feedback"], "Secuencia aprendida")
+        progress = CourseProgress.objects.get(user=self.user, lesson=puzzle)
+        self.assertEqual(
+            progress.interaction_response,
+            {"selected_items": ["pausa", "evidencia", "apoyo"]},
+        )
 
     def test_guided_exploration_does_not_store_personal_content(self):
         response = self.client.post(

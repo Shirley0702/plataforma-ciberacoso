@@ -24,7 +24,7 @@ class Lesson(models.Model):
         DECISION = "decision", "Puzzle de caminos"
         MATCHING = "matching", "Puzzle de conexiones"
         PRACTICE = "practice", "Laboratorio de respuestas"
-        SAFETY_PLAN = "safety_plan", "Kit personal de apoyo"
+        SAFETY_PLAN = "safety_plan", "Puzzle de secuencia segura"
 
     unit = models.ForeignKey(CourseUnit, on_delete=models.CASCADE, related_name="lessons")
     title = models.CharField(max_length=160)

@@ -7,7 +7,7 @@ const INTERACTION_LABELS: Record<InteractionType, string> = {
   decision: 'Puzzle de caminos',
   matching: 'Puzzle de conexiones',
   practice: 'Laboratorio de respuestas',
-  safety_plan: 'Kit personal de apoyo',
+  safety_plan: 'Puzzle de secuencia segura',
 }
 
 interface LearningExperienceProps {
@@ -18,7 +18,12 @@ interface LearningExperienceProps {
   response: InteractionResponse
   feedback?: string
   onResponseChange: (response: InteractionResponse) => void
-  onCompletion: (lesson: LearningItem, completed: boolean) => Promise<void>
+  onCompletion: (
+    lesson: LearningItem,
+    completed: boolean,
+    responseOverride?: InteractionResponse,
+    advance?: boolean,
+  ) => Promise<void>
 }
 
 export function LearningExperience({
@@ -60,7 +65,9 @@ export function LearningExperience({
           feedback={feedback}
           saving={saving}
           onResponseChange={onResponseChange}
-          onCompletion={(completed) => onCompletion(lesson, completed)}
+          onCompletion={(completed, responseOverride, advance) => (
+            onCompletion(lesson, completed, responseOverride, advance)
+          )}
         />
       </section>
     </article>

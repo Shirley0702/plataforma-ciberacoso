@@ -2,7 +2,7 @@ import type { InteractionResponse, LearningItem } from '../../types'
 import { ConsequencePuzzle } from './ConsequencePuzzle'
 import { GuidedExploration } from './GuidedExploration'
 import { MatchingPuzzle } from './MatchingPuzzle'
-import { SafetyKitBuilder } from './SafetyKitBuilder'
+import { OrderingPuzzle } from './OrderingPuzzle'
 import { VideoExperience } from './VideoExperience'
 
 interface InteractionPanelProps {
@@ -11,7 +11,11 @@ interface InteractionPanelProps {
   feedback?: string
   saving: boolean
   onResponseChange: (response: InteractionResponse) => void
-  onCompletion: (completed: boolean) => Promise<void>
+  onCompletion: (
+    completed: boolean,
+    responseOverride?: InteractionResponse,
+    advance?: boolean,
+  ) => Promise<void>
 }
 
 export function InteractionPanel({
@@ -29,11 +33,9 @@ export function InteractionPanel({
       <VideoExperience
         viewingPrompt={lesson.interaction_prompt}
         config={config}
-        watched={response.watched ?? false}
         completed={lesson.completed}
         feedback={feedback}
         saving={saving}
-        onWatchedChange={(watched) => onResponseChange({ watched })}
         onCompletion={onCompletion}
       />
     )
@@ -81,14 +83,14 @@ export function InteractionPanel({
   }
 
   return (
-    <SafetyKitBuilder
+    <OrderingPuzzle
       items={config.items ?? []}
-      selectedItems={response.selected_items ?? []}
+      orderedItemIds={response.selected_items ?? []}
       completed={lesson.completed}
       feedback={feedback}
       privacyNote={config.privacy_note}
       saving={saving}
-      onChange={(selectedItems) => onResponseChange({ selected_items: selectedItems })}
+      onChange={(orderedItemIds) => onResponseChange({ selected_items: orderedItemIds })}
       onCompletion={onCompletion}
     />
   )

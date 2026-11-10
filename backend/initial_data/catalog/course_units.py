@@ -63,11 +63,12 @@ def _item_activity(
     duration=6,
     privacy_note="",
 ):
-    activity_prompt = (
-        "Conecta cada idea con la explicación que le corresponde."
-        if interaction_type == "matching"
-        else prompt
-    )
+    if interaction_type == "matching":
+        activity_prompt = "Conecta cada idea con la explicación que le corresponde."
+    elif interaction_type == "safety_plan":
+        activity_prompt = "Arrastra las tarjetas y construye una secuencia de respuesta segura."
+    else:
+        activity_prompt = prompt
     return {
         "title": title,
         "summary": summary,
@@ -91,8 +92,11 @@ def _option(option_id, label, feedback):
     }
 
 
-def _item(item_id, label, detail):
-    return {"id": item_id, "label": label, "detail": detail}
+def _item(item_id, label, detail, visual=""):
+    item = {"id": item_id, "label": label, "detail": detail}
+    if visual:
+        item["visual"] = visual
+    return item
 
 
 def _quiz(text, options, correct_index):
@@ -178,17 +182,17 @@ COURSE_UNITS = (
             ),
             _item_activity(
                 "safety_plan",
-                "Tu plan de apoyo en cuatro pasos",
-                "Prepara opciones sin escribir nombres ni detalles sensibles.",
-                "Este plan guarda únicamente los pasos marcados. No solicita nombres, mensajes ni una descripción de lo ocurrido.",
-                "Marca cada paso cuando tengas una opción en mente:",
+                "Puzzle: responde sin quedar a solas",
+                "Ordena una secuencia que conserva tu seguridad y tus opciones.",
+                "Cuando una persona con autoridad cruza un límite, no tienes que resolverlo en una confrontación. Primero recupera calma; después conserva hechos y busca compañía.",
+                "Ordena los pasos desde la primera acción hasta la última:",
                 (
-                    _item("evidencia", "Sé qué información conservaría.", "Fechas, instrucciones, correos o mensajes completos pueden ayudarte a explicar los hechos."),
-                    _item("persona", "Tengo una persona con quien podría hablar.", "Puede ser alguien de confianza dentro o fuera de la universidad."),
-                    _item("canal", "Identifiqué un canal universitario de orientación.", "Bienestar estudiantil, coordinación o la instancia definida por tu universidad son posibles puntos de inicio."),
-                    _item("pausa", "Sé cómo salir o pausar si no me siento seguro.", "No estás obligado a continuar una conversación o actividad que te exponga."),
+                    _item("pausa", "Pausa y sal de la conversación si no te sientes seguro.", "No estás obligado a responder en ese momento ni a permanecer a solas.", "✋"),
+                    _item("evidencia", "Conserva los hechos sin difundirlos.", "Guarda fechas, instrucciones, correos o mensajes completos en un lugar privado.", "▣"),
+                    _item("persona", "Busca a una persona de confianza.", "El acompañamiento evita que tengas que ordenar la situación sin apoyo.", "🤝"),
+                    _item("canal", "Consulta un canal universitario acompañado.", "Puedes pedir orientación antes de decidir si realizarás otra acción.", "🧭"),
                 ),
-                "Tu plan básico está preparado. Puedes cambiarlo cuando lo necesites y pedir acompañamiento antes de actuar.",
+                "Construiste una secuencia que prioriza tu seguridad y evita que afrontes la situación a solas.",
                 privacy_note="No guardes aquí nombres, capturas ni información personal.",
             ),
             _video(
@@ -262,17 +266,17 @@ COURSE_UNITS = (
             ),
             _item_activity(
                 "safety_plan",
-                "Red de apoyo sin datos personales",
-                "Prepara alternativas antes de una situación difícil.",
-                "No tienes que escribir nombres. El sistema guarda solo qué pasos ya consideraste.",
-                "Marca cada paso cuando tengas una opción:",
+                "Puzzle: corta la presión del grupo",
+                "Ordena una forma de ayudar sin aumentar la exposición.",
+                "Cuando una broma, exclusión o presión se repite, la persona puede sentirse obligada a aceptarla para pertenecer. Esta secuencia devuelve control sin enfrentar al grupo a solas.",
+                "Ordena los pasos desde la primera acción hasta la última:",
                 (
-                    _item("aliado", "Puedo identificar a un compañero seguro.", "Una persona aliada puede acompañar, confirmar hechos o ayudar a no quedar aislado."),
-                    _item("adulto", "Conozco una persona responsable en la universidad.", "Un docente de confianza, tutor o profesional de bienestar puede orientar."),
-                    _item("registro", "Sé qué hechos concretos anotaría.", "Fechas, mensajes y cambios en el trabajo ayudan a explicar un patrón."),
-                    _item("salida", "Tengo una forma de salir de una actividad incómoda.", "Puedes retirarte, llamar a alguien o pedir acompañamiento sin justificarte ante el grupo."),
+                    _item("cortar", "Detén el reenvío o la participación.", "No reaccionar, reenviar ni celebrar reduce el alcance de la presión.", "✋"),
+                    _item("privado", "Acércate en privado y escucha.", "Evita pedir explicaciones frente al grupo o hablar en nombre de la persona.", "💬"),
+                    _item("preguntar", "Pregunta qué apoyo desea.", "La persona decide si quiere compañía, registro de hechos o una consulta.", "🤝"),
+                    _item("acompanar", "Acompaña al canal que elija.", "Un tutor, docente o profesional de bienestar puede orientar sin dejarla sola.", "🧭"),
                 ),
-                "Tu red básica está identificada sin guardar información sensible.",
+                "Ordenaste una respuesta que detiene la presión y devuelve control a la persona afectada.",
                 privacy_note="Los nombres de tus contactos deben permanecer fuera de esta plataforma.",
             ),
             _video(
@@ -346,17 +350,17 @@ COURSE_UNITS = (
             ),
             _item_activity(
                 "safety_plan",
-                "Plan digital de recuperación",
-                "Prepara pasos que puedes realizar sin subir información.",
-                "La plataforma guarda solo las casillas completadas, nunca tus contraseñas, capturas o nombres de usuario.",
-                "Marca cada paso cuando sepas cómo realizarlo:",
+                "Puzzle: recupera el control digital",
+                "Ordena una respuesta que protege la cuenta, la evidencia y tu bienestar.",
+                "Una exposición digital puede hacerte sentir que perdiste todo control. Actuar en orden evita crear más copias y separa la seguridad de la cuenta del acompañamiento que también puedes necesitar.",
+                "Ordena los pasos desde la primera acción hasta la última:",
                 (
-                    _item("acceso", "Sé cómo cerrar sesiones y cambiar mi contraseña.", "Usa una clave única y activa un segundo factor cuando esté disponible."),
-                    _item("copia", "Sé dónde conservar una copia privada de la evidencia.", "Evita carpetas compartidas o dispositivos a los que otras personas tengan acceso."),
-                    _item("plataforma", "Sé cómo reportar y bloquear en la aplicación utilizada.", "Bloquear reduce el contacto; reportar solicita una revisión de la plataforma."),
-                    _item("apoyo", "Tengo un canal para pedir acompañamiento.", "Una persona de confianza o un servicio universitario puede ayudarte a decidir los siguientes pasos."),
+                    _item("acceso", "Protege el acceso a la cuenta.", "Cierra sesiones desconocidas, cambia la clave y activa un segundo factor.", "🔐"),
+                    _item("copia", "Conserva una copia privada con contexto.", "Guarda fecha, usuario y conversación sin reenviar el contenido.", "▣"),
+                    _item("plataforma", "Reporta y bloquea en la aplicación.", "Bloquear reduce el contacto; reportar solicita revisar o retirar el contenido.", "⚑"),
+                    _item("apoyo", "Pide acompañamiento para decidir lo siguiente.", "Una persona de confianza o un servicio universitario puede ayudarte.", "🤝"),
                 ),
-                "Tu plan digital básico está listo y no contiene datos privados.",
+                "Ordenaste una recuperación digital que evita nuevas copias y conserva opciones de apoyo.",
                 privacy_note="Nunca escribas aquí contraseñas, usuarios, enlaces privados ni el contenido recibido.",
             ),
             _video(
@@ -430,17 +434,17 @@ COURSE_UNITS = (
             ),
             _item_activity(
                 "safety_plan",
-                "Plan de trato digno y apoyo",
-                "Define opciones sin registrar tu identidad o situación personal.",
-                "Solo se guardan los pasos seleccionados. No debes explicar aquí ninguna característica personal.",
-                "Marca cada paso cuando tengas una opción:",
+                "Puzzle: devuelve control sin exponer la identidad",
+                "Ordena una intervención centrada en hechos, consentimiento y apoyo.",
+                "Cuando un prejuicio limita la participación o expone información personal, el daño no depende de que puedas demostrar la intención. Esta secuencia permite reconocer el hecho y apoyar sin decidir por otra persona.",
+                "Ordena los pasos desde la primera acción hasta la última:",
                 (
-                    _item("limite", "Tengo una frase de límite que podría usar si fuera seguro.", "Puedes pedir que vuelvan al tema académico o que respeten tu privacidad."),
-                    _item("acompanamiento", "Sé quién podría acompañarme.", "El acompañamiento puede ser emocional, académico o institucional."),
-                    _item("hechos", "Sé cómo describir hechos sin justificar mi identidad.", "Anota palabras, decisiones, fechas y consecuencias observables."),
-                    _item("canal", "Conozco un canal que atienda igualdad, bienestar o inclusión.", "Puedes pedir información primero sin presentar una queja formal."),
+                    _item("hechos", "Observa la conducta y su efecto.", "Describe palabras, decisiones y oportunidades perdidas sin adivinar intenciones.", "👀"),
+                    _item("privado", "Habla en privado con la persona.", "Escucha sin pedirle que justifique su identidad o cuente más de lo que desea.", "💬"),
+                    _item("acompanamiento", "Pregunta qué apoyo quiere recibir.", "Acompañar no significa decidir ni revelar información por ella.", "🤝"),
+                    _item("canal", "Consulta el canal que la persona elija.", "Puede pedir información primero, sin presentar inmediatamente una queja formal.", "🧭"),
                 ),
-                "Tu plan protege la privacidad y deja abiertas varias formas de pedir apoyo.",
+                "Construiste una respuesta que reconoce el trato desigual y mantiene el control en la persona.",
                 privacy_note="No registres aquí diagnósticos, identidad, orientación, origen ni otros datos sensibles.",
             ),
             _video(
@@ -514,17 +518,17 @@ COURSE_UNITS = (
             ),
             _item_activity(
                 "safety_plan",
-                "Plan preventivo de apoyo",
-                "Prepara recursos que puedas usar más adelante.",
-                "El plan no solicita detalles personales. Solo registra que identificaste cada tipo de recurso.",
-                "Marca cada paso cuando tengas una opción:",
+                "Puzzle: prepara una red antes de necesitarla",
+                "Ordena acciones preventivas desde el cuidado cotidiano hasta la urgencia.",
+                "Reconocer límites y preparar apoyos antes de una situación difícil reduce la presión de decidir cuando hay miedo o confusión.",
+                "Ordena los pasos desde la preparación cotidiana hasta una emergencia:",
                 (
-                    _item("persona", "Tengo una persona de confianza.", "Puede escuchar, acompañar o ayudarte a ordenar opciones."),
-                    _item("universidad", "Conozco un servicio de orientación de mi universidad.", "Puedes consultar cómo funciona antes de necesitarlo."),
-                    _item("salida", "Sé cómo salir rápidamente de la plataforma.", "La tecla Escape y el botón de salida rápida protegen tu privacidad."),
-                    _item("emergencia", "Sé a quién llamar ante un peligro inmediato.", "En Ecuador, el número único de emergencias es 9-1-1."),
+                    _item("privacidad", "Revisa privacidad, accesos y permisos.", "Prevenir incluye controlar quién ve contenido y proteger las cuentas.", "🔒"),
+                    _item("persona", "Identifica una persona de confianza.", "Puede escuchar, acompañar o ayudarte a ordenar opciones.", "🤝"),
+                    _item("universidad", "Conoce el servicio de orientación universitario.", "Puedes consultar cómo funciona antes de necesitarlo.", "🎓"),
+                    _item("emergencia", "Ante peligro inmediato, usa el canal de emergencia.", "En Ecuador, el número único de emergencias es 9-1-1.", "☎"),
                 ),
-                "Tu plan preventivo básico está listo y puedes revisarlo cuando cambien tus circunstancias.",
+                "Ordenaste una red gradual: prevención, confianza, orientación y respuesta urgente.",
                 privacy_note="Mantén nombres, teléfonos personales y detalles sensibles fuera de la plataforma.",
             ),
             _video(

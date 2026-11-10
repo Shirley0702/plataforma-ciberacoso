@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
 import { ConsequencePuzzle } from './ConsequencePuzzle'
 import { GuidedExploration } from './GuidedExploration'
 import { MatchingPuzzle } from './MatchingPuzzle'
-import { SafetyKitBuilder } from './SafetyKitBuilder'
+import { OrderingPuzzle } from './OrderingPuzzle'
 import { VideoExperience } from './VideoExperience'
 
 describe('experiencias interactivas del curso', () => {
@@ -99,33 +99,54 @@ describe('experiencias interactivas del curso', () => {
     expect(onCompletion).toHaveBeenCalledWith(true)
   })
 
-  it('construye un kit personal sin pedir datos privados', async () => {
+  it('ordena un puzzle visual también mediante controles accesibles', async () => {
     const user = userEvent.setup()
-    const onChange = vi.fn()
-    render(
-      <SafetyKitBuilder
-        items={[
-          { id: 'persona', label: 'Persona de confianza', detail: 'Alguien que pueda acompañar' },
-          { id: 'canal', label: 'Canal universitario', detail: 'Un servicio de orientación' },
-        ]}
-        selectedItems={[]}
-        completed={false}
-        saving={false}
-        privacyNote="No escribas nombres ni teléfonos."
-        onChange={onChange}
-        onCompletion={vi.fn()}
-      />,
-    )
+    const onCompletion = vi.fn().mockResolvedValue(undefined)
+
+    function StatefulOrderingPuzzle() {
+      const [order, setOrder] = useState<string[]>([])
+      return (
+        <OrderingPuzzle
+          items={[
+            { id: 'pausa', label: 'Hacer una pausa', detail: 'Recuperar calma', visual: '✋' },
+            { id: 'apoyo', label: 'Buscar apoyo', detail: 'No quedarse a solas', visual: '🤝' },
+          ]}
+          orderedItemIds={order}
+          completed={false}
+          saving={false}
+          privacyNote="No escribas nombres ni teléfonos."
+          onChange={setOrder}
+          onCompletion={onCompletion}
+        />
+      )
+    }
+
+    render(<StatefulOrderingPuzzle />)
 
     expect(screen.getByText(/No escribas nombres ni teléfonos/)).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Guardar mi kit' })).toBeDisabled()
-    await user.click(screen.getByRole('checkbox', { name: /Persona de confianza/ }))
-    expect(onChange).toHaveBeenCalledWith(['persona'])
+    expect(screen.getByText('Buscar apoyo')).toBeVisible()
+    await user.click(screen.getByRole('button', { name: 'Mover Buscar apoyo hacia abajo' }))
+    await user.click(screen.getByRole('button', { name: 'Comprobar secuencia' }))
+    expect(onCompletion).toHaveBeenCalledWith(true)
   })
 
-  it('presenta el video sin resumen ni pregunta adicional', async () => {
-    const user = userEvent.setup()
-    const onWatchedChange = vi.fn()
+  it('marca el video automáticamente cuando el reproductor llega al final', async () => {
+    let stateChangeHandler: ((event: { data: number }) => void) | undefined
+    class MockYouTubePlayer {
+      constructor(
+        _element: HTMLIFrameElement,
+        options: { events: { onStateChange: (event: { data: number }) => void } },
+      ) {
+        stateChangeHandler = options.events.onStateChange
+      }
+
+      destroy() {}
+    }
+    Object.defineProperty(window, 'YT', {
+      configurable: true,
+      value: { Player: MockYouTubePlayer },
+    })
+    const onCompletion = vi.fn().mockResolvedValue(undefined)
     render(
       <VideoExperience
         viewingPrompt="Mira el video completo antes de continuar."
@@ -135,20 +156,23 @@ describe('experiencias interactivas del curso', () => {
           video_title: 'Convivencia respetuosa',
           source_label: 'Fuente educativa',
         }}
-        watched={false}
         completed={false}
         saving={false}
-        onWatchedChange={onWatchedChange}
-        onCompletion={vi.fn()}
+        onCompletion={onCompletion}
       />,
     )
 
     const video = screen.getByTitle('Convivencia respetuosa')
     expect(video).toHaveAttribute('loading', 'lazy')
     expect(video).not.toHaveAttribute('autoplay')
+    expect(video.getAttribute('src')).toContain('enablejsapi=1')
     expect(screen.queryByText(/resumen/i)).not.toBeInTheDocument()
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
-    await user.click(screen.getByRole('checkbox', { name: /Terminé de ver el video completo/ }))
-    expect(onWatchedChange).toHaveBeenCalledWith(true)
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
+    expect(screen.getByText(/Por hacer: mira el video hasta el final/)).toBeVisible()
+    await waitFor(() => expect(stateChangeHandler).toBeDefined())
+    act(() => stateChangeHandler?.({ data: 0 }))
+    expect(onCompletion).toHaveBeenCalledWith(true, { watched: true }, false)
+    delete window.YT
   })
 })
