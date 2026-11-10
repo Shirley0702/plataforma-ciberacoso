@@ -43,7 +43,7 @@ export function CourseStepNavigator({
           type="button"
           disabled={!quizUnlocked}
           aria-current={activeStep === lessons.length ? 'step' : undefined}
-          aria-label="Evaluación final de la unidad"
+          aria-label="Reto final de la unidad"
           onClick={() => onSelect(lessons.length)}
         >
           <span aria-hidden="true">★</span>

@@ -6,7 +6,7 @@ import { CourseUnitNavigator } from '../components/CourseUnitNavigator'
 import { LearningExperience } from '../components/LearningExperience'
 import { ModuleAssessment } from '../components/ModuleAssessment'
 import { useCourse } from '../hooks/useCourse'
-import type { CourseUnit, LearningItem } from '../types'
+import type { LearningItem } from '../types'
 
 function orderExperiences(lessons: LearningItem[]) {
   return [...lessons].sort((left, right) => {
@@ -14,12 +14,6 @@ function orderExperiences(lessons: LearningItem[]) {
     if (right.interaction_type === 'video') return 1
     return 0
   })
-}
-
-function firstPendingStep(unit: CourseUnit) {
-  const lessons = orderExperiences(unit.lessons)
-  const pendingIndex = lessons.findIndex((lesson) => !lesson.completed)
-  return pendingIndex === -1 ? lessons.length : pendingIndex
 }
 
 export function CoursePage() {
@@ -39,20 +33,20 @@ export function CoursePage() {
     const pendingUnitIndex = course.units.findIndex((unit) => !unit.certificate)
     const initialUnitIndex = pendingUnitIndex === -1 ? course.units.length - 1 : pendingUnitIndex
     setActiveUnitIndex(initialUnitIndex)
-    setActiveStep(firstPendingStep(course.units[initialUnitIndex]))
+    setActiveStep(0)
     initialized.current = true
   }, [course.units])
 
   useEffect(() => {
     if (!activeUnit || activeStep <= lessons.length) return
-    setActiveStep(firstPendingStep(activeUnit))
+    setActiveStep(0)
   }, [activeStep, activeUnit, lessons.length])
 
   const selectUnit = (index: number) => {
     const unit = course.units[index]
     if (!unit) return
     setActiveUnitIndex(index)
-    setActiveStep(firstPendingStep(unit))
+    setActiveStep(0)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -71,7 +65,7 @@ export function CoursePage() {
     <div className="page-wrap course-page">
       <header className="page-header course-header">
         <div>
-          <span className="eyebrow">Curso personalizado · una experiencia a la vez</span>
+          <span className="eyebrow">Curso interactivo · aprende, descubre y practica</span>
           <h1>{activeUnit?.title ?? 'Ruta de aprendizaje personalizada'}</h1>
           <p>
             {activeUnit

@@ -1,31 +1,34 @@
 import type { InteractionConfig } from '../../types'
-import { ChoiceInteraction } from './ChoiceInteraction'
 
 interface VideoExperienceProps {
-  lessonId: number
-  checkpointPrompt: string
+  viewingPrompt: string
   config: InteractionConfig
-  selectedOption?: string
+  watched: boolean
   completed: boolean
   feedback?: string
   saving: boolean
-  onSelect: (optionId: string) => void
+  onWatchedChange: (watched: boolean) => void
   onCompletion: (completed: boolean) => Promise<void>
 }
 
 export function VideoExperience({
-  lessonId,
-  checkpointPrompt,
+  viewingPrompt,
   config,
-  selectedOption,
+  watched,
   completed,
   feedback,
   saving,
-  onSelect,
+  onWatchedChange,
   onCompletion,
 }: VideoExperienceProps) {
+  const videoWatched = completed || watched
+
   return (
     <div className="video-experience">
+      <div className="video-learning-callout">
+        <span aria-hidden="true">▶</span>
+        <p>{viewingPrompt}</p>
+      </div>
       <div className="video-frame">
         <iframe
           src={config.video_url}
@@ -46,29 +49,31 @@ export function VideoExperience({
           </a>
         )}
       </div>
-      <details className="video-summary">
-        <summary>Leer resumen accesible del video</summary>
-        <p>{config.accessible_summary}</p>
-        {!!config.key_points?.length && (
-          <ul>
-            {config.key_points.map((point) => <li key={point}>{point}</li>)}
-          </ul>
-        )}
-      </details>
-      <div className="video-checkpoint">
-        <h3>{checkpointPrompt}</h3>
-        <ChoiceInteraction
-          lessonId={lessonId}
-          options={config.options ?? []}
-          selectedOption={selectedOption}
-          completed={completed}
-          feedback={feedback}
-          saving={saving}
-          actionLabel="Comprobar y continuar"
-          onSelect={onSelect}
-          onCompletion={onCompletion}
+      <label className={`video-watch-confirmation ${videoWatched ? 'selected' : ''}`}>
+        <input
+          type="checkbox"
+          checked={videoWatched}
+          disabled={completed}
+          onChange={(event) => onWatchedChange(event.target.checked)}
         />
-      </div>
+        <span>
+          <strong>Terminé de ver el video completo</strong>
+          <small>Márcalo al finalizar. No hay una pregunta ni una calificación.</small>
+        </span>
+      </label>
+      {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
+      {completed ? (
+        <p className="puzzle-completed" role="status">✓ Video completado</p>
+      ) : (
+        <button
+          className="btn btn-primary"
+          type="button"
+          disabled={saving || !watched}
+          onClick={() => void onCompletion(true)}
+        >
+          {saving ? 'Guardando…' : 'Continuar a los puzzles'}
+        </button>
+      )}
     </div>
   )
 }

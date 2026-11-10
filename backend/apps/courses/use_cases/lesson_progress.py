@@ -21,36 +21,75 @@ def _configured_ids(lesson, key):
     }
 
 
-def _validate_choice(lesson, response):
+def _validate_video(response):
     response_data = response if isinstance(response, dict) else {}
-    selected_id = str(response_data.get("selected_option", ""))
-    option = next(
-        (
-            item
-            for item in lesson.interaction_config.get("options", [])
-            if str(item.get("id")) == selected_id
-        ),
-        None,
-    )
-    if option is None:
+    if response_data.get("watched") is not True:
         raise ValidationError(
-            {"interaction_response": ["Selecciona una alternativa válida."]}
+            {"interaction_response": ["Confirma que terminaste de ver el video."]}
         )
-    return {"selected_option": selected_id}, option.get("feedback", "")
+    return {"watched": True}, "Video completado. Continúa con el siguiente reto."
 
 
-def _validate_checklist(lesson, response):
+def _validate_exploration(lesson, response):
     response_data = response if isinstance(response, dict) else {}
     selected_items = response_data.get("selected_items")
     if not isinstance(selected_items, list):
         raise ValidationError(
-            {"interaction_response": ["Marca todos los pasos antes de continuar."]}
+            {"interaction_response": ["Explora todos los caminos antes de continuar."]}
+        )
+    configured_ids = _configured_ids(lesson, "options")
+    selected_ids = {str(item_id) for item_id in selected_items}
+    if not configured_ids or selected_ids != configured_ids:
+        raise ValidationError(
+            {"interaction_response": ["Explora todos los caminos antes de continuar."]}
+        )
+    ordered_ids = [
+        str(item["id"])
+        for item in lesson.interaction_config["options"]
+        if str(item["id"]) in selected_ids
+    ]
+    return (
+        {"selected_items": ordered_ids},
+        "Ya conoces las consecuencias de cada camino. Puedes elegir con más información.",
+    )
+
+
+def _validate_matching(lesson, response):
+    response_data = response if isinstance(response, dict) else {}
+    matches = response_data.get("matches")
+    configured_ids = _configured_ids(lesson, "items")
+    if not isinstance(matches, dict) or not configured_ids:
+        raise ValidationError(
+            {"interaction_response": ["Conecta cada idea con su significado."]}
+        )
+    normalized_matches = {str(key): str(value) for key, value in matches.items()}
+    expected_matches = {item_id: item_id for item_id in configured_ids}
+    if normalized_matches != expected_matches:
+        raise ValidationError(
+            {"interaction_response": ["Algunas conexiones no coinciden. Inténtalo otra vez."]}
+        )
+    ordered_matches = {
+        str(item["id"]): str(item["id"])
+        for item in lesson.interaction_config["items"]
+    }
+    return (
+        {"matches": ordered_matches},
+        lesson.interaction_config.get("completion_feedback", ""),
+    )
+
+
+def _validate_safety_plan(lesson, response):
+    response_data = response if isinstance(response, dict) else {}
+    selected_items = response_data.get("selected_items")
+    if not isinstance(selected_items, list):
+        raise ValidationError(
+            {"interaction_response": ["Añade todos los recursos a tu kit antes de continuar."]}
         )
     configured_ids = _configured_ids(lesson, "items")
     selected_ids = {str(item_id) for item_id in selected_items}
     if not configured_ids or selected_ids != configured_ids:
         raise ValidationError(
-            {"interaction_response": ["Marca todos los pasos antes de continuar."]}
+            {"interaction_response": ["Añade todos los recursos a tu kit antes de continuar."]}
         )
     ordered_ids = [
         str(item["id"])
@@ -66,17 +105,17 @@ def _validate_checklist(lesson, response):
 def _validated_interaction(lesson, response):
     if lesson.interaction_type == Lesson.InteractionType.GUIDED:
         return {}, lesson.interaction_config.get("completion_message", "")
+    if lesson.interaction_type == Lesson.InteractionType.VIDEO:
+        return _validate_video(response)
     if lesson.interaction_type in {
-        Lesson.InteractionType.VIDEO,
         Lesson.InteractionType.DECISION,
         Lesson.InteractionType.PRACTICE,
     }:
-        return _validate_choice(lesson, response)
-    if lesson.interaction_type in {
-        Lesson.InteractionType.CHECKLIST,
-        Lesson.InteractionType.SAFETY_PLAN,
-    }:
-        return _validate_checklist(lesson, response)
+        return _validate_exploration(lesson, response)
+    if lesson.interaction_type == Lesson.InteractionType.MATCHING:
+        return _validate_matching(lesson, response)
+    if lesson.interaction_type == Lesson.InteractionType.SAFETY_PLAN:
+        return _validate_safety_plan(lesson, response)
     raise ValidationError(
         {"interaction_response": ["El tipo de experiencia no es válido."]}
     )

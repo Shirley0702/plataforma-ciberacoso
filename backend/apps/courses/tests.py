@@ -22,7 +22,7 @@ class CourseCatalogTests(SimpleTestCase):
             "video",
             "guided",
             "decision",
-            "checklist",
+            "matching",
             "practice",
             "safety_plan",
         }
@@ -48,8 +48,6 @@ class CourseCatalogTests(SimpleTestCase):
             "video_watch_url",
             "video_title",
             "source_label",
-            "accessible_summary",
-            "key_points",
         }
         for unit in COURSE_UNITS:
             self.assertEqual(len(unit["quiz"]), 5)
@@ -158,7 +156,7 @@ class CourseProgressTests(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
 
-    def test_activity_requires_a_valid_decision(self):
+    def test_consequence_puzzle_requires_exploring_every_path(self):
         activity = Lesson.objects.create(
             unit=self.assigned_unit,
             title="Actividad",
@@ -180,28 +178,38 @@ class CourseProgressTests(APITestCase):
             format="json",
         )
         self.assertEqual(malformed.status_code, 400)
+        incomplete = self.client.post(
+            f"/api/courses/lessons/{activity.id}/complete/",
+            {
+                "interaction_response": {
+                    "selected_items": [],
+                    "private_story": "Este dato no debe almacenarse",
+                }
+            },
+            format="json",
+        )
+        self.assertEqual(incomplete.status_code, 400)
         valid = self.client.post(
             f"/api/courses/lessons/{activity.id}/complete/",
             {
                 "interaction_response": {
-                    "selected_option": "reportar",
+                    "selected_items": ["reportar"],
                     "private_story": "Este dato no debe almacenarse",
                 }
             },
             format="json",
         )
         self.assertEqual(valid.status_code, 200)
-        self.assertEqual(valid.data["feedback"], "Bien")
         progress = CourseProgress.objects.get(user=self.user, lesson=activity)
-        self.assertEqual(progress.interaction_response, {"selected_option": "reportar"})
+        self.assertEqual(progress.interaction_response, {"selected_items": ["reportar"]})
 
-    def test_checklist_requires_every_configured_item(self):
-        checklist = Lesson.objects.create(
+    def test_matching_puzzle_requires_every_correct_connection(self):
+        matching = Lesson.objects.create(
             unit=self.assigned_unit,
-            title="Lista interactiva",
+            title="Puzzle de conexiones",
             summary="Señales observables",
-            content="Marca cada señal",
-            interaction_type=Lesson.InteractionType.CHECKLIST,
+            content="Conecta cada señal",
+            interaction_type=Lesson.InteractionType.MATCHING,
             order=2,
             interaction_config={
                 "items": [
@@ -212,17 +220,17 @@ class CourseProgressTests(APITestCase):
             },
         )
         incomplete = self.client.post(
-            f"/api/courses/lessons/{checklist.id}/complete/",
-            {"interaction_response": {"selected_items": ["contexto"]}},
+            f"/api/courses/lessons/{matching.id}/complete/",
+            {"interaction_response": {"matches": {"contexto": "apoyo"}}},
             format="json",
         )
         self.assertEqual(incomplete.status_code, 400)
 
         valid = self.client.post(
-            f"/api/courses/lessons/{checklist.id}/complete/",
+            f"/api/courses/lessons/{matching.id}/complete/",
             {
                 "interaction_response": {
-                    "selected_items": ["apoyo", "contexto"],
+                    "matches": {"apoyo": "apoyo", "contexto": "contexto"},
                     "student_name": "No guardar",
                 }
             },
@@ -230,13 +238,13 @@ class CourseProgressTests(APITestCase):
         )
         self.assertEqual(valid.status_code, 200)
         self.assertEqual(valid.data["feedback"], "Lista completada")
-        progress = CourseProgress.objects.get(user=self.user, lesson=checklist)
+        progress = CourseProgress.objects.get(user=self.user, lesson=matching)
         self.assertEqual(
             progress.interaction_response,
-            {"selected_items": ["contexto", "apoyo"]},
+            {"matches": {"contexto": "contexto", "apoyo": "apoyo"}},
         )
 
-    def test_video_requires_a_valid_checkpoint_without_storing_free_text(self):
+    def test_video_requires_watch_confirmation_without_storing_free_text(self):
         video = Lesson.objects.create(
             unit=self.assigned_unit,
             title="Microvideo",
@@ -246,13 +254,6 @@ class CourseProgressTests(APITestCase):
             order=2,
             interaction_config={
                 "video_url": "https://www.youtube-nocookie.com/embed/example",
-                "options": [
-                    {
-                        "id": "apoyo",
-                        "label": "Buscar apoyo",
-                        "feedback": "Respuesta segura",
-                    }
-                ],
             },
         )
         invalid = self.client.post(f"/api/courses/lessons/{video.id}/complete/")
@@ -262,7 +263,7 @@ class CourseProgressTests(APITestCase):
             f"/api/courses/lessons/{video.id}/complete/",
             {
                 "interaction_response": {
-                    "selected_option": "apoyo",
+                    "watched": True,
                     "personal_detail": "No guardar",
                 }
             },
@@ -270,7 +271,7 @@ class CourseProgressTests(APITestCase):
         )
         self.assertEqual(valid.status_code, 200)
         progress = CourseProgress.objects.get(user=self.user, lesson=video)
-        self.assertEqual(progress.interaction_response, {"selected_option": "apoyo"})
+        self.assertEqual(progress.interaction_response, {"watched": True})
 
     def test_guided_exploration_does_not_store_personal_content(self):
         response = self.client.post(

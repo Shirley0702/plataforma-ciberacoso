@@ -24,11 +24,11 @@ export function GuidedExploration({
     if (completed) setRevealedCards(new Set(cards.map((_, index) => index)))
   }, [cards, completed])
 
-  const toggleCard = (index: number) => {
+  const revealCard = (index: number) => {
     setRevealedCards((current) => {
+      if (current.has(index)) return current
       const next = new Set(current)
-      if (next.has(index)) next.delete(index)
-      else next.add(index)
+      next.add(index)
       return next
     })
   }
@@ -36,6 +36,10 @@ export function GuidedExploration({
 
   return (
     <div className="guided-exploration">
+      <div className="puzzle-progress" aria-live="polite">
+        <span>Pistas descubiertas</span>
+        <strong>{revealedCards.size}/{cards.length}</strong>
+      </div>
       <div className="guided-cards">
         {cards.map((card, index) => {
           const revealed = revealedCards.has(index)
@@ -44,7 +48,8 @@ export function GuidedExploration({
               className={`guided-card ${revealed ? 'revealed' : ''}`}
               type="button"
               aria-expanded={revealed}
-              onClick={() => toggleCard(index)}
+              disabled={completed}
+              onClick={() => revealCard(index)}
               key={card.title}
             >
               <span>{revealed ? '✓' : index + 1}</span>
@@ -55,17 +60,23 @@ export function GuidedExploration({
         })}
       </div>
       {!exploredAll && !completed && (
-        <p className="interaction-hint">Abre las {cards.length} tarjetas para continuar.</p>
+        <p className="interaction-hint">
+          Abre las {cards.length} pistas. Cada una añade una pieza a la idea principal.
+        </p>
       )}
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
-      <button
-        className={`btn ${completed ? 'btn-outline-primary' : 'btn-primary'}`}
-        type="button"
-        disabled={saving || (!completed && !exploredAll)}
-        onClick={() => void onCompletion(!completed)}
-      >
-        {saving ? 'Guardando…' : completed ? 'Marcar como pendiente' : 'Completar exploración'}
-      </button>
+      {completed ? (
+        <p className="puzzle-completed" role="status">✓ Pistas aprendidas</p>
+      ) : (
+        <button
+          className="btn btn-primary"
+          type="button"
+          disabled={saving || !exploredAll}
+          onClick={() => void onCompletion(true)}
+        >
+          {saving ? 'Guardando…' : 'Guardar lo aprendido'}
+        </button>
+      )}
     </div>
   )
 }
