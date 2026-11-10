@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { InteractionCard } from '../../types'
+import { PuzzleIcon } from '../PuzzleIcon'
 
 interface GuidedExplorationProps {
   cards: InteractionCard[]
@@ -52,9 +53,19 @@ export function GuidedExploration({
               onClick={() => revealCard(index)}
               key={card.title}
             >
-              <span>{revealed ? '✓' : index + 1}</span>
-              <strong>{card.title}</strong>
-              {revealed && <small>{card.body}</small>}
+              <span className="guided-card-inner">
+                <span className="guided-card-face guided-card-front">
+                  <span className="guided-card-icon"><PuzzleIcon name="clue" /></span>
+                  <small>Pista {index + 1}</small>
+                  <strong>{card.title}</strong>
+                  <em>Descubrir pista</em>
+                </span>
+                <span className="guided-card-face guided-card-back">
+                  <span className="guided-card-icon"><PuzzleIcon name="check" /></span>
+                  <strong>{card.title}</strong>
+                  <small>{card.body}</small>
+                </span>
+              </span>
             </button>
           )
         })}

@@ -62,6 +62,7 @@ export function InteractionPanel({
         feedback={feedback}
         saving={saving}
         actionLabel={lesson.interaction_type === 'practice' ? 'Completar laboratorio' : 'Guardar lo descubierto'}
+        variant={lesson.interaction_type}
         onChange={(selectedItems) => onResponseChange({ selected_items: selectedItems })}
         onCompletion={onCompletion}
       />

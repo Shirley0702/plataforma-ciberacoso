@@ -1,4 +1,5 @@
 import type { InteractionOption } from '../../types'
+import { PuzzleIcon } from '../PuzzleIcon'
 
 interface ConsequencePuzzleProps {
   options: InteractionOption[]
@@ -7,6 +8,7 @@ interface ConsequencePuzzleProps {
   feedback?: string
   saving: boolean
   actionLabel: string
+  variant: 'decision' | 'practice'
   onChange: (optionIds: string[]) => void
   onCompletion: (completed: boolean) => Promise<void>
 }
@@ -18,6 +20,7 @@ export function ConsequencePuzzle({
   feedback,
   saving,
   actionLabel,
+  variant,
   onChange,
   onCompletion,
 }: ConsequencePuzzleProps) {
@@ -32,7 +35,7 @@ export function ConsequencePuzzle({
   }
 
   return (
-    <div className="consequence-puzzle">
+    <div className={`consequence-puzzle consequence-${variant}`}>
       <div className="puzzle-progress" aria-live="polite">
         <span>Rutas descubiertas</span>
         <strong>{visibleOptionIds.length}/{options.length}</strong>
@@ -49,9 +52,13 @@ export function ConsequencePuzzle({
               onClick={() => revealConsequence(option.id)}
               key={option.id}
             >
-              <span className="consequence-number" aria-hidden="true">{index + 1}</span>
-              <span>
+              <span className="consequence-route-visual" aria-hidden="true">
+                <PuzzleIcon name={variant === 'practice' ? 'chat' : 'route'} size={34} />
+                <small>Ruta {index + 1}</small>
+              </span>
+              <span className="consequence-copy">
                 <strong>{option.label}</strong>
+                <em>{revealed ? 'Consecuencia descubierta' : 'Explorar consecuencia'}</em>
                 {revealed && <small>{option.feedback}</small>}
               </span>
             </button>

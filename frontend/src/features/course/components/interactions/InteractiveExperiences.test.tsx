@@ -56,6 +56,7 @@ describe('experiencias interactivas del curso', () => {
           completed={false}
           saving={false}
           actionLabel="Guardar lo descubierto"
+          variant="decision"
           onChange={handleChange}
           onCompletion={vi.fn()}
         />
@@ -92,9 +93,10 @@ describe('experiencias interactivas del curso', () => {
     }
 
     render(<StatefulMatchingPuzzle />)
-    const selects = screen.getAllByRole('combobox')
-    await user.selectOptions(selects[0], 'hecho')
-    await user.selectOptions(selects[1], 'apoyo')
+    await user.click(screen.getByRole('button', { name: /Hecho observable/ }))
+    await user.click(screen.getByRole('button', { name: /Algo que puede describirse/ }))
+    await user.click(screen.getByRole('button', { name: /Red de apoyo/ }))
+    await user.click(screen.getByRole('button', { name: /Personas o canales/ }))
     await user.click(screen.getByRole('button', { name: 'Comprobar conexiones' }))
     expect(onCompletion).toHaveBeenCalledWith(true)
   })
@@ -108,8 +110,8 @@ describe('experiencias interactivas del curso', () => {
       return (
         <OrderingPuzzle
           items={[
-            { id: 'pausa', label: 'Hacer una pausa', detail: 'Recuperar calma', visual: '✋' },
-            { id: 'apoyo', label: 'Buscar apoyo', detail: 'No quedarse a solas', visual: '🤝' },
+            { id: 'pausa', label: 'Hacer una pausa', detail: 'Recuperar calma', visual: 'pause' },
+            { id: 'apoyo', label: 'Buscar apoyo', detail: 'No quedarse a solas', visual: 'support' },
           ]}
           orderedItemIds={order}
           completed={false}
@@ -169,7 +171,8 @@ describe('experiencias interactivas del curso', () => {
     expect(screen.queryByText(/resumen/i)).not.toBeInTheDocument()
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
-    expect(screen.getByText(/Por hacer: mira el video hasta el final/)).toBeVisible()
+    expect(screen.getByText('Por hacer:')).toBeVisible()
+    expect(screen.getByText('Ver hasta el final')).toBeVisible()
     await waitFor(() => expect(stateChangeHandler).toBeDefined())
     act(() => stateChangeHandler?.({ data: 0 }))
     expect(onCompletion).toHaveBeenCalledWith(true, { watched: true }, false)

@@ -37,6 +37,20 @@ class CourseCatalogTests(SimpleTestCase):
 
     def test_units_have_specific_quizzes_and_no_free_text_interactions(self):
         question_sets = []
+        allowed_visuals = {
+            "pause",
+            "document",
+            "support",
+            "compass",
+            "stop",
+            "chat",
+            "help",
+            "lock",
+            "report",
+            "observe",
+            "university",
+            "emergency",
+        }
         allowed_config_keys = {
             "cards",
             "options",
@@ -59,7 +73,12 @@ class CourseCatalogTests(SimpleTestCase):
                 if item["interaction_type"] == "safety_plan":
                     puzzle_items = item["interaction_config"]["items"]
                     self.assertEqual(len(puzzle_items), 4)
-                    self.assertTrue(all(puzzle_item.get("visual") for puzzle_item in puzzle_items))
+                    self.assertTrue(
+                        all(
+                            puzzle_item.get("visual") in allowed_visuals
+                            for puzzle_item in puzzle_items
+                        )
+                    )
         self.assertEqual(len(set(question_sets)), len(COURSE_UNITS))
 
 

@@ -23,9 +23,12 @@ export function CourseUnitNavigator({ units, activeIndex, onSelect }: CourseUnit
             onClick={() => onSelect(index)}
             key={unit.id}
           >
-            <span aria-hidden="true">{completed ? '✓' : index + 1}</span>
-            <small>Unidad {index + 1}</small>
-            <span className="visually-hidden">: {unit.title}. {state}</span>
+            <span className="unit-tab-marker" aria-hidden="true">{completed ? '✓' : index + 1}</span>
+            <span className="unit-tab-copy">
+              <small>Unidad {index + 1}</small>
+              <strong>{unit.title}</strong>
+              <em>{state}</em>
+            </span>
           </button>
         )
       })}

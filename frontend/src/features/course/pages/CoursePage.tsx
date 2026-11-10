@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getCourseThemeClass } from '../config/courseThemes'
+import { CourseProgressPanel } from '../components/CourseProgressPanel'
 import { CourseSafetyBanner } from '../components/CourseSafetyBanner'
-import { CourseStepNavigator } from '../components/CourseStepNavigator'
-import { CourseUnitNavigator } from '../components/CourseUnitNavigator'
 import { LearningExperience } from '../components/LearningExperience'
 import { ModuleAssessment } from '../components/ModuleAssessment'
 import { useCourse } from '../hooks/useCourse'
@@ -79,12 +78,6 @@ export function CoursePage() {
               : 'Completa primero la evaluación para generar tu ruta.'}
           </p>
         </div>
-        {activeUnit && (
-          <div className="course-progress-summary" aria-label={`${course.progressPercentage}% del curso completado`}>
-            <strong>{course.progressPercentage}%</strong>
-            <span>avance total</span>
-          </div>
-        )}
       </header>
 
       {course.error && <div className="alert alert-danger" role="alert">{course.error}</div>}
@@ -92,90 +85,89 @@ export function CoursePage() {
       {course.error && !course.units.length && <p><Link to="/evaluacion">Volver a la evaluación</Link></p>}
 
       {activeUnit && (
-        <>
-          <CourseSafetyBanner />
-          <CourseUnitNavigator
-            units={course.units}
-            activeIndex={activeUnitIndex}
-            onSelect={selectUnit}
-          />
-
-          <section className="course-player" aria-labelledby={`unit-${activeUnit.id}`}>
-            <div className="course-player-topbar">
-              <div>
-                <span className="eyebrow">Unidad {activeUnitIndex + 1} de {course.units.length}</span>
-                <h2 id={`unit-${activeUnit.id}`}>{activeUnit.title}</h2>
+        <div className="course-workspace">
+          <main className="course-main-column">
+            <CourseSafetyBanner />
+            <section className="course-player" aria-labelledby={`unit-${activeUnit.id}`}>
+              <div className="course-player-topbar">
+                <div>
+                  <span className="eyebrow">Unidad {activeUnitIndex + 1} de {course.units.length}</span>
+                  <h2 id={`unit-${activeUnit.id}`}>{activeUnit.title}</h2>
+                </div>
+                <span className="unit-completion">
+                  {lessons.filter((lesson) => lesson.completed).length}/{lessons.length} experiencias
+                </span>
               </div>
-              <span className="unit-completion">
-                {lessons.filter((lesson) => lesson.completed).length}/{lessons.length} experiencias
-              </span>
-            </div>
 
-            <CourseStepNavigator
-              lessons={lessons}
-              activeStep={activeStep}
-              quizUnlocked={activeUnit.quiz_unlocked}
-              onSelect={setActiveStep}
-            />
+              <div className="course-stage" key={`${activeUnit.id}-${activeStep}`}>
+                {activeLesson ? (
+                  <LearningExperience
+                    lesson={activeLesson}
+                    position={activeStep + 1}
+                    total={lessons.length}
+                    saving={course.savingLessonId === activeLesson.id}
+                    response={course.interactionResponses[activeLesson.id] ?? {}}
+                    feedback={course.interactionFeedback[activeLesson.id]}
+                    onResponseChange={(response) => course.setInteractionResponse(
+                      activeLesson.id,
+                      response,
+                    )}
+                    onCompletion={completeExperience}
+                  />
+                ) : (
+                  <ModuleAssessment
+                    unit={activeUnit}
+                    answers={course.quizAnswers}
+                    setAnswers={course.setQuizAnswers}
+                    result={course.quizResults[activeUnit.id] ?? null}
+                    submitting={course.submittingUnitId === activeUnit.id}
+                    onSubmit={course.submitQuiz}
+                    onDownload={course.downloadCertificate}
+                  />
+                )}
+              </div>
 
-            <div className="course-stage" key={`${activeUnit.id}-${activeStep}`}>
-              {activeLesson ? (
-                <LearningExperience
-                  lesson={activeLesson}
-                  position={activeStep + 1}
-                  total={lessons.length}
-                  saving={course.savingLessonId === activeLesson.id}
-                  response={course.interactionResponses[activeLesson.id] ?? {}}
-                  feedback={course.interactionFeedback[activeLesson.id]}
-                  onResponseChange={(response) => course.setInteractionResponse(
-                    activeLesson.id,
-                    response,
-                  )}
-                  onCompletion={completeExperience}
-                />
-              ) : (
-                <ModuleAssessment
-                  unit={activeUnit}
-                  answers={course.quizAnswers}
-                  setAnswers={course.setQuizAnswers}
-                  result={course.quizResults[activeUnit.id] ?? null}
-                  submitting={course.submittingUnitId === activeUnit.id}
-                  onSubmit={course.submitQuiz}
-                  onDownload={course.downloadCertificate}
-                />
-              )}
-            </div>
-
-            <footer className="course-player-controls">
-              <button
-                className="btn btn-outline-primary"
-                type="button"
-                disabled={activeStep === 0}
-                onClick={() => setActiveStep((current) => Math.max(0, current - 1))}
-              >
-                ← Anterior
-              </button>
-              {nextUnitAvailable ? (
+              <footer className="course-player-controls">
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-outline-primary"
                   type="button"
-                  onClick={() => selectUnit(activeUnitIndex + 1)}
+                  disabled={activeStep === 0}
+                  onClick={() => setActiveStep((current) => Math.max(0, current - 1))}
                 >
-                  Continuar a la unidad {activeUnitIndex + 2} →
+                  ← Anterior
                 </button>
-              ) : (
-                <button
-                  className="btn btn-primary"
-                  type="button"
-                  disabled={!canMoveForward || activeStep >= lessons.length}
-                  onClick={() => setActiveStep((current) => Math.min(lessons.length, current + 1))}
-                >
-                  Siguiente experiencia →
-                </button>
-              )}
-            </footer>
-          </section>
-        </>
+                {nextUnitAvailable ? (
+                  <button
+                    className="btn btn-primary"
+                    type="button"
+                    onClick={() => selectUnit(activeUnitIndex + 1)}
+                  >
+                    Continuar a la unidad {activeUnitIndex + 2} →
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-primary"
+                    type="button"
+                    disabled={!canMoveForward || activeStep >= lessons.length}
+                    onClick={() => setActiveStep((current) => Math.min(lessons.length, current + 1))}
+                  >
+                    Siguiente experiencia →
+                  </button>
+                )}
+              </footer>
+            </section>
+          </main>
+
+          <CourseProgressPanel
+            units={course.units}
+            activeUnitIndex={activeUnitIndex}
+            lessons={lessons}
+            activeStep={activeStep}
+            progressPercentage={course.progressPercentage}
+            onSelectUnit={selectUnit}
+            onSelectStep={setActiveStep}
+          />
+        </div>
       )}
     </div>
   )
