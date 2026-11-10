@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getCourseThemeClass } from '../config/courseThemes'
 import { CourseSafetyBanner } from '../components/CourseSafetyBanner'
 import { CourseStepNavigator } from '../components/CourseStepNavigator'
 import { CourseUnitNavigator } from '../components/CourseUnitNavigator'
 import { LearningExperience } from '../components/LearningExperience'
 import { ModuleAssessment } from '../components/ModuleAssessment'
 import { useCourse } from '../hooks/useCourse'
-import type { LearningItem } from '../types'
+import type { InteractionResponse, LearningItem } from '../types'
 
 function orderExperiences(lessons: LearningItem[]) {
   return [...lessons].sort((left, right) => {
@@ -50,9 +51,14 @@ export function CoursePage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const completeExperience = async (lesson: LearningItem, completed: boolean) => {
-    const saved = await course.updateCompletion(lesson, completed)
-    if (saved && completed) {
+  const completeExperience = async (
+    lesson: LearningItem,
+    completed: boolean,
+    responseOverride?: InteractionResponse,
+    advance = true,
+  ) => {
+    const saved = await course.updateCompletion(lesson, completed, responseOverride)
+    if (saved && completed && advance) {
       setActiveStep((current) => Math.min(current + 1, lessons.length))
       document.querySelector('.course-stage')?.scrollIntoView({ behavior: 'smooth' })
     }
@@ -62,7 +68,7 @@ export function CoursePage() {
   const nextUnitAvailable = Boolean(activeUnit?.certificate && course.units[activeUnitIndex + 1])
 
   return (
-    <div className="page-wrap course-page">
+    <div className={`page-wrap course-page ${getCourseThemeClass(activeUnit?.slug)}`}>
       <header className="page-header course-header">
         <div>
           <span className="eyebrow">Curso interactivo · aprende, descubre y practica</span>

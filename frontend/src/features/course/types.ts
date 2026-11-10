@@ -21,6 +21,7 @@ export interface InteractionItem {
   id: string
   label: string
   detail: string
+  visual?: string
 }
 
 export interface InteractionConfig {
