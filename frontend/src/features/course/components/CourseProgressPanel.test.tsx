@@ -47,6 +47,11 @@ describe('panel lateral de progreso', () => {
 
     expect(screen.getByRole('complementary', { name: 'Panel de progreso del curso' })).toBeVisible()
     expect(screen.getByRole('progressbar')).toHaveValue(42)
-    expect(screen.getByRole('button', { name: /Experiencia 1 Reconocer una señal.*completada/ })).toBeVisible()
+    const unitButton = screen.getByRole('button', { name: /Unidad 1.*Bienestar digital.*Disponible/ })
+    const experienceButton = screen.getByRole('button', { name: /Experiencia 1 Reconocer una señal.*completada/ })
+    expect(unitButton).toBeVisible()
+    expect(experienceButton).toBeVisible()
+    expect(unitButton.compareDocumentPosition(experienceButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.queryByText('Avance de la unidad')).not.toBeInTheDocument()
   })
 })

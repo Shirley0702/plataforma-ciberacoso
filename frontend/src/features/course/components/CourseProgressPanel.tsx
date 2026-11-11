@@ -55,19 +55,16 @@ export function CourseProgressPanel({
           <CourseUnitNavigator
             units={units}
             activeIndex={activeUnitIndex}
-            onSelect={onSelectUnit}
-          />
-          {activeUnit && (
-            <div className="course-unit-progress-group" aria-labelledby="unit-progress-heading">
-              <h3 id="unit-progress-heading">Avance de la unidad</h3>
+            activeUnitDetails={activeUnit && (
               <CourseStepNavigator
                 lessons={lessons}
                 activeStep={activeStep}
                 quizUnlocked={activeUnit.quiz_unlocked}
                 onSelect={onSelectStep}
               />
-            </div>
-          )}
+            )}
+            onSelect={onSelectUnit}
+          />
         </section>
       </div>
     </aside>

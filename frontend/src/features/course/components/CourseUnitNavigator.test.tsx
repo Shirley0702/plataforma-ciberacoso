@@ -40,4 +40,21 @@ describe('navegación secuencial de unidades', () => {
     await user.click(screen.getByRole('button', { name: /Unidad 2.*Disponible/ }))
     expect(onSelect).toHaveBeenCalledWith(1)
   })
+
+  it('muestra el contenido de la unidad activa inmediatamente debajo de ella', () => {
+    render(
+      <CourseUnitNavigator
+        units={[unit(1), unit(2)]}
+        activeIndex={0}
+        activeUnitDetails={<span>Experiencias de la unidad activa</span>}
+        onSelect={vi.fn()}
+      />,
+    )
+
+    const activeUnit = screen.getByRole('button', { name: /Unidad 1.*Disponible/ })
+    const activeDetails = screen.getByText('Experiencias de la unidad activa')
+    const nextUnit = screen.getByRole('button', { name: /Unidad 2.*Bloqueada/ })
+    expect(activeUnit.compareDocumentPosition(activeDetails) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(activeDetails.compareDocumentPosition(nextUnit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
 })
