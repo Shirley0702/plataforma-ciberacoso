@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { tokenStorage } from '../../../shared/api/httpClient'
 
 export function CourseSafetyBanner() {
@@ -22,7 +21,6 @@ export function CourseSafetyBanner() {
       <div>
         <strong>Aprende a tu ritmo y protege tu privacidad.</strong>
         <p>Puedes pausar y volver después. Las actividades no solicitan nombres ni relatos personales.</p>
-        <Link to="/recursos">Ver recursos de orientación</Link>
       </div>
       <button className="quick-exit-button" type="button" onClick={quickExit}>
         × Salir Rápido (Esc)

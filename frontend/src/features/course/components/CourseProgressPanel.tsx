@@ -50,26 +50,25 @@ export function CourseProgressPanel({
       </header>
 
       <div id="course-progress-detail" className={`course-progress-panel-body ${mobileExpanded ? 'expanded' : 'collapsed'}`}>
-        <section className="course-progress-section" aria-labelledby="course-units-heading">
+        <section className="course-progress-navigation" aria-labelledby="course-units-heading">
           <h2 id="course-units-heading">Ruta personalizada</h2>
           <CourseUnitNavigator
             units={units}
             activeIndex={activeUnitIndex}
             onSelect={onSelectUnit}
           />
+          {activeUnit && (
+            <div className="course-unit-progress-group" aria-labelledby="unit-progress-heading">
+              <h3 id="unit-progress-heading">Avance de la unidad</h3>
+              <CourseStepNavigator
+                lessons={lessons}
+                activeStep={activeStep}
+                quizUnlocked={activeUnit.quiz_unlocked}
+                onSelect={onSelectStep}
+              />
+            </div>
+          )}
         </section>
-
-        {activeUnit && (
-          <section className="course-progress-section" aria-labelledby="unit-progress-heading">
-            <h2 id="unit-progress-heading">Avance de la unidad</h2>
-            <CourseStepNavigator
-              lessons={lessons}
-              activeStep={activeStep}
-              quizUnlocked={activeUnit.quiz_unlocked}
-              onSelect={onSelectStep}
-            />
-          </section>
-        )}
       </div>
     </aside>
   )
