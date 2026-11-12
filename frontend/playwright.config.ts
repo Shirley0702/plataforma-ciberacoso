@@ -6,7 +6,9 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  timeout: process.env.CI ? 90_000 : 60_000,
+  // En CI, Axe, la grabación de video y las trazas comparten el tiempo del recorrido.
+  // El margen evita falsos negativos en runners lentos sin ocultar esperas individuales.
+  timeout: process.env.CI ? 180_000 : 60_000,
   workers: 1,
   reporter: process.env.CI ? [['html', { open: 'never' }], ['list']] : 'list',
   use: {
