@@ -1,5 +1,7 @@
 import type { InteractionResponse, LearningItem } from '../../types'
-import { ConsequencePuzzle } from './ConsequencePuzzle'
+import { getCoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
+import { DecisionMapPuzzle } from './DecisionMapPuzzle'
+import { DialogueBuilderPuzzle } from './DialogueBuilderPuzzle'
 import { GuidedExploration } from './GuidedExploration'
 import { MatchingPuzzle } from './MatchingPuzzle'
 import { OrderingPuzzle } from './OrderingPuzzle'
@@ -7,6 +9,7 @@ import { VideoExperience } from './VideoExperience'
 
 interface InteractionPanelProps {
   lesson: LearningItem
+  unitSlug: string
   response: InteractionResponse
   feedback?: string
   saving: boolean
@@ -20,6 +23,7 @@ interface InteractionPanelProps {
 
 export function InteractionPanel({
   lesson,
+  unitSlug,
   response,
   feedback,
   saving,
@@ -42,9 +46,12 @@ export function InteractionPanel({
   }
 
   if (lesson.interaction_type === 'guided') {
+    const visual = getCoursePuzzleVisual(unitSlug, 'guided')
     return (
       <GuidedExploration
         cards={config.cards ?? []}
+        prompt={lesson.interaction_prompt}
+        visual={visual}
         completed={lesson.completed}
         feedback={feedback}
         saving={saving}
@@ -53,16 +60,39 @@ export function InteractionPanel({
     )
   }
 
-  if (lesson.interaction_type === 'decision' || lesson.interaction_type === 'practice') {
+  if (lesson.interaction_type === 'decision') {
+    const visual = getCoursePuzzleVisual(unitSlug, 'decision')
     return (
-      <ConsequencePuzzle
+      <DecisionMapPuzzle
         options={config.options ?? []}
         exploredOptionIds={response.selected_items ?? []}
         chosenOptionId={response.chosen_option}
         completed={lesson.completed}
         feedback={feedback}
         saving={saving}
-        variant={lesson.interaction_type}
+        prompt={lesson.interaction_prompt}
+        visual={visual}
+        onChange={(selectedItems, chosenOption) => onResponseChange({
+          selected_items: selectedItems,
+          chosen_option: chosenOption,
+        })}
+        onCompletion={onCompletion}
+      />
+    )
+  }
+
+  if (lesson.interaction_type === 'practice') {
+    const visual = getCoursePuzzleVisual(unitSlug, 'practice')
+    return (
+      <DialogueBuilderPuzzle
+        options={config.options ?? []}
+        exploredOptionIds={response.selected_items ?? []}
+        chosenOptionId={response.chosen_option}
+        completed={lesson.completed}
+        feedback={feedback}
+        saving={saving}
+        prompt={lesson.interaction_prompt}
+        visual={visual}
         onChange={(selectedItems, chosenOption) => onResponseChange({
           selected_items: selectedItems,
           chosen_option: chosenOption,
@@ -73,9 +103,12 @@ export function InteractionPanel({
   }
 
   if (lesson.interaction_type === 'matching') {
+    const visual = getCoursePuzzleVisual(unitSlug, 'matching')
     return (
       <MatchingPuzzle
         items={config.items ?? []}
+        prompt={lesson.interaction_prompt}
+        visual={visual}
         matches={response.matches ?? {}}
         completed={lesson.completed}
         feedback={feedback}
@@ -86,9 +119,12 @@ export function InteractionPanel({
     )
   }
 
+  const visual = getCoursePuzzleVisual(unitSlug, 'safety_plan')
   return (
     <OrderingPuzzle
       items={config.items ?? []}
+      prompt={lesson.interaction_prompt}
+      visual={visual}
       orderedItemIds={response.selected_items ?? []}
       completed={lesson.completed}
       feedback={feedback}

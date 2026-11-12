@@ -1,39 +1,77 @@
+import type { InteractionType } from '../types'
+
+export type PuzzleKind = Exclude<InteractionType, 'video'>
+
 export interface CoursePuzzleVisual {
   src: string
   alt: string
   videoCue: string
 }
 
-const COURSE_PUZZLE_VISUALS: Record<string, CoursePuzzleVisual> = {
+interface CourseVisualIdentity {
+  folder: string
+  subject: string
+  videoCue: string
+}
+
+const COURSE_VISUAL_IDENTITIES: Record<string, CourseVisualIdentity> = {
   'acoso-vertical': {
-    src: '/assets/course-puzzles/authority.jpg',
-    alt: 'Estudiante organizando pistas sobre límites, pausa y acompañamiento universitario.',
-    videoCue: 'Recuerda cómo el video diferencia una orientación respetuosa de una relación que limita la participación.',
+    folder: 'authority',
+    subject: 'límites, apoyo y decisiones ante relaciones de autoridad',
+    videoCue: 'Distingue una orientación respetuosa de una conducta que reduce la participación o el control.',
   },
   'acoso-horizontal': {
-    src: '/assets/course-puzzles/peers.jpg',
-    alt: 'Grupo de estudiantes deteniendo una cadena de mensajes y construyendo apoyo entre compañeros.',
-    videoCue: 'Recuerda cómo el video muestra que reenviar, participar o guardar silencio puede sostener la presión del grupo.',
+    folder: 'peers',
+    subject: 'presión de grupo, apoyo privado y participación entre pares',
+    videoCue: 'Observa cómo reenviar, participar o guardar silencio cambia el efecto de una acción grupal.',
   },
   'acoso-tecnologico': {
-    src: '/assets/course-puzzles/digital-safety.jpg',
-    alt: 'Estudiante ordenando acciones para detener una difusión, proteger una cuenta y buscar apoyo.',
-    videoCue: 'Recuerda la idea central del video: antes de publicar o reenviar, comprueba el consentimiento y el alcance.',
+    folder: 'digital-safety',
+    subject: 'privacidad, consentimiento y recuperación del control digital',
+    videoCue: 'Antes de publicar o reenviar, comprueba el consentimiento, el alcance y las opciones de apoyo.',
   },
   'acoso-vulnerabilidad': {
-    src: '/assets/course-puzzles/diversity.jpg',
-    alt: 'Estudiantes diversos construyendo juntos un puzzle de participación e inclusión.',
-    videoCue: 'Recuerda cómo el video presenta la diversidad como una parte valiosa de la convivencia y la participación.',
+    folder: 'diversity',
+    subject: 'trato digno, diversidad y participación inclusiva',
+    videoCue: 'Mira la conducta y su efecto: apoyar también significa no decidir ni hablar por otra persona.',
   },
   'fundamentos-preventivos': {
-    src: '/assets/course-puzzles/prevention.jpg',
-    alt: 'Estudiantes construyendo una ruta visual de acuerdos, límites y apoyo cotidiano.',
-    videoCue: 'Recuerda cómo el video relaciona los acuerdos cotidianos con una convivencia más segura y respetuosa.',
+    folder: 'prevention',
+    subject: 'acuerdos, límites y autocuidado preventivo',
+    videoCue: 'Relaciona los acuerdos cotidianos con una convivencia más clara, segura y respetuosa.',
   },
 }
 
-const FALLBACK_VISUAL = COURSE_PUZZLE_VISUALS['fundamentos-preventivos']
+const VISUAL_DESCRIPTION: Record<PuzzleKind, string> = {
+  guided: 'Ilustración que se reconstruye como un mosaico visual',
+  decision: 'Mapa ilustrado con varios caminos posibles',
+  matching: 'Mesa visual con señales que deben conectarse',
+  practice: 'Escena ilustrada para construir una respuesta',
+  safety_plan: 'Ruta ilustrada que debe ordenarse paso a paso',
+}
 
-export function getCoursePuzzleVisual(unitSlug: string): CoursePuzzleVisual {
-  return COURSE_PUZZLE_VISUALS[unitSlug] ?? FALLBACK_VISUAL
+const FILE_NAME_BY_KIND: Record<PuzzleKind, string> = {
+  guided: '',
+  decision: 'decision',
+  matching: 'matching',
+  practice: 'dialogue',
+  safety_plan: 'sequence',
+}
+
+const FALLBACK_IDENTITY = COURSE_VISUAL_IDENTITIES['fundamentos-preventivos']
+
+export function getCoursePuzzleVisual(
+  unitSlug: string,
+  kind: PuzzleKind,
+): CoursePuzzleVisual {
+  const identity = COURSE_VISUAL_IDENTITIES[unitSlug] ?? FALLBACK_IDENTITY
+  const fileName = kind === 'guided'
+    ? `/assets/course-puzzles/${identity.folder}.jpg`
+    : `/assets/course-puzzles/${identity.folder}/${FILE_NAME_BY_KIND[kind]}.jpg`
+
+  return {
+    src: fileName,
+    alt: `${VISUAL_DESCRIPTION[kind]} sobre ${identity.subject}.`,
+    videoCue: identity.videoCue,
+  }
 }

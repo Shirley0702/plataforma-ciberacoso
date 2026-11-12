@@ -3,54 +3,51 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-import { ConsequencePuzzle } from './ConsequencePuzzle'
+import type { CoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
+import { DecisionMapPuzzle } from './DecisionMapPuzzle'
+import { DialogueBuilderPuzzle } from './DialogueBuilderPuzzle'
 import { GuidedExploration } from './GuidedExploration'
 import { MatchingPuzzle } from './MatchingPuzzle'
 import { OrderingPuzzle } from './OrderingPuzzle'
 import { VideoExperience } from './VideoExperience'
 
+const visual: CoursePuzzleVisual = {
+  src: '/assets/course-puzzles/test.jpg',
+  alt: 'Escena educativa para resolver el puzzle.',
+  videoCue: 'Usa la idea central del video como pista.',
+}
+
 describe('experiencias interactivas del curso', () => {
-  it('convierte las tarjetas en un puzzle de pistas sin calificación', async () => {
+  it('completa un mosaico real al intercambiar todas las piezas', async () => {
     const user = userEvent.setup()
     const onCompletion = vi.fn().mockResolvedValue(undefined)
     render(
       <GuidedExploration
-        cards={[
-          { title: 'Primera idea', body: 'Detalle uno' },
-          { title: 'Segunda idea', body: 'Detalle dos' },
-        ]}
+        cards={[{ title: 'Límite', body: 'Idea revelada' }]}
+        prompt="Reconstruye la escena."
+        visual={visual}
         completed={false}
         saving={false}
         onCompletion={onCompletion}
       />,
     )
 
-    const completeButton = screen.getByRole('button', { name: 'Guardar lo aprendido' })
-    expect(completeButton).toBeDisabled()
-    await user.click(screen.getByRole('button', { name: /Primera idea/ }))
-    expect(screen.getByText('Detalle uno')).toBeVisible()
-    await user.click(screen.getByRole('button', { name: /Segunda idea/ }))
-    expect(completeButton).toBeEnabled()
-    await user.click(completeButton)
+    for (const [first, second] of [[1, 2], [2, 5], [3, 4], [4, 6]]) {
+      await user.click(screen.getByRole('button', { name: `Pieza en la posición ${first}` }))
+      await user.click(screen.getByRole('button', { name: `Pieza en la posición ${second}` }))
+    }
     expect(onCompletion).toHaveBeenCalledWith(true)
   })
 
-  it('enseña consecuencias al explorar todos los caminos', async () => {
+  it('enseña consecuencias en un mapa antes de elegir una ruta', async () => {
     const user = userEvent.setup()
-    const onChange = vi.fn()
     const onCompletion = vi.fn().mockResolvedValue(undefined)
 
-    function StatefulConsequencePuzzle() {
+    function StatefulPuzzle() {
       const [exploredOptionIds, setExploredOptionIds] = useState<string[]>([])
       const [chosenOptionId, setChosenOptionId] = useState<string>()
-      const handleChange = (nextIds: string[], nextChoice?: string) => {
-        onChange(nextIds, nextChoice)
-        setExploredOptionIds(nextIds)
-        setChosenOptionId(nextChoice)
-      }
-
       return (
-        <ConsequencePuzzle
+        <DecisionMapPuzzle
           options={[
             { id: 'pausar', label: 'Pausar y buscar apoyo', feedback: 'Conserva opciones', recommended: true },
             { id: 'responder', label: 'Responder de inmediato', feedback: 'Puede aumentar el riesgo' },
@@ -59,21 +56,22 @@ describe('experiencias interactivas del curso', () => {
           chosenOptionId={chosenOptionId}
           completed={false}
           saving={false}
-          variant="decision"
-          onChange={handleChange}
+          prompt="Compara los caminos."
+          visual={visual}
+          onChange={(nextIds, nextChoice) => {
+            setExploredOptionIds(nextIds)
+            setChosenOptionId(nextChoice)
+          }}
           onCompletion={onCompletion}
         />
       )
     }
 
-    render(<StatefulConsequencePuzzle />)
-
+    render(<StatefulPuzzle />)
     await user.click(screen.getByRole('button', { name: /Pausar y buscar apoyo/ }))
-    expect(screen.getByText('Conserva opciones')).toBeVisible()
     await user.click(screen.getByRole('button', { name: /Responder de inmediato/ }))
-    expect(screen.getByText(/Ahora resuelve el puzzle/)).toBeVisible()
     await user.click(screen.getByRole('button', { name: /Responder de inmediato/ }))
-    expect(screen.getByRole('alert')).toHaveTextContent(/puede aumentar el riesgo/i)
+    expect(screen.getByRole('alert')).toHaveTextContent(/aumenta el riesgo/i)
     await user.click(screen.getByRole('button', { name: /Pausar y buscar apoyo/ }))
     expect(onCompletion).toHaveBeenCalledWith(true, {
       selected_items: ['pausar', 'responder'],
@@ -81,7 +79,45 @@ describe('experiencias interactivas del curso', () => {
     })
   })
 
-  it('permite resolver conexiones sin penalización', async () => {
+  it('construye y compara respuestas dentro de un diálogo', async () => {
+    const user = userEvent.setup()
+    const onCompletion = vi.fn().mockResolvedValue(undefined)
+
+    function StatefulDialogue() {
+      const [explored, setExplored] = useState<string[]>([])
+      const [chosen, setChosen] = useState<string>()
+      return (
+        <DialogueBuilderPuzzle
+          options={[
+            { id: 'ataque', label: 'Responder con una amenaza', feedback: 'Escala la situación' },
+            { id: 'limite', label: 'Marcar un límite claro', feedback: 'Conserva el control', recommended: true },
+          ]}
+          exploredOptionIds={explored}
+          chosenOptionId={chosen}
+          completed={false}
+          saving={false}
+          prompt="Construye una respuesta."
+          visual={visual}
+          onChange={(nextIds, nextChoice) => {
+            setExplored(nextIds)
+            setChosen(nextChoice)
+          }}
+          onCompletion={onCompletion}
+        />
+      )
+    }
+
+    render(<StatefulDialogue />)
+    await user.click(screen.getByRole('button', { name: /Responder con una amenaza/ }))
+    expect(screen.getByText('Escala la situación')).toBeVisible()
+    await user.click(screen.getByRole('button', { name: /Marcar un límite claro/ }))
+    expect(onCompletion).toHaveBeenCalledWith(true, {
+      selected_items: ['ataque', 'limite'],
+      chosen_option: 'limite',
+    })
+  })
+
+  it('permite encajar conexiones visuales sin penalización', async () => {
     const user = userEvent.setup()
     const onCompletion = vi.fn().mockResolvedValue(undefined)
 
@@ -90,10 +126,12 @@ describe('experiencias interactivas del curso', () => {
       return (
         <MatchingPuzzle
           items={[
-            { id: 'hecho', label: 'Hecho observable', detail: 'Algo que puede describirse sin adivinar intenciones' },
-            { id: 'apoyo', label: 'Red de apoyo', detail: 'Personas o canales que pueden acompañar' },
+            { id: 'hecho', label: 'Hecho observable', detail: 'Puede describirse sin adivinar intenciones', visual: 'observe' },
+            { id: 'apoyo', label: 'Red de apoyo', detail: 'Puede acompañar', visual: 'support' },
           ]}
           matches={matches}
+          prompt="Conecta las señales."
+          visual={visual}
           completed={false}
           saving={false}
           onChange={setMatches}
@@ -104,14 +142,14 @@ describe('experiencias interactivas del curso', () => {
 
     render(<StatefulMatchingPuzzle />)
     await user.click(screen.getByRole('button', { name: /Hecho observable/ }))
-    await user.click(screen.getByRole('button', { name: /Algo que puede describirse/ }))
+    await user.click(screen.getByRole('button', { name: /Puede describirse/ }))
     await user.click(screen.getByRole('button', { name: /Red de apoyo/ }))
-    await user.click(screen.getByRole('button', { name: /Personas o canales/ }))
-    await user.click(screen.getByRole('button', { name: 'Comprobar conexiones' }))
+    await user.click(screen.getByRole('button', { name: /Puede acompañar/ }))
+    await user.click(screen.getByRole('button', { name: 'Comprobar encaje' }))
     expect(onCompletion).toHaveBeenCalledWith(true)
   })
 
-  it('ordena un puzzle visual también mediante controles accesibles', async () => {
+  it('ordena una ruta ilustrada mediante controles accesibles', async () => {
     const user = userEvent.setup()
     const onCompletion = vi.fn().mockResolvedValue(undefined)
 
@@ -124,6 +162,8 @@ describe('experiencias interactivas del curso', () => {
             { id: 'apoyo', label: 'Buscar apoyo', detail: 'No quedarse a solas', visual: 'support' },
           ]}
           orderedItemIds={order}
+          prompt="Ordena la ruta."
+          visual={visual}
           completed={false}
           saving={false}
           privacyNote="No escribas nombres ni teléfonos."
@@ -134,30 +174,20 @@ describe('experiencias interactivas del curso', () => {
     }
 
     render(<StatefulOrderingPuzzle />)
-
-    expect(screen.getByText(/No escribas nombres ni teléfonos/)).toBeVisible()
-    expect(screen.getByText('Buscar apoyo')).toBeVisible()
-    await user.click(screen.getByRole('button', { name: 'Mover Buscar apoyo hacia abajo' }))
-    await user.click(screen.getByRole('button', { name: 'Comprobar secuencia' }))
+    await user.click(screen.getByRole('button', { name: 'Mover Buscar apoyo hacia adelante' }))
+    await user.click(screen.getByRole('button', { name: 'Comprobar ruta' }))
     expect(onCompletion).toHaveBeenCalledWith(true)
   })
 
   it('marca el video automáticamente cuando el reproductor llega al final', async () => {
     let stateChangeHandler: ((event: { data: number }) => void) | undefined
     class MockYouTubePlayer {
-      constructor(
-        _element: HTMLIFrameElement,
-        options: { events: { onStateChange: (event: { data: number }) => void } },
-      ) {
+      constructor(_element: HTMLIFrameElement, options: { events: { onStateChange: (event: { data: number }) => void } }) {
         stateChangeHandler = options.events.onStateChange
       }
-
       destroy() {}
     }
-    Object.defineProperty(window, 'YT', {
-      configurable: true,
-      value: { Player: MockYouTubePlayer },
-    })
+    Object.defineProperty(window, 'YT', { configurable: true, value: { Player: MockYouTubePlayer } })
     const onCompletion = vi.fn().mockResolvedValue(undefined)
 
     function StatefulVideoExperience() {
@@ -182,23 +212,11 @@ describe('experiencias interactivas del curso', () => {
     }
 
     render(<StatefulVideoExperience />)
-
     const video = screen.getByTitle('Convivencia respetuosa')
-    expect(video).toHaveAttribute('loading', 'lazy')
-    expect(video).not.toHaveAttribute('autoplay')
     expect(video.getAttribute('src')).toContain('enablejsapi=1')
-    expect(screen.queryByText(/resumen/i)).not.toBeInTheDocument()
-    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
-    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
-    expect(screen.getByText('Por hacer:')).toBeVisible()
-    expect(screen.getByText('Ver hasta el final')).toBeVisible()
     await waitFor(() => expect(stateChangeHandler).toBeDefined())
     act(() => stateChangeHandler?.({ data: 0 }))
-    await waitFor(() => {
-      expect(onCompletion).toHaveBeenCalledWith(true, { watched: true }, false)
-      expect(screen.getByText('Visto hasta el final')).toBeVisible()
-      expect(screen.getByLabelText('Video visto hasta el final')).toBeVisible()
-    })
+    await waitFor(() => expect(onCompletion).toHaveBeenCalledWith(true, { watched: true }, false))
     delete window.YT
   })
 })

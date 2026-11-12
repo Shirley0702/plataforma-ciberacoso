@@ -1,6 +1,5 @@
 import type { InteractionResponse, InteractionType, LearningItem } from '../types'
 import { InteractionPanel } from './interactions/InteractionPanel'
-import { PuzzleMission } from './PuzzleMission'
 
 const INTERACTION_LABELS: Record<InteractionType, string> = {
   video: 'Video para aprender',
@@ -50,26 +49,19 @@ export function LearningExperience({
       </header>
       <h2>{lesson.title}</h2>
       {lesson.interaction_type !== 'video' && (
-        <>
-          <section className="learning-concept" aria-labelledby={`concept-${lesson.id}`}>
-            <span className="learning-phase">1 · Comprende</span>
-            <h3 id={`concept-${lesson.id}`}>La idea que vas a practicar</h3>
-            <p className="experience-summary">{lesson.summary}</p>
-            <p className="experience-content">{lesson.content}</p>
-          </section>
-          <PuzzleMission
-            unitSlug={unitSlug}
-            interactionType={lesson.interaction_type}
-            mission={lesson.interaction_prompt}
-          />
-        </>
+        <section className="learning-concept" aria-labelledby={`concept-${lesson.id}`}>
+          <span className="learning-phase">Idea clave</span>
+          <h3 id={`concept-${lesson.id}`}>{lesson.summary}</h3>
+          <p className="experience-content">{lesson.content}</p>
+        </section>
       )}
       <section className="interactive-activity" aria-label={INTERACTION_LABELS[lesson.interaction_type]}>
         <span className="learning-phase">
-          {lesson.interaction_type === 'video' ? 'Observa' : '2 · Resuelve el puzzle'}
+          {lesson.interaction_type === 'video' ? 'Observa' : 'Puzzle interactivo'}
         </span>
         <InteractionPanel
           lesson={lesson}
+          unitSlug={unitSlug}
           response={response}
           feedback={feedback}
           saving={saving}
