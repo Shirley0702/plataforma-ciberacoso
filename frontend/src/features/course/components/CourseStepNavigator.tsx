@@ -15,11 +15,26 @@ export function CourseStepNavigator({
 }: CourseStepNavigatorProps) {
   const firstIncomplete = lessons.findIndex((lesson) => !lesson.completed)
   const lastAvailableLesson = firstIncomplete === -1 ? lessons.length - 1 : firstIncomplete
+  const introductionActive = activeStep < 0
 
   return (
     <nav className="experience-progress" aria-label="Progreso de la unidad">
-      <span className="experience-progress-label">Paso {activeStep + 1} de {lessons.length + 1}</span>
+      <span className="experience-progress-label">
+        {introductionActive ? 'Presentación de la unidad' : `Paso ${activeStep + 1} de ${lessons.length + 1}`}
+      </span>
       <div className="experience-steps">
+        <button
+          className={`experience-step introduction-step ${introductionActive ? 'active' : ''}`}
+          type="button"
+          aria-current={introductionActive ? 'step' : undefined}
+          onClick={() => onSelect(-1)}
+        >
+          <span className="experience-step-marker" aria-hidden="true">i</span>
+          <span className="experience-step-copy">
+            <strong>Bienvenida</strong>
+            <small>Conoce tu ruta y cómo avanzar</small>
+          </span>
+        </button>
         {lessons.map((lesson, index) => {
           const available = index <= lastAvailableLesson
           return (
