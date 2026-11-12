@@ -1,99 +1,126 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import type { CoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
 import type { InteractionCard } from '../../types'
 import { PuzzleIcon } from '../PuzzleIcon'
 
 interface GuidedExplorationProps {
   cards: InteractionCard[]
+  prompt: string
+  visual: CoursePuzzleVisual
   completed: boolean
   feedback?: string
   saving: boolean
   onCompletion: (completed: boolean) => Promise<void>
 }
 
+const SOLVED_ORDER = [0, 1, 2, 3, 4, 5]
+const SCRAMBLED_ORDER = [4, 0, 5, 2, 1, 3]
+
+function isSolved(order: number[]) {
+  return order.every((tile, position) => tile === position)
+}
+
 export function GuidedExploration({
   cards,
+  prompt,
+  visual,
   completed,
   feedback,
   saving,
   onCompletion,
 }: GuidedExplorationProps) {
-  const [revealedCards, setRevealedCards] = useState<Set<number>>(
-    () => new Set(completed ? cards.map((_, index) => index) : []),
-  )
+  const [tileOrder, setTileOrder] = useState(() => completed ? SOLVED_ORDER : SCRAMBLED_ORDER)
+  const [selectedPosition, setSelectedPosition] = useState<number | null>(null)
+  const visibleOrder = completed ? SOLVED_ORDER : tileOrder
+  const misplacedTiles = visibleOrder.filter((tile, position) => tile !== position).length
 
-  useEffect(() => {
-    if (completed) setRevealedCards(new Set(cards.map((_, index) => index)))
-  }, [cards, completed])
+  const selectTile = (position: number) => {
+    if (completed || saving) return
+    if (selectedPosition === null) {
+      setSelectedPosition(position)
+      return
+    }
+    if (selectedPosition === position) {
+      setSelectedPosition(null)
+      return
+    }
 
-  const revealCard = (index: number) => {
-    setRevealedCards((current) => {
-      if (current.has(index)) return current
-      const next = new Set(current)
-      next.add(index)
-      return next
-    })
+    const nextOrder = [...visibleOrder]
+    ;[nextOrder[selectedPosition], nextOrder[position]] = [
+      nextOrder[position],
+      nextOrder[selectedPosition],
+    ]
+    setTileOrder(nextOrder)
+    setSelectedPosition(null)
+    if (isSolved(nextOrder)) void onCompletion(true)
   }
-  const exploredAll = revealedCards.size === cards.length
 
   return (
-    <div className="guided-exploration">
-      <div className="puzzle-board-heading">
-        <span><PuzzleIcon name="puzzle" size={28} /></span>
+    <div className="guided-exploration mosaic-puzzle">
+      <header className="puzzle-instruction">
+        <span><PuzzleIcon name="mosaic" size={26} /></span>
         <div>
-          <strong>Arma el tablero de pistas</strong>
-          <small>Abre cada pieza y relaciónala con la escena y el video.</small>
+          <strong>Reconstruye la escena</strong>
+          <p>{prompt} Selecciona dos piezas para intercambiarlas.</p>
         </div>
+      </header>
+
+      <div className="mosaic-layout">
+        <div className="mosaic-board" role="group" aria-label="Mosaico de seis piezas">
+          {visibleOrder.map((tile, position) => {
+            const column = tile % 3
+            const row = Math.floor(tile / 3)
+            return (
+              <button
+                className={`mosaic-tile ${selectedPosition === position ? 'selected' : ''} ${tile === position ? 'correct' : ''}`}
+                type="button"
+                aria-label={`Pieza en la posición ${position + 1}${selectedPosition === position ? ', seleccionada' : ''}`}
+                aria-pressed={selectedPosition === position}
+                disabled={completed || saving}
+                onClick={() => selectTile(position)}
+                style={{
+                  backgroundImage: `url(${visual.src})`,
+                  backgroundPosition: `${column * 50}% ${row * 100}%`,
+                }}
+                key={`${position}-${tile}`}
+              >
+                <span>{position + 1}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <aside className="mosaic-clues">
+          <figure>
+            <img src={visual.src} alt={visual.alt} />
+            <figcaption><PuzzleIcon name="play" size={16} /> Pista visual del video</figcaption>
+          </figure>
+          <p>{visual.videoCue}</p>
+          <div className="mosaic-status" aria-live="polite">
+            <span>{completed || misplacedTiles === 0 ? 'Imagen reconstruida' : 'Piezas por ubicar'}</span>
+            <strong>{completed ? 0 : misplacedTiles}</strong>
+          </div>
+        </aside>
       </div>
-      <div className="puzzle-progress" aria-live="polite">
-        <span>Piezas colocadas</span>
-        <strong>{revealedCards.size}/{cards.length}</strong>
-      </div>
-      <div className="guided-cards">
-        {cards.map((card, index) => {
-          const revealed = revealedCards.has(index)
-          return (
-            <button
-              className={`guided-card guided-piece ${revealed ? 'revealed' : ''}`}
-              type="button"
-              aria-expanded={revealed}
-              disabled={completed}
-              onClick={() => revealCard(index)}
-              key={card.title}
-            >
-              <span className="guided-card-inner">
-                <span className="guided-card-face guided-card-front">
-                  <span className="guided-card-icon"><PuzzleIcon name="clue" /></span>
-                  <small>Pieza {index + 1}</small>
-                  <strong>{card.title}</strong>
-                  <em>Girar la pieza</em>
-                </span>
-                <span className="guided-card-face guided-card-back">
-                  <span className="guided-card-icon"><PuzzleIcon name="check" /></span>
-                  <strong>{card.title}</strong>
-                  <small>{card.body}</small>
-                </span>
-              </span>
-            </button>
-          )
-        })}
-      </div>
-      {!exploredAll && !completed && (
-        <p className="interaction-hint">
-          Gira las {cards.length} piezas. Cuando estén visibles podrás guardar el tablero completo.
-        </p>
+
+      <section className={`discovery-strip ${completed ? 'unlocked' : ''}`} aria-label="Pistas de aprendizaje">
+        <h4>{completed ? 'Lo que revela la escena' : 'Completa la imagen para revelar las pistas'}</h4>
+        <div>
+          {cards.map((card, index) => (
+            <article key={card.title}>
+              <PuzzleIcon name={['observe', 'boundary', 'support'][index] ?? 'clue'} size={22} />
+              <span><strong>{card.title}</strong><small>{completed ? card.body : 'Pista bloqueada'}</small></span>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {selectedPosition !== null && !completed && (
+        <p className="interaction-hint" role="status">Ahora selecciona la pieza con la que quieres intercambiarla.</p>
       )}
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
-      {completed ? (
-        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Tablero completado</p>
-      ) : (
-        <button
-          className="btn btn-primary"
-          type="button"
-          disabled={saving || !exploredAll}
-          onClick={() => void onCompletion(true)}
-        >
-          {saving ? 'Guardando…' : 'Guardar lo aprendido'}
-        </button>
+      {completed && (
+        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Mosaico resuelto</p>
       )}
     </div>
   )
