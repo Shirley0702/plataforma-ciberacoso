@@ -93,6 +93,13 @@ export function OrderingPuzzle({
   return (
     <div className="ordering-puzzle">
       {privacyNote && <p className="interaction-privacy"><strong>Privacidad:</strong> {privacyNote}</p>}
+      <div className="puzzle-board-heading">
+        <span><PuzzleIcon name="puzzle" size={28} /></span>
+        <div>
+          <strong>Construye la ruta paso a paso</strong>
+          <small>Arrastra las tarjetas o usa sus controles para cambiar el orden.</small>
+        </div>
+      </div>
       <div className="puzzle-progress" aria-live="polite">
         <span>{completed ? 'Secuencia aprendida' : 'Ordena los pasos del primero al último'}</span>
         <strong>{checked ? `${correctPositions}/${items.length} en posición` : `${items.length} tarjetas`}</strong>
@@ -121,8 +128,8 @@ export function OrderingPuzzle({
             </span>
             {!completed && (
               <span className="ordering-controls">
-                <button type="button" disabled={index === 0} aria-label={`Mover ${item.label} hacia arriba`} onClick={() => updateOrder(moveItem(activeOrder, item.id, -1))}>↑</button>
-                <button type="button" disabled={index === orderedItems.length - 1} aria-label={`Mover ${item.label} hacia abajo`} onClick={() => updateOrder(moveItem(activeOrder, item.id, 1))}>↓</button>
+                <button type="button" disabled={index === 0} aria-label={`Mover ${item.label} hacia arriba`} onClick={() => updateOrder(moveItem(activeOrder, item.id, -1))}><PuzzleIcon name="chevron-up" size={20} /></button>
+                <button type="button" disabled={index === orderedItems.length - 1} aria-label={`Mover ${item.label} hacia abajo`} onClick={() => updateOrder(moveItem(activeOrder, item.id, 1))}><PuzzleIcon name="chevron-down" size={20} /></button>
               </span>
             )}
           </li>
@@ -135,7 +142,7 @@ export function OrderingPuzzle({
       )}
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
       {completed ? (
-        <p className="puzzle-completed" role="status">✓ Secuencia segura aprendida</p>
+        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Secuencia completada</p>
       ) : (
         <div className="ordering-actions">
           <button className="btn btn-primary" type="button" disabled={saving} onClick={checkOrder}>

@@ -48,9 +48,26 @@ def _validate_exploration(lesson, response):
         for item in lesson.interaction_config["options"]
         if str(item["id"]) in selected_ids
     ]
+    recommended_ids = {
+        str(item["id"])
+        for item in lesson.interaction_config["options"]
+        if item.get("recommended") is True
+    }
+    chosen_option = str(response_data.get("chosen_option", ""))
+    if recommended_ids and chosen_option not in recommended_ids:
+        raise ValidationError(
+            {
+                "interaction_response": [
+                    "Después de explorar las rutas, elige la que conserva más seguridad y opciones."
+                ]
+            }
+        )
+    stored_response = {"selected_items": ordered_ids}
+    if recommended_ids:
+        stored_response["chosen_option"] = chosen_option
     return (
-        {"selected_items": ordered_ids},
-        "Ya conoces las consecuencias de cada camino. Puedes elegir con más información.",
+        stored_response,
+        "Resolviste el camino: observaste las consecuencias y elegiste la opción que conserva más seguridad y apoyo.",
     )
 
 

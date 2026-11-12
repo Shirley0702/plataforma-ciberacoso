@@ -38,37 +38,47 @@ describe('experiencias interactivas del curso', () => {
   it('enseña consecuencias al explorar todos los caminos', async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()
+    const onCompletion = vi.fn().mockResolvedValue(undefined)
 
     function StatefulConsequencePuzzle() {
       const [exploredOptionIds, setExploredOptionIds] = useState<string[]>([])
-      const handleChange = (nextIds: string[]) => {
-        onChange(nextIds)
+      const [chosenOptionId, setChosenOptionId] = useState<string>()
+      const handleChange = (nextIds: string[], nextChoice?: string) => {
+        onChange(nextIds, nextChoice)
         setExploredOptionIds(nextIds)
+        setChosenOptionId(nextChoice)
       }
 
       return (
         <ConsequencePuzzle
           options={[
-            { id: 'pausar', label: 'Pausar y buscar apoyo', feedback: 'Conserva opciones' },
+            { id: 'pausar', label: 'Pausar y buscar apoyo', feedback: 'Conserva opciones', recommended: true },
             { id: 'responder', label: 'Responder de inmediato', feedback: 'Puede aumentar el riesgo' },
           ]}
           exploredOptionIds={exploredOptionIds}
+          chosenOptionId={chosenOptionId}
           completed={false}
           saving={false}
-          actionLabel="Guardar lo descubierto"
           variant="decision"
           onChange={handleChange}
-          onCompletion={vi.fn()}
+          onCompletion={onCompletion}
         />
       )
     }
 
     render(<StatefulConsequencePuzzle />)
 
-    expect(screen.getByText(/Aquí no hay nota/)).toBeVisible()
     await user.click(screen.getByRole('button', { name: /Pausar y buscar apoyo/ }))
     expect(screen.getByText('Conserva opciones')).toBeVisible()
-    expect(onChange).toHaveBeenCalledWith(['pausar'])
+    await user.click(screen.getByRole('button', { name: /Responder de inmediato/ }))
+    expect(screen.getByText(/Ahora resuelve el puzzle/)).toBeVisible()
+    await user.click(screen.getByRole('button', { name: /Responder de inmediato/ }))
+    expect(screen.getByRole('alert')).toHaveTextContent(/puede aumentar el riesgo/i)
+    await user.click(screen.getByRole('button', { name: /Pausar y buscar apoyo/ }))
+    expect(onCompletion).toHaveBeenCalledWith(true, {
+      selected_items: ['pausar', 'responder'],
+      chosen_option: 'pausar',
+    })
   })
 
   it('permite resolver conexiones sin penalización', async () => {

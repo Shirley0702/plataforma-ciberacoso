@@ -189,7 +189,12 @@ class CourseProgressTests(APITestCase):
             order=2,
             interaction_config={
                 "options": [
-                    {"id": "reportar", "label": "Reportar", "feedback": "Bien"}
+                    {
+                        "id": "reportar",
+                        "label": "Reportar",
+                        "feedback": "Bien",
+                        "recommended": True,
+                    }
                 ]
             },
         )
@@ -212,7 +217,7 @@ class CourseProgressTests(APITestCase):
             format="json",
         )
         self.assertEqual(incomplete.status_code, 400)
-        valid = self.client.post(
+        explored_without_choice = self.client.post(
             f"/api/courses/lessons/{activity.id}/complete/",
             {
                 "interaction_response": {
@@ -222,9 +227,24 @@ class CourseProgressTests(APITestCase):
             },
             format="json",
         )
+        self.assertEqual(explored_without_choice.status_code, 400)
+        valid = self.client.post(
+            f"/api/courses/lessons/{activity.id}/complete/",
+            {
+                "interaction_response": {
+                    "selected_items": ["reportar"],
+                    "chosen_option": "reportar",
+                    "private_story": "Este dato no debe almacenarse",
+                }
+            },
+            format="json",
+        )
         self.assertEqual(valid.status_code, 200)
         progress = CourseProgress.objects.get(user=self.user, lesson=activity)
-        self.assertEqual(progress.interaction_response, {"selected_items": ["reportar"]})
+        self.assertEqual(
+            progress.interaction_response,
+            {"selected_items": ["reportar"], "chosen_option": "reportar"},
+        )
 
     def test_matching_puzzle_requires_every_correct_connection(self):
         matching = Lesson.objects.create(

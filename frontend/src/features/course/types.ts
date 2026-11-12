@@ -15,6 +15,7 @@ export interface InteractionOption {
   id: string
   label: string
   feedback: string
+  recommended?: boolean
 }
 
 export interface InteractionItem {
@@ -39,6 +40,7 @@ export interface InteractionConfig {
 
 export interface InteractionResponse {
   selected_items?: string[]
+  chosen_option?: string
   matches?: Record<string, string>
   watched?: boolean
 }

@@ -118,7 +118,7 @@ export function MatchingPuzzle({
       </p>
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
       {completed ? (
-        <p className="puzzle-completed" role="status">✓ Todas las conexiones están construidas</p>
+        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Conexiones completadas</p>
       ) : (
         <button
           className="btn btn-primary"

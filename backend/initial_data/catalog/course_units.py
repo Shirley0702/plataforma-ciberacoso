@@ -84,12 +84,15 @@ def _item_activity(
     }
 
 
-def _option(option_id, label, feedback):
-    return {
+def _option(option_id, label, feedback, recommended=False):
+    option = {
         "id": option_id,
         "label": label,
         "feedback": feedback,
     }
+    if recommended:
+        option["recommended"] = True
+    return option
 
 
 def _item(item_id, label, detail, visual=""):
@@ -150,7 +153,7 @@ COURSE_UNITS = (
                 "Un tutor ridiculiza un avance frente al grupo y advierte que reclamar puede afectar la nota. ¿Qué harías primero?",
                 (
                     _option("responder-solo", "Enfrentarlo a solas y responder con otra amenaza.", "Puede aumentar el riesgo y dejarte sin acompañamiento. Tomar una pausa también es una decisión válida."),
-                    _option("registrar-apoyo", "Anotar lo ocurrido, conservar mensajes y hablar con una persona de confianza.", "Esta opción conserva hechos y evita que tengas que afrontar la situación sin apoyo."),
+                    _option("registrar-apoyo", "Anotar lo ocurrido, conservar mensajes y hablar con una persona de confianza.", "Esta opción conserva hechos y evita que tengas que afrontar la situación sin apoyo.", recommended=True),
                     _option("borrar-ignorar", "Borrar los mensajes y tratar de olvidar lo ocurrido.", "Alejarte puede darte calma momentánea, pero borrar la información limita tus opciones. Puedes conservarla sin revisarla constantemente."),
                 ),
             ),
@@ -176,7 +179,7 @@ COURSE_UNITS = (
                 "Si fuera seguro responder, ¿qué frase mantiene el límite y se centra en hechos?",
                 (
                     _option("amenaza", "Si vuelve a hacerlo, voy a perjudicarlo también.", "Una amenaza puede escalar la situación y alejar la conversación de los hechos."),
-                    _option("limite", "Necesito que la retroalimentación se centre en mi trabajo y en los criterios de la materia.", "La frase describe el límite sin revelar información personal ni iniciar una confrontación."),
+                    _option("limite", "Necesito que la retroalimentación se centre en mi trabajo y en los criterios de la materia.", "La frase describe el límite sin revelar información personal ni iniciar una confrontación.", recommended=True),
                     _option("culpa", "Seguramente todo es mi culpa; no volveré a preguntar.", "Tener dudas o pedir criterios no te convierte en responsable de un trato humillante."),
                 ),
             ),
@@ -234,7 +237,7 @@ COURSE_UNITS = (
                 "Un equipo comparte una burla sobre un compañero y le oculta información del proyecto. ¿Qué harías?",
                 (
                     _option("reenviar", "Reenviar la burla para preguntar qué opinan otros.", "Aunque la intención sea consultar, reenviar aumenta la exposición."),
-                    _option("apoyo-privado", "No difundirla, hablar en privado con el compañero y acordar juntos a quién pedir apoyo.", "Esta opción reduce la exposición y devuelve a la persona parte del control sobre los siguientes pasos."),
+                    _option("apoyo-privado", "No difundirla, hablar en privado con el compañero y acordar juntos a quién pedir apoyo.", "Esta opción reduce la exposición y devuelve a la persona parte del control sobre los siguientes pasos.", recommended=True),
                     _option("enfrentar-grupo", "Insultar públicamente a todo el grupo.", "Puede aumentar el conflicto y el riesgo. Es posible marcar un límite sin responder con otra agresión."),
                 ),
             ),
@@ -260,7 +263,7 @@ COURSE_UNITS = (
                 "¿Qué frase respeta a la persona y marca un límite?",
                 (
                     _option("normalizar", "No exageres, así nos llevamos todos.", "Minimizar puede hacer que la persona se sienta más aislada."),
-                    _option("limite-grupo", "No voy a compartir eso. Si hay un problema con el proyecto, hablemos del trabajo.", "La frase detiene la difusión y devuelve la conversación a un asunto concreto."),
+                    _option("limite-grupo", "No voy a compartir eso. Si hay un problema con el proyecto, hablemos del trabajo.", "La frase detiene la difusión y devuelve la conversación a un asunto concreto.", recommended=True),
                     _option("exponer", "Voy a publicar quiénes hicieron esto para que aprendan.", "Publicar nombres puede escalar la situación y exponer también a la persona afectada."),
                 ),
             ),
@@ -318,7 +321,7 @@ COURSE_UNITS = (
                 "Recibes en un grupo una captura privada usada para burlarse de un estudiante. ¿Qué haces primero?",
                 (
                     _option("reenviar-prueba", "Reenviarla a varios amigos para tener testigos.", "Genera más copias y aumenta la exposición, aunque busques ayuda."),
-                    _option("guardar-reportar", "Conservar el contexto necesario, no reenviar y consultar con la persona afectada o un canal seguro.", "Reduce la difusión, conserva evidencia y respeta el control de la persona afectada."),
+                    _option("guardar-reportar", "Conservar el contexto necesario, no reenviar y consultar con la persona afectada o un canal seguro.", "Reduce la difusión, conserva evidencia y respeta el control de la persona afectada.", recommended=True),
                     _option("responder-insulto", "Insultar en el grupo a quien la publicó.", "Puede escalar la conversación y no elimina el contenido."),
                 ),
             ),
@@ -344,7 +347,7 @@ COURSE_UNITS = (
                 "¿Qué mensaje ayuda a detener la cadena?",
                 (
                     _option("curiosidad", "¿Alguien tiene la captura completa? Envíenmela por interno.", "Solicitar más copias aumenta la difusión."),
-                    _option("corte", "No compartamos contenido de otra persona sin permiso. Voy a detener el reenvío.", "El mensaje marca el límite y no repite el contenido."),
+                    _option("corte", "No compartamos contenido de otra persona sin permiso. Voy a detener el reenvío.", "El mensaje marca el límite y no repite el contenido.", recommended=True),
                     _option("amenaza", "Si no borran esto, publicaré información de todos.", "Responder con otra exposición puede aumentar el daño y el riesgo."),
                 ),
             ),
@@ -402,7 +405,7 @@ COURSE_UNITS = (
                 "En una reunión rechazan varias veces las ideas de una compañera con comentarios sobre su origen. ¿Qué harías?",
                 (
                     _option("decidir-por-ella", "Presentar una queja con todos sus datos sin consultarle.", "La intención puede ser positiva, pero usar sus datos sin permiso le quita control."),
-                    _option("devolver-idea", "Volver a la idea, pedir que se evalúe por su contenido y hablar con ella en privado después.", "Interrumpe el prejuicio sin exponer información adicional y permite acordar el siguiente paso."),
+                    _option("devolver-idea", "Volver a la idea, pedir que se evalúe por su contenido y hablar con ella en privado después.", "Interrumpe el prejuicio sin exponer información adicional y permite acordar el siguiente paso.", recommended=True),
                     _option("broma", "Hacer otra broma sobre el grupo para equilibrar la situación.", "Responder con otro prejuicio mantiene una dinámica que puede dañar a más personas."),
                 ),
             ),
@@ -428,7 +431,7 @@ COURSE_UNITS = (
                 "¿Qué frase ayuda a restablecer un trato justo?",
                 (
                     _option("ataque", "Ustedes siempre discriminan y son malas personas.", "Etiquetar a todo el grupo puede cerrar la conversación y alejarla del hecho concreto."),
-                    _option("hecho", "Quisiera que revisemos su propuesta por el contenido y que pueda terminar de explicarla.", "La frase devuelve la participación y se centra en una acción observable."),
+                    _option("hecho", "Quisiera que revisemos su propuesta por el contenido y que pueda terminar de explicarla.", "La frase devuelve la participación y se centra en una acción observable.", recommended=True),
                     _option("silencio", "Mejor no digamos nada para que ella no se sienta incómoda.", "El silencio puede dejar sola a la persona. También puedes acercarte después si intervenir no es seguro."),
                 ),
             ),
@@ -486,7 +489,7 @@ COURSE_UNITS = (
                 "Un equipo nuevo organizará su comunicación. ¿Qué propuesta protege mejor a sus integrantes?",
                 (
                     _option("siempre-disponibles", "Todos deben responder a cualquier hora para demostrar compromiso.", "La disponibilidad permanente puede generar presión y no considera las circunstancias de cada persona."),
-                    _option("acuerdo-claro", "Definir horarios, un canal principal y pedir permiso antes de compartir contenido personal.", "Establece expectativas concretas y protege la privacidad desde el inicio."),
+                    _option("acuerdo-claro", "Definir horarios, un canal principal y pedir permiso antes de compartir contenido personal.", "Establece expectativas concretas y protege la privacidad desde el inicio.", recommended=True),
                     _option("sin-reglas", "No acordar nada; cada persona sabrá qué hacer.", "Sin acuerdos es más difícil marcar un límite o resolver un malentendido."),
                 ),
             ),
@@ -512,7 +515,7 @@ COURSE_UNITS = (
                 "Un compañero pide compartir una captura privada en el grupo. ¿Qué responderías?",
                 (
                     _option("ceder", "Está bien, pero bórrenla después.", "Una vez enviada pueden existir nuevas copias y perderse el control."),
-                    _option("limite", "No tengo permiso para compartirla. Podemos explicar el tema sin publicar la captura.", "Marca el límite y ofrece una alternativa que no expone a nadie."),
+                    _option("limite", "No tengo permiso para compartirla. Podemos explicar el tema sin publicar la captura.", "Marca el límite y ofrece una alternativa que no expone a nadie.", recommended=True),
                     _option("ataque", "Si insistes, publicaré algo tuyo.", "Responder con otra amenaza crea un nuevo riesgo."),
                 ),
             ),
