@@ -49,10 +49,10 @@ export function DashboardPage() {
               </h2>
               <p>
                 {data.diagnostic?.route_type === 'preventive_general'
-                  ? 'Tus respuestas orientan a un recorrido general de convivencia, límites y autocuidado.'
-                  : `Tu recorrido incluye ${data.diagnostic?.recommended_units.length} ${data.diagnostic?.recommended_units.length === 1 ? 'unidad priorizada' : 'unidades priorizadas'} sin descartar resultados empatados.`}
+                  ? 'La evaluación asignó un módulo preventivo general de convivencia, límites y autocuidado.'
+                  : `La evaluación asignó ${data.diagnostic?.recommended_units.length} ${data.diagnostic?.recommended_units.length === 1 ? 'módulo priorizado' : 'módulos priorizados'}. Los completarás uno por uno, comenzando por la prioridad principal.`}
               </p>
-              <Link className="btn btn-primary" to="/curso">Comenzar mi curso personalizado</Link>
+              <Link className="btn btn-primary" to="/curso">Ver mi ruta y comenzar</Link>
             </div>
             <div className="hero-orbit" aria-hidden="true">
               <div className="orbit orbit-one" />
@@ -64,10 +64,16 @@ export function DashboardPage() {
 
           <section className="metric-grid" aria-label="Resumen de actividad">
             <article className="metric-card">
-              <div className="metric-label"><span className="metric-icon accent">✓</span> Ruta orientativa</div>
-              <strong>
-                {data.diagnostic?.recommended_units.map((unit) => unit.title).join(' · ')}
-              </strong>
+              <div className="metric-label"><span className="metric-icon accent">✓</span> Módulos asignados a tu ruta</div>
+              <ol className="dashboard-route-list">
+                {data.diagnostic?.recommended_units.map((unit, index) => (
+                  <li key={`${unit.title}-${index}`}>
+                    <span>{index + 1}</span>
+                    <strong>{unit.title}</strong>
+                  </li>
+                ))}
+              </ol>
+              <p>Este es el orden de aprendizaje; al completar un módulo se habilita el siguiente.</p>
               <p>Evaluación procesada el {data.diagnostic && dateFormatter.format(new Date(data.diagnostic.created_at))}.</p>
               <Link to="/evaluacion">Volver a realizar el test <span aria-hidden="true">→</span></Link>
             </article>

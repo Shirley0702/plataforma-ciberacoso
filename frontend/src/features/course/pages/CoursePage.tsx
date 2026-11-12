@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { getCourseThemeClass } from '../config/courseThemes'
 import { CourseProgressPanel } from '../components/CourseProgressPanel'
 import { CourseSafetyBanner } from '../components/CourseSafetyBanner'
+import { CourseWelcome } from '../components/CourseWelcome'
 import { LearningExperience } from '../components/LearningExperience'
 import { ModuleAssessment } from '../components/ModuleAssessment'
 import { useCourse } from '../hooks/useCourse'
@@ -20,6 +21,7 @@ export function CoursePage() {
   const course = useCourse()
   const [activeUnitIndex, setActiveUnitIndex] = useState(0)
   const [activeStep, setActiveStep] = useState(0)
+  const [showWelcome, setShowWelcome] = useState(true)
   const initialized = useRef(false)
   const activeUnit = course.units[activeUnitIndex]
   const lessons = useMemo(
@@ -32,8 +34,12 @@ export function CoursePage() {
     if (initialized.current || !course.units.length) return
     const pendingUnitIndex = course.units.findIndex((unit) => !unit.certificate)
     const initialUnitIndex = pendingUnitIndex === -1 ? course.units.length - 1 : pendingUnitIndex
+    const initialUnit = course.units[initialUnitIndex]
     setActiveUnitIndex(initialUnitIndex)
     setActiveStep(0)
+    setShowWelcome(
+      !initialUnit.certificate && !initialUnit.lessons.some((lesson) => lesson.completed),
+    )
     initialized.current = true
   }, [course.units])
 
@@ -47,7 +53,19 @@ export function CoursePage() {
     if (!unit) return
     setActiveUnitIndex(index)
     setActiveStep(0)
+    setShowWelcome(!unit.certificate && !unit.lessons.some((lesson) => lesson.completed))
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const selectExperience = (index: number) => {
+    if (index < 0) {
+      setShowWelcome(true)
+      document.querySelector('.course-stage')?.scrollIntoView({ behavior: 'smooth' })
+      return
+    }
+    setActiveStep(index)
+    setShowWelcome(false)
+    document.querySelector('.course-stage')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const completeExperience = async (
@@ -70,11 +88,17 @@ export function CoursePage() {
     <div className={`page-wrap course-page ${getCourseThemeClass(activeUnit?.slug)}`}>
       <header className="page-header course-header">
         <div>
-          <span className="eyebrow">Curso interactivo · aprende, descubre y practica</span>
-          <h1>{activeUnit?.title ?? 'Ruta de aprendizaje personalizada'}</h1>
+          <span className="eyebrow">
+            {course.units.length
+              ? `Ruta personalizada · ${course.units.length} ${course.units.length === 1 ? 'módulo asignado' : 'módulos asignados'}`
+              : 'Curso interactivo · aprende, descubre y practica'}
+          </span>
+          <h1>{activeUnit ? `Ahora: ${activeUnit.title}` : 'Ruta de aprendizaje personalizada'}</h1>
           <p>
             {activeUnit
-              ? activeUnit.description
+              ? course.units.length === 1
+                ? 'La evaluación preparó este módulo para tu recorrido.'
+                : 'La evaluación organizó varios módulos. Los completarás uno por uno en el orden de tu ruta.'
               : 'Completa primero la evaluación para generar tu ruta.'}
           </p>
         </div>
@@ -100,7 +124,13 @@ export function CoursePage() {
               </div>
 
               <div className="course-stage" key={`${activeUnit.id}-${activeStep}`}>
-                {activeLesson ? (
+                {showWelcome ? (
+                  <CourseWelcome
+                    units={course.units}
+                    activeUnitIndex={activeUnitIndex}
+                    onStart={() => setShowWelcome(false)}
+                  />
+                ) : activeLesson ? (
                   <LearningExperience
                     lesson={activeLesson}
                     position={activeStep + 1}
@@ -127,7 +157,7 @@ export function CoursePage() {
                 )}
               </div>
 
-              <footer className="course-player-controls">
+              {!showWelcome && <footer className="course-player-controls">
                 <button
                   className="btn btn-outline-primary"
                   type="button"
@@ -154,7 +184,7 @@ export function CoursePage() {
                     Siguiente experiencia →
                   </button>
                 )}
-              </footer>
+              </footer>}
             </section>
           </main>
 
@@ -162,10 +192,10 @@ export function CoursePage() {
             units={course.units}
             activeUnitIndex={activeUnitIndex}
             lessons={lessons}
-            activeStep={activeStep}
+            activeStep={showWelcome ? -1 : activeStep}
             progressPercentage={course.progressPercentage}
             onSelectUnit={selectUnit}
-            onSelectStep={setActiveStep}
+            onSelectStep={selectExperience}
           />
         </div>
       )}
