@@ -37,8 +37,15 @@ export function GuidedExploration({
 
   return (
     <div className="guided-exploration">
+      <div className="puzzle-board-heading">
+        <span><PuzzleIcon name="puzzle" size={28} /></span>
+        <div>
+          <strong>Arma el tablero de pistas</strong>
+          <small>Abre cada pieza y relaciónala con la escena y el video.</small>
+        </div>
+      </div>
       <div className="puzzle-progress" aria-live="polite">
-        <span>Pistas descubiertas</span>
+        <span>Piezas colocadas</span>
         <strong>{revealedCards.size}/{cards.length}</strong>
       </div>
       <div className="guided-cards">
@@ -46,7 +53,7 @@ export function GuidedExploration({
           const revealed = revealedCards.has(index)
           return (
             <button
-              className={`guided-card ${revealed ? 'revealed' : ''}`}
+              className={`guided-card guided-piece ${revealed ? 'revealed' : ''}`}
               type="button"
               aria-expanded={revealed}
               disabled={completed}
@@ -56,9 +63,9 @@ export function GuidedExploration({
               <span className="guided-card-inner">
                 <span className="guided-card-face guided-card-front">
                   <span className="guided-card-icon"><PuzzleIcon name="clue" /></span>
-                  <small>Pista {index + 1}</small>
+                  <small>Pieza {index + 1}</small>
                   <strong>{card.title}</strong>
-                  <em>Descubrir pista</em>
+                  <em>Girar la pieza</em>
                 </span>
                 <span className="guided-card-face guided-card-back">
                   <span className="guided-card-icon"><PuzzleIcon name="check" /></span>
@@ -72,12 +79,12 @@ export function GuidedExploration({
       </div>
       {!exploredAll && !completed && (
         <p className="interaction-hint">
-          Abre las {cards.length} pistas. Cada una añade una pieza a la idea principal.
+          Gira las {cards.length} piezas. Cuando estén visibles podrás guardar el tablero completo.
         </p>
       )}
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
       {completed ? (
-        <p className="puzzle-completed" role="status">✓ Pistas aprendidas</p>
+        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Tablero completado</p>
       ) : (
         <button
           className="btn btn-primary"

@@ -133,6 +133,7 @@ export function CoursePage() {
                 ) : activeLesson ? (
                   <LearningExperience
                     lesson={activeLesson}
+                    unitSlug={activeUnit.slug}
                     position={activeStep + 1}
                     total={lessons.length}
                     saving={course.savingLessonId === activeLesson.id}

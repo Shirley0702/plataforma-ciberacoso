@@ -23,6 +23,9 @@ const ICON_PATHS: Record<string, ReactNode> = {
   connect: <><circle cx="6" cy="12" r="3" /><circle cx="18" cy="12" r="3" /><path d="M9 12h6" /></>,
   check: <path d="m5 12 4 4L19 6" />,
   play: <><circle cx="12" cy="12" r="9" /><path d="m10 8 6 4-6 4z" /></>,
+  puzzle: <><path d="M4 4h6a2 2 0 1 0 4 0h6v6a2 2 0 1 1 0 4v6h-6a2 2 0 1 0-4 0H4v-6a2 2 0 1 1 0-4z" /></>,
+  'chevron-up': <path d="m7 14 5-5 5 5" />,
+  'chevron-down': <path d="m7 10 5 5 5-5" />,
 }
 
 export function PuzzleIcon({ name = 'clue', size = 28 }: PuzzleIconProps) {

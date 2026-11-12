@@ -58,12 +58,15 @@ export function InteractionPanel({
       <ConsequencePuzzle
         options={config.options ?? []}
         exploredOptionIds={response.selected_items ?? []}
+        chosenOptionId={response.chosen_option}
         completed={lesson.completed}
         feedback={feedback}
         saving={saving}
-        actionLabel={lesson.interaction_type === 'practice' ? 'Completar laboratorio' : 'Guardar lo descubierto'}
         variant={lesson.interaction_type}
-        onChange={(selectedItems) => onResponseChange({ selected_items: selectedItems })}
+        onChange={(selectedItems, chosenOption) => onResponseChange({
+          selected_items: selectedItems,
+          chosen_option: chosenOption,
+        })}
         onCompletion={onCompletion}
       />
     )
