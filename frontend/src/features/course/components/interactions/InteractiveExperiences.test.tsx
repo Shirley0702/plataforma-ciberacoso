@@ -149,20 +149,29 @@ describe('experiencias interactivas del curso', () => {
       value: { Player: MockYouTubePlayer },
     })
     const onCompletion = vi.fn().mockResolvedValue(undefined)
-    render(
-      <VideoExperience
-        viewingPrompt="Mira el video completo antes de continuar."
-        config={{
-          video_url: 'https://www.youtube-nocookie.com/embed/video-seguro',
-          video_watch_url: 'https://www.youtube.com/watch?v=video-seguro',
-          video_title: 'Convivencia respetuosa',
-          source_label: 'Fuente educativa',
-        }}
-        completed={false}
-        saving={false}
-        onCompletion={onCompletion}
-      />,
-    )
+
+    function StatefulVideoExperience() {
+      const [completed, setCompleted] = useState(false)
+      return (
+        <VideoExperience
+          viewingPrompt="Mira el video completo antes de continuar."
+          config={{
+            video_url: 'https://www.youtube-nocookie.com/embed/video-seguro',
+            video_watch_url: 'https://www.youtube.com/watch?v=video-seguro',
+            video_title: 'Convivencia respetuosa',
+            source_label: 'Fuente educativa',
+          }}
+          completed={completed}
+          saving={false}
+          onCompletion={async (...args) => {
+            await onCompletion(...args)
+            setCompleted(true)
+          }}
+        />
+      )
+    }
+
+    render(<StatefulVideoExperience />)
 
     const video = screen.getByTitle('Convivencia respetuosa')
     expect(video).toHaveAttribute('loading', 'lazy')
@@ -175,7 +184,11 @@ describe('experiencias interactivas del curso', () => {
     expect(screen.getByText('Ver hasta el final')).toBeVisible()
     await waitFor(() => expect(stateChangeHandler).toBeDefined())
     act(() => stateChangeHandler?.({ data: 0 }))
-    expect(onCompletion).toHaveBeenCalledWith(true, { watched: true }, false)
+    await waitFor(() => {
+      expect(onCompletion).toHaveBeenCalledWith(true, { watched: true }, false)
+      expect(screen.getByText('Visto hasta el final')).toBeVisible()
+      expect(screen.getByLabelText('Video visto hasta el final')).toBeVisible()
+    })
     delete window.YT
   })
 })

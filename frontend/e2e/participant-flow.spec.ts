@@ -24,7 +24,9 @@ async function followMainNavigation(page: Page, linkName: string) {
 test('protege el sistema y completa el recorrido diagnóstico personalizado', async ({ page }) => {
   test.skip(!demoPassword, 'Define E2E_DEMO_PASSWORD para ejecutar el recorrido real.')
 
-  await page.goto('/')
+  const entryResponse = await page.goto('/')
+  const contentSecurityPolicy = entryResponse?.headers()['content-security-policy'] ?? ''
+  expect(contentSecurityPolicy).toContain("script-src 'self' https://www.youtube.com https://s.ytimg.com")
   await expect(page).toHaveURL(/\/acceso$/)
   await expect(page.getByRole('heading', { name: 'Inicia sesión' })).toBeVisible()
   await expectAccessible(page)
