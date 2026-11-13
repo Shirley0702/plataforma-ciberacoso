@@ -8,7 +8,7 @@ def _guided(title, summary, content, cards, duration=6):
         "content": content,
         "duration": duration,
         "interaction_type": "guided",
-        "interaction_prompt": "Descubre todas las pistas y construye la idea paso a paso.",
+        "interaction_prompt": f"Encuentra en la escena tres señales relacionadas con «{title}» y abre cada marcador para comprender qué observar.",
         "interaction_config": {
             "cards": cards,
             "completion_message": "Puedes volver a estas ideas cuando necesites comprobar una situación con calma.",
@@ -63,19 +63,13 @@ def _item_activity(
     duration=6,
     privacy_note="",
 ):
-    if interaction_type == "matching":
-        activity_prompt = "Conecta cada idea con la explicación que le corresponde."
-    elif interaction_type == "safety_plan":
-        activity_prompt = "Arrastra las tarjetas y construye una secuencia de respuesta segura."
-    else:
-        activity_prompt = prompt
     return {
         "title": title,
         "summary": summary,
         "content": content,
         "duration": duration,
         "interaction_type": interaction_type,
-        "interaction_prompt": activity_prompt,
+        "interaction_prompt": prompt,
         "interaction_config": {
             "items": items,
             "completion_feedback": completion_feedback,

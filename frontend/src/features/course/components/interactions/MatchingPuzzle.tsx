@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { CoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
 import type { InteractionItem } from '../../types'
 import { PuzzleIcon } from '../PuzzleIcon'
+import { PuzzleGuide } from './PuzzleGuide'
 
 interface MatchingPuzzleProps {
   items: InteractionItem[]
@@ -32,11 +33,12 @@ export function MatchingPuzzle({
     ? Object.fromEntries(items.map((item) => [item.id, item.id]))
     : matches
   const shuffledMeanings = [...items].reverse()
+  const selectedClue = items.find((item) => item.id === selectedClueId)
   const allConnected = items.length > 0 && items.every((item) => visibleMatches[item.id])
   const solved = allConnected && items.every((item) => visibleMatches[item.id] === item.id)
 
   const connectMeaning = (meaningId: string) => {
-    if (!selectedClueId || completed) return
+    if (!selectedClueId || completed || saving) return
     const nextMatches = Object.fromEntries(
       Object.entries(visibleMatches).filter(([, currentMeaningId]) => currentMeaningId !== meaningId),
     )
@@ -52,77 +54,93 @@ export function MatchingPuzzle({
   }
 
   return (
-    <div className="matching-puzzle visual-matching-puzzle">
-      <header className="puzzle-instruction">
-        <span><PuzzleIcon name="connect" size={26} /></span>
-        <div><strong>Encaja cada señal con lo que significa</strong><p>{prompt}</p></div>
-      </header>
+    <div className="matching-puzzle connection-lab-puzzle">
+      <PuzzleGuide
+        icon="connect"
+        title="Conecta cada señal con su significado"
+        summary={prompt}
+        steps={[
+          'Selecciona una señal de la columna izquierda.',
+          'Pulsa la explicación que le corresponde a la derecha.',
+          'Cuando las conectes todas, comprueba el tablero.',
+        ]}
+        completion={`formes correctamente las ${items.length} conexiones.`}
+      />
 
-      <div className="matching-visual-layout">
-        <figure className="puzzle-scene matching-scene">
-          <img src={visual.src} alt={visual.alt} />
-          <figcaption><PuzzleIcon name="play" size={16} /> {visual.videoCue}</figcaption>
-        </figure>
+      <figure className="connection-reference">
+        <img src={visual.src} alt={visual.alt} />
+        <figcaption><PuzzleIcon name="play" size={16} /> Pista del video: {visual.videoCue}</figcaption>
+      </figure>
 
-        <div className="matching-workbench">
-          <section className="matching-piece-tray" aria-label="Señales para conectar">
-            <h4>Piezas con señales</h4>
-            {items.map((item) => {
-              const currentMeaning = visibleMatches[item.id]
-              const isIncorrect = checked && currentMeaning !== item.id
-              return (
-                <button
-                  className={`matching-piece ${selectedClueId === item.id ? 'selected' : ''} ${currentMeaning ? 'connected' : ''} ${isIncorrect ? 'needs-review' : ''}`}
-                  type="button"
-                  aria-pressed={selectedClueId === item.id}
-                  disabled={completed}
-                  onClick={() => {
-                    setChecked(false)
-                    setSelectedClueId(item.id)
-                  }}
-                  key={item.id}
-                >
-                  <span><PuzzleIcon name={item.visual || 'clue'} size={23} /></span>
-                  <strong>{item.label}</strong>
-                  <small>{currentMeaning ? 'Conectada' : 'Seleccionar'}</small>
-                </button>
-              )
-            })}
-          </section>
-
-          <section className="matching-slot-board" aria-label="Significados disponibles">
-            <h4>{selectedClueId ? 'Ahora elige dónde encaja' : 'Espacios de significado'}</h4>
-            {shuffledMeanings.map((meaning) => {
-              const connectedClueId = Object.keys(visibleMatches).find(
-                (clueId) => visibleMatches[clueId] === meaning.id,
-              )
-              return (
-                <button
-                  className={`matching-slot ${connectedClueId ? 'filled' : ''}`}
-                  type="button"
-                  disabled={completed || !selectedClueId}
-                  onClick={() => connectMeaning(meaning.id)}
-                  key={meaning.id}
-                >
-                  <span className="slot-notch" aria-hidden="true" />
-                  <PuzzleIcon name={connectedClueId ? 'check' : 'puzzle'} size={20} />
-                  <span>{meaning.detail}</span>
-                </button>
-              )
-            })}
-          </section>
+      <div className="connection-selection" role="status">
+        <PuzzleIcon name={selectedClue ? selectedClue.visual || 'clue' : 'target'} size={22} />
+        <div>
+          <small>{selectedClue ? 'Señal seleccionada' : 'Primer paso'}</small>
+          <strong>{selectedClue?.label ?? 'Elige una señal de la columna izquierda'}</strong>
         </div>
       </div>
 
+      <div className="connection-board">
+        <section className="connection-clues" aria-label="Señales">
+          <h4><span>1</span> Señales</h4>
+          {items.map((item) => {
+            const currentMeaning = visibleMatches[item.id]
+            const isIncorrect = checked && currentMeaning !== item.id
+            return (
+              <button
+                className={`${selectedClueId === item.id ? 'selected' : ''} ${currentMeaning ? 'connected' : ''} ${isIncorrect ? 'needs-review' : ''}`}
+                type="button"
+                aria-pressed={selectedClueId === item.id}
+                disabled={completed || saving}
+                onClick={() => {
+                  setChecked(false)
+                  setSelectedClueId(item.id)
+                }}
+                key={item.id}
+              >
+                <span><PuzzleIcon name={item.visual || 'clue'} size={23} /></span>
+                <div><strong>{item.label}</strong><small>{currentMeaning ? 'Conectada · pulsa para cambiar' : 'Seleccionar señal'}</small></div>
+                {currentMeaning && <PuzzleIcon name="check" size={18} />}
+              </button>
+            )
+          })}
+        </section>
+
+        <div className="connection-cables" aria-hidden="true">
+          {items.map((item) => <span className={visibleMatches[item.id] ? 'active' : ''} key={item.id} />)}
+        </div>
+
+        <section className="connection-meanings" aria-label="Explicaciones">
+          <h4><span>2</span> Explicaciones</h4>
+          {shuffledMeanings.map((meaning) => {
+            const connectedClueId = Object.keys(visibleMatches).find(
+              (clueId) => visibleMatches[clueId] === meaning.id,
+            )
+            return (
+              <button
+                className={connectedClueId ? 'filled' : ''}
+                type="button"
+                disabled={completed || saving || !selectedClueId}
+                onClick={() => connectMeaning(meaning.id)}
+                key={meaning.id}
+              >
+                <PuzzleIcon name={connectedClueId ? 'check' : 'puzzle'} size={20} />
+                <span>{meaning.detail}</span>
+              </button>
+            )
+          })}
+        </section>
+      </div>
+
       {checked && !solved && (
-        <p className="matching-feedback" role="alert">Algunas piezas no encajan todavía. Las señales marcadas necesitan otro espacio.</p>
+        <p className="matching-feedback" role="alert">Las conexiones marcadas necesitan otro lugar. Selecciona nuevamente cada señal destacada y prueba otra explicación.</p>
       )}
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
       {completed ? (
-        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Conexiones completadas</p>
+        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Conexiones comprendidas</p>
       ) : (
-        <button className="btn btn-primary" type="button" disabled={saving || !allConnected} onClick={checkConnections}>
-          {saving ? 'Guardando…' : 'Comprobar encaje'}
+        <button className="btn btn-primary puzzle-check-button" type="button" disabled={saving || !allConnected} onClick={checkConnections}>
+          {saving ? 'Guardando…' : `Comprobar ${items.length} conexiones`}
         </button>
       )}
     </div>

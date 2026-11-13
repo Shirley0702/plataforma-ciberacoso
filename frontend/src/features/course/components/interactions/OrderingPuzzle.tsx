@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import type { CoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
 import type { InteractionItem } from '../../types'
 import { PuzzleIcon } from '../PuzzleIcon'
+import { PuzzleGuide } from './PuzzleGuide'
 
 interface OrderingPuzzleProps {
   items: InteractionItem[]
@@ -55,9 +56,16 @@ export function OrderingPuzzle({
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null)
   const [checked, setChecked] = useState(false)
   const expectedOrder = useMemo(() => items.map((item) => item.id), [items])
-  const scrambledOrder = useMemo(() => expectedOrder.length > 1 ? [...expectedOrder.slice(1), expectedOrder[0]] : expectedOrder, [expectedOrder])
-  const activeOrder = completed ? expectedOrder : hasEveryItem(orderedItemIds, expectedOrder) ? orderedItemIds : scrambledOrder
-  const orderedItems = activeOrder.map((itemId) => items.find((item) => item.id === itemId)).filter((item): item is InteractionItem => Boolean(item))
+  const scrambledOrder = useMemo(
+    () => expectedOrder.length > 1 ? [...expectedOrder.slice(1), expectedOrder[0]] : expectedOrder,
+    [expectedOrder],
+  )
+  const activeOrder = completed
+    ? expectedOrder
+    : hasEveryItem(orderedItemIds, expectedOrder) ? orderedItemIds : scrambledOrder
+  const orderedItems = activeOrder
+    .map((itemId) => items.find((item) => item.id === itemId))
+    .filter((item): item is InteractionItem => Boolean(item))
   const solved = activeOrder.every((itemId, index) => itemId === expectedOrder[index])
   const correctPositions = activeOrder.filter((itemId, index) => itemId === expectedOrder[index]).length
 
@@ -73,53 +81,70 @@ export function OrderingPuzzle({
 
   return (
     <div className="ordering-puzzle route-ordering-puzzle">
-      <header className="puzzle-instruction">
-        <span><PuzzleIcon name="sequence" size={26} /></span>
-        <div><strong>Construye la ruta en el orden correcto</strong><p>{prompt}</p></div>
-      </header>
-      {privacyNote && <p className="interaction-privacy"><strong>Privacidad:</strong> {privacyNote}</p>}
+      <PuzzleGuide
+        icon="sequence"
+        title="Ordena una ruta que pueda aplicarse paso a paso"
+        summary={prompt}
+        steps={[
+          'Lee las cuatro acciones antes de moverlas.',
+          'Arrastra las piezas o usa sus flechas para cambiar el orden.',
+          'Comprueba la ruta; el tablero indicará cuántas posiciones están correctas.',
+        ]}
+        completion="todas las acciones queden en una secuencia que se pueda seguir."
+      />
+      {privacyNote && <p className="interaction-privacy"><strong>Cuida tu privacidad:</strong> {privacyNote}</p>}
 
-      <figure className="puzzle-scene sequence-scene">
+      <figure className="sequence-reference">
         <img src={visual.src} alt={visual.alt} />
-        <figcaption><PuzzleIcon name="play" size={16} /> Usa la ilustración como pista; {visual.videoCue.toLowerCase()}</figcaption>
+        <figcaption><PuzzleIcon name="play" size={16} /> Pista del video: {visual.videoCue}</figcaption>
       </figure>
 
-      <div className="sequence-track" aria-hidden="true"><span /><span /><span /><span /></div>
-      <ol className="sequence-pieces" aria-label="Piezas para ordenar">
-        {orderedItems.map((item, index) => (
-          <li
-            className={`${draggedItemId === item.id ? 'dragging' : ''} ${checked && item.id === expectedOrder[index] ? 'correct-position' : ''}`}
-            draggable={!completed}
-            onDragStart={() => setDraggedItemId(item.id)}
-            onDragEnd={() => setDraggedItemId(null)}
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={() => {
-              if (draggedItemId) updateOrder(swapItems(activeOrder, draggedItemId, item.id))
-              setDraggedItemId(null)
-            }}
-            key={item.id}
-          >
-            <span className="sequence-position">{index + 1}</span>
-            <span className="sequence-icon"><PuzzleIcon name={item.visual} size={32} /></span>
-            <span className="sequence-copy"><strong>{item.label}</strong><small>{item.detail}</small></span>
-            {!completed && (
-              <span className="sequence-controls">
-                <button type="button" disabled={index === 0} aria-label={`Mover ${item.label} hacia atrás`} onClick={() => updateOrder(moveItem(activeOrder, item.id, -1))}><PuzzleIcon name="chevron-left" size={19} /></button>
-                <button type="button" disabled={index === orderedItems.length - 1} aria-label={`Mover ${item.label} hacia adelante`} onClick={() => updateOrder(moveItem(activeOrder, item.id, 1))}><PuzzleIcon name="chevron-right" size={19} /></button>
-              </span>
-            )}
-          </li>
-        ))}
+      <div className="sequence-status" aria-live="polite">
+        <div><span>Ruta actual</span><strong>De la primera acción a la última</strong></div>
+        {checked && <p>{correctPositions} de {items.length} posiciones correctas</p>}
+      </div>
+
+      <ol className="sequence-pieces" aria-label="Acciones ordenables">
+        {orderedItems.map((item, index) => {
+          const isCorrect = checked && item.id === expectedOrder[index]
+          return (
+            <li
+              className={`${draggedItemId === item.id ? 'dragging' : ''} ${isCorrect ? 'correct-position' : ''} ${checked && !isCorrect ? 'needs-review' : ''}`}
+              draggable={!completed}
+              onDragStart={() => setDraggedItemId(item.id)}
+              onDragEnd={() => setDraggedItemId(null)}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => {
+                if (draggedItemId) updateOrder(swapItems(activeOrder, draggedItemId, item.id))
+                setDraggedItemId(null)
+              }}
+              key={item.id}
+            >
+              <div className="sequence-piece-top">
+                <span className="sequence-position">Paso {index + 1}</span>
+                {checked && <span className="sequence-verdict">{isCorrect ? 'En su lugar' : 'Revisar posición'}</span>}
+              </div>
+              <span className="sequence-icon"><PuzzleIcon name={item.visual} size={31} /></span>
+              <span className="sequence-copy"><strong>{item.label}</strong><small>{item.detail}</small></span>
+              {!completed && (
+                <span className="sequence-controls">
+                  <button type="button" disabled={index === 0} aria-label={`Mover ${item.label} un lugar hacia el inicio`} onClick={() => updateOrder(moveItem(activeOrder, item.id, -1))}><PuzzleIcon name="chevron-left" size={19} /> Antes</button>
+                  <button type="button" disabled={index === orderedItems.length - 1} aria-label={`Mover ${item.label} un lugar hacia el final`} onClick={() => updateOrder(moveItem(activeOrder, item.id, 1))}>Después <PuzzleIcon name="chevron-right" size={19} /></button>
+                </span>
+              )}
+            </li>
+          )
+        })}
       </ol>
 
-      {checked && !solved && <p className="ordering-feedback" role="alert">{correctPositions} de {items.length} piezas están en su lugar. Revisa qué acción permite realizar la siguiente.</p>}
+      {checked && !solved && <p className="ordering-feedback" role="alert">La ruta todavía no puede seguirse de principio a fin. Revisa las piezas marcadas y piensa qué acción prepara la siguiente.</p>}
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
       {completed ? (
-        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Ruta completada</p>
+        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Ruta construida correctamente</p>
       ) : (
         <div className="ordering-actions">
-          <button className="btn btn-primary" type="button" disabled={saving} onClick={checkOrder}>{saving ? 'Guardando…' : 'Comprobar ruta'}</button>
-          <button className="btn btn-outline-primary" type="button" onClick={() => updateOrder(scrambledOrder)}>Reiniciar</button>
+          <button className="btn btn-primary" type="button" disabled={saving} onClick={checkOrder}>{saving ? 'Guardando…' : 'Comprobar la ruta'}</button>
+          <button className="btn btn-outline-primary" type="button" onClick={() => updateOrder(scrambledOrder)}>Volver a empezar</button>
         </div>
       )}
     </div>

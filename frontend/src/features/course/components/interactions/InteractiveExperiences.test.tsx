@@ -18,13 +18,17 @@ const visual: CoursePuzzleVisual = {
 }
 
 describe('experiencias interactivas del curso', () => {
-  it('completa un mosaico real al intercambiar todas las piezas', async () => {
+  it('descubre señales dentro de una escena y revela su significado', async () => {
     const user = userEvent.setup()
     const onCompletion = vi.fn().mockResolvedValue(undefined)
     render(
       <GuidedExploration
-        cards={[{ title: 'Límite', body: 'Idea revelada' }]}
-        prompt="Reconstruye la escena."
+        cards={[
+          { title: 'Límite', body: 'Idea revelada' },
+          { title: 'Apoyo', body: 'Segunda idea' },
+          { title: 'Control', body: 'Tercera idea' },
+        ]}
+        prompt="Encuentra las señales."
         visual={visual}
         completed={false}
         saving={false}
@@ -32,10 +36,10 @@ describe('experiencias interactivas del curso', () => {
       />,
     )
 
-    for (const [first, second] of [[1, 2], [2, 5], [3, 4], [4, 6]]) {
-      await user.click(screen.getByRole('button', { name: `Pieza en la posición ${first}` }))
-      await user.click(screen.getByRole('button', { name: `Pieza en la posición ${second}` }))
-    }
+    await user.click(screen.getByRole('button', { name: /Descubrir señal 1: Límite/ }))
+    expect(screen.getByText('Idea revelada')).toBeVisible()
+    await user.click(screen.getByRole('button', { name: /Descubrir señal 2: Apoyo/ }))
+    await user.click(screen.getByRole('button', { name: /Descubrir señal 3: Control/ }))
     expect(onCompletion).toHaveBeenCalledWith(true)
   })
 
@@ -68,11 +72,11 @@ describe('experiencias interactivas del curso', () => {
     }
 
     render(<StatefulPuzzle />)
-    await user.click(screen.getByRole('button', { name: /Pausar y buscar apoyo/ }))
-    await user.click(screen.getByRole('button', { name: /Responder de inmediato/ }))
-    await user.click(screen.getByRole('button', { name: /Responder de inmediato/ }))
+    await user.click(screen.getByRole('button', { name: /Explorar camino 1: Pausar y buscar apoyo/ }))
+    await user.click(screen.getByRole('button', { name: /Explorar camino 2: Responder de inmediato/ }))
+    await user.click(screen.getByRole('button', { name: /Elegir camino 2: Responder de inmediato/ }))
     expect(screen.getByRole('alert')).toHaveTextContent(/aumenta el riesgo/i)
-    await user.click(screen.getByRole('button', { name: /Pausar y buscar apoyo/ }))
+    await user.click(screen.getByRole('button', { name: /Elegir camino 1: Pausar y buscar apoyo/ }))
     expect(onCompletion).toHaveBeenCalledWith(true, {
       selected_items: ['pausar', 'responder'],
       chosen_option: 'pausar',
@@ -108,9 +112,10 @@ describe('experiencias interactivas del curso', () => {
     }
 
     render(<StatefulDialogue />)
-    await user.click(screen.getByRole('button', { name: /Responder con una amenaza/ }))
+    await user.click(screen.getByRole('button', { name: /Probar respuesta 1: Responder con una amenaza/ }))
     expect(screen.getByText('Escala la situación')).toBeVisible()
-    await user.click(screen.getByRole('button', { name: /Marcar un límite claro/ }))
+    await user.click(screen.getByRole('button', { name: /Probar respuesta 2: Marcar un límite claro/ }))
+    await user.click(screen.getByRole('button', { name: /Elegir respuesta final 2: Marcar un límite claro/ }))
     expect(onCompletion).toHaveBeenCalledWith(true, {
       selected_items: ['ataque', 'limite'],
       chosen_option: 'limite',
@@ -145,7 +150,7 @@ describe('experiencias interactivas del curso', () => {
     await user.click(screen.getByRole('button', { name: /Puede describirse/ }))
     await user.click(screen.getByRole('button', { name: /Red de apoyo/ }))
     await user.click(screen.getByRole('button', { name: /Puede acompañar/ }))
-    await user.click(screen.getByRole('button', { name: 'Comprobar encaje' }))
+    await user.click(screen.getByRole('button', { name: 'Comprobar 2 conexiones' }))
     expect(onCompletion).toHaveBeenCalledWith(true)
   })
 
@@ -174,8 +179,8 @@ describe('experiencias interactivas del curso', () => {
     }
 
     render(<StatefulOrderingPuzzle />)
-    await user.click(screen.getByRole('button', { name: 'Mover Buscar apoyo hacia adelante' }))
-    await user.click(screen.getByRole('button', { name: 'Comprobar ruta' }))
+    await user.click(screen.getByRole('button', { name: 'Mover Buscar apoyo un lugar hacia el final' }))
+    await user.click(screen.getByRole('button', { name: 'Comprobar la ruta' }))
     expect(onCompletion).toHaveBeenCalledWith(true)
   })
 

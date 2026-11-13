@@ -41,6 +41,10 @@ const ICON_PATHS: Record<string, ReactNode> = {
   tag: <><path d="M3 12 12 3h7l2 2v7l-9 9z" /><circle cx="17" cy="7" r="1" /></>,
   key: <><circle cx="8" cy="15" r="4" /><path d="m11 12 8-8M16 7l2 2M13 10l2 2" /></>,
   sessions: <><rect x="3" y="5" width="12" height="10" rx="1" /><path d="M7 19h12a2 2 0 0 0 2-2V9M7 15v4M4 19h6" /></>,
+  flag: <><path d="M5 3v18M6 5h12l-2.5 4L18 13H6" /></>,
+  target: <><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="4" /><circle cx="12" cy="12" r="1" /></>,
+  arrow: <><path d="M4 12h15M14 7l5 5-5 5" /></>,
+  outcome: <><path d="M4 5h7v6H4zM13 13h7v6h-7zM11 8h3a3 3 0 0 1 3 3v2" /></>,
   'chevron-left': <path d="m14 7-5 5 5 5" />,
   'chevron-right': <path d="m10 7 5 5-5 5" />,
 }
