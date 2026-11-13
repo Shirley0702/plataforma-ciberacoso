@@ -1,6 +1,7 @@
 import type { CoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
 import type { InteractionOption, InteractionResponse } from '../../types'
 import { PuzzleIcon } from '../PuzzleIcon'
+import { PuzzleGuide } from './PuzzleGuide'
 
 interface DecisionMapPuzzleProps {
   options: InteractionOption[]
@@ -29,22 +30,21 @@ export function DecisionMapPuzzle({
   onChange,
   onCompletion,
 }: DecisionMapPuzzleProps) {
-  const visibleOptionIds = completed ? options.map((option) => option.id) : exploredOptionIds
-  const exploredAll = options.length > 0 && visibleOptionIds.length === options.length
+  const exploredIds = completed ? options.map((option) => option.id) : exploredOptionIds
+  const exploredAll = options.length > 0 && exploredIds.length === options.length
   const chosenOption = options.find((option) => option.id === chosenOptionId)
 
-  const activatePath = (option: InteractionOption) => {
-    if (completed || saving) return
-    if (!visibleOptionIds.includes(option.id)) {
-      onChange([...visibleOptionIds, option.id], chosenOptionId)
-      return
-    }
-    if (!exploredAll) return
+  const explorePath = (optionId: string) => {
+    if (completed || saving || exploredIds.includes(optionId)) return
+    onChange([...exploredIds, optionId], chosenOptionId)
+  }
 
-    onChange(visibleOptionIds, option.id)
+  const choosePath = (option: InteractionOption) => {
+    if (completed || saving || !exploredAll) return
+    onChange(exploredIds, option.id)
     if (option.recommended) {
       void onCompletion(true, {
-        selected_items: visibleOptionIds,
+        selected_items: exploredIds,
         chosen_option: option.id,
       })
     }
@@ -52,54 +52,93 @@ export function DecisionMapPuzzle({
 
   return (
     <div className="decision-map-puzzle">
-      <header className="puzzle-instruction">
-        <span><PuzzleIcon name="route" size={26} /></span>
-        <div><strong>Abre el mapa y compara las consecuencias</strong><p>{prompt}</p></div>
-      </header>
+      <PuzzleGuide
+        icon="route"
+        title="Abre los caminos y compara qué ocurre"
+        summary={prompt}
+        steps={[
+          'Abre cada camino del tablero.',
+          'Lee la consecuencia que produce esa acción.',
+          'Cuando conozcas las tres, elige la que conserva más control y opciones.',
+        ]}
+        completion="explores todos los caminos y elijas el más protector."
+      />
 
-      <div className="decision-map-layout">
-        <figure className="puzzle-scene decision-scene">
-          <img src={visual.src} alt={visual.alt} />
-          <figcaption><PuzzleIcon name="play" size={16} /> {visual.videoCue}</figcaption>
-        </figure>
-        <div className="decision-tree">
-          <div className="decision-origin"><PuzzleIcon name="compass" size={22} /><span>Situación inicial</span></div>
-          <div className="decision-branches" role="group" aria-label="Caminos posibles">
-            {options.map((option, index) => {
-              const revealed = visibleOptionIds.includes(option.id)
-              const chosen = chosenOptionId === option.id
-              return (
-                <button
-                  className={`decision-path ${revealed ? 'revealed' : ''} ${chosen ? 'chosen' : ''}`}
-                  type="button"
-                  aria-expanded={revealed}
-                  aria-pressed={chosen}
-                  disabled={completed || saving}
-                  onClick={() => activatePath(option)}
-                  key={option.id}
-                >
-                  <span className="decision-path-icon"><PuzzleIcon name={option.recommended ? 'shield' : PATH_ICONS[index]} size={26} /></span>
-                  <span className="decision-path-copy">
-                    <small>Camino {index + 1}</small>
-                    <strong>{option.label}</strong>
-                    <em>{revealed ? option.feedback : 'Abrir este camino'}</em>
-                  </span>
-                </button>
-              )
-            })}
-          </div>
+      <figure className="decision-panorama">
+        <img src={visual.src} alt={visual.alt} />
+        <figcaption><PuzzleIcon name="play" size={16} /> Recuerda el video: {visual.videoCue}</figcaption>
+      </figure>
+
+      <section className="decision-board" aria-label="Tablero de caminos y consecuencias">
+        <div className="decision-start">
+          <PuzzleIcon name="compass" size={21} />
+          <span>Situación</span>
         </div>
+        <div className="decision-route-line" aria-hidden="true" />
+        <div className="decision-paths">
+          {options.map((option, index) => {
+            const revealed = exploredIds.includes(option.id)
+            return (
+              <article className={`decision-card ${revealed ? 'revealed' : ''}`} key={option.id}>
+                <span className="decision-card-number">Camino {index + 1}</span>
+                <span className="decision-card-icon"><PuzzleIcon name={PATH_ICONS[index] ?? 'route'} size={25} /></span>
+                <h4>{option.label}</h4>
+                {revealed ? (
+                  <div className="decision-consequence">
+                    <PuzzleIcon name="outcome" size={19} />
+                    <p><strong>Qué produciría:</strong> {option.feedback}</p>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={saving}
+                    aria-label={`Explorar camino ${index + 1}: ${option.label}`}
+                    onClick={() => explorePath(option.id)}
+                  >
+                    Ver qué ocurre <PuzzleIcon name="arrow" size={17} />
+                  </button>
+                )}
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
+      <div className="decision-progress" aria-live="polite">
+        <span>{exploredAll ? 'Ya conoces las consecuencias. Elige un camino.' : 'Caminos explorados'}</span>
+        <strong>{exploredIds.length}/{options.length}</strong>
       </div>
 
-      <div className="map-progress" aria-live="polite">
-        <span>{exploredAll ? 'Mapa completo: ahora elige el camino que conserva más opciones.' : 'Explora cada camino antes de decidir.'}</span>
-        <strong>{visibleOptionIds.length}/{options.length}</strong>
-      </div>
+      {exploredAll && !completed && (
+        <section className="decision-final-choice" aria-label="Elección final">
+          <div>
+            <span>Decisión final</span>
+            <strong>¿Cuál mantiene más control y deja abiertas más opciones?</strong>
+          </div>
+          <div>
+            {options.map((option, index) => (
+              <button
+                className={chosenOptionId === option.id ? 'selected' : ''}
+                type="button"
+                disabled={saving}
+                aria-label={`Elegir camino ${index + 1}: ${option.label}`}
+                onClick={() => choosePath(option)}
+                key={option.id}
+              >
+                Camino {index + 1}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       {chosenOption && !chosenOption.recommended && !completed && (
-        <p className="consequence-review" role="alert">Esa ruta reduce opciones o aumenta el riesgo. Usa lo observado en el mapa y prueba otra.</p>
+        <p className="consequence-review" role="alert">
+          Ese camino reduce opciones o aumenta el riesgo. Compara nuevamente las consecuencias y prueba otro.
+        </p>
       )}
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
-      {completed && <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Mapa resuelto</p>}
+      {completed && <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Camino protector identificado</p>}
     </div>
   )
 }

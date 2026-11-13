@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { CoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
 import type { InteractionCard } from '../../types'
 import { PuzzleIcon } from '../PuzzleIcon'
+import { PuzzleGuide } from './PuzzleGuide'
 
 interface GuidedExplorationProps {
   cards: InteractionCard[]
@@ -13,12 +14,11 @@ interface GuidedExplorationProps {
   onCompletion: (completed: boolean) => Promise<void>
 }
 
-const SOLVED_ORDER = [0, 1, 2, 3, 4, 5]
-const SCRAMBLED_ORDER = [4, 0, 5, 2, 1, 3]
-
-function isSolved(order: number[]) {
-  return order.every((tile, position) => tile === position)
-}
+const HOTSPOT_POSITIONS = [
+  { left: '18%', top: '24%' },
+  { left: '53%', top: '42%' },
+  { left: '79%', top: '68%' },
+]
 
 export function GuidedExploration({
   cards,
@@ -29,98 +29,87 @@ export function GuidedExploration({
   saving,
   onCompletion,
 }: GuidedExplorationProps) {
-  const [tileOrder, setTileOrder] = useState(() => completed ? SOLVED_ORDER : SCRAMBLED_ORDER)
-  const [selectedPosition, setSelectedPosition] = useState<number | null>(null)
-  const visibleOrder = completed ? SOLVED_ORDER : tileOrder
-  const misplacedTiles = visibleOrder.filter((tile, position) => tile !== position).length
+  const [discoveredIndexes, setDiscoveredIndexes] = useState<number[]>([])
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const visibleIndexes = completed ? cards.map((_, index) => index) : discoveredIndexes
 
-  const selectTile = (position: number) => {
+  const discoverSignal = (index: number) => {
     if (completed || saving) return
-    if (selectedPosition === null) {
-      setSelectedPosition(position)
-      return
-    }
-    if (selectedPosition === position) {
-      setSelectedPosition(null)
-      return
-    }
-
-    const nextOrder = [...visibleOrder]
-    ;[nextOrder[selectedPosition], nextOrder[position]] = [
-      nextOrder[position],
-      nextOrder[selectedPosition],
-    ]
-    setTileOrder(nextOrder)
-    setSelectedPosition(null)
-    if (isSolved(nextOrder)) void onCompletion(true)
+    setActiveIndex(index)
+    if (visibleIndexes.includes(index)) return
+    const nextIndexes = [...visibleIndexes, index]
+    setDiscoveredIndexes(nextIndexes)
+    if (nextIndexes.length === cards.length) void onCompletion(true)
   }
 
   return (
-    <div className="guided-exploration mosaic-puzzle">
-      <header className="puzzle-instruction">
-        <span><PuzzleIcon name="mosaic" size={26} /></span>
-        <div>
-          <strong>Reconstruye la escena</strong>
-          <p>{prompt} Selecciona dos piezas para intercambiarlas.</p>
-        </div>
-      </header>
+    <div className="guided-exploration signal-hunt-puzzle">
+      <PuzzleGuide
+        icon="target"
+        title="Encuentra las señales escondidas en la escena"
+        summary={prompt}
+        steps={[
+          'Observa la ilustración completa.',
+          'Pulsa cada marcador numerado para descubrir una señal.',
+          'Lee la explicación que aparece en tu cuaderno.',
+        ]}
+        completion={`descubras las ${cards.length} señales de la escena.`}
+      />
 
-      <div className="mosaic-layout">
-        <div className="mosaic-board" role="group" aria-label="Mosaico de seis piezas">
-          {visibleOrder.map((tile, position) => {
-            const column = tile % 3
-            const row = Math.floor(tile / 3)
+      <div className="signal-hunt-layout">
+        <figure className="signal-hunt-scene">
+          <img src={visual.src} alt={visual.alt} />
+          {cards.map((card, index) => {
+            const discovered = visibleIndexes.includes(index)
+            const active = activeIndex === index
             return (
               <button
-                className={`mosaic-tile ${selectedPosition === position ? 'selected' : ''} ${tile === position ? 'correct' : ''}`}
+                className={`signal-hotspot ${discovered ? 'discovered' : ''} ${active ? 'active' : ''}`}
                 type="button"
-                aria-label={`Pieza en la posición ${position + 1}${selectedPosition === position ? ', seleccionada' : ''}`}
-                aria-pressed={selectedPosition === position}
+                aria-label={`${discovered ? 'Revisar' : 'Descubrir'} señal ${index + 1}: ${card.title}`}
+                aria-pressed={active}
                 disabled={completed || saving}
-                onClick={() => selectTile(position)}
-                style={{
-                  backgroundImage: `url(${visual.src})`,
-                  backgroundPosition: `${column * 50}% ${row * 100}%`,
-                }}
-                key={`${position}-${tile}`}
+                onClick={() => discoverSignal(index)}
+                style={HOTSPOT_POSITIONS[index % HOTSPOT_POSITIONS.length]}
+                key={card.title}
               >
-                <span>{position + 1}</span>
+                {discovered ? <PuzzleIcon name="check" size={19} /> : index + 1}
               </button>
             )
           })}
-        </div>
+          <figcaption><PuzzleIcon name="play" size={16} /> Pista del video: {visual.videoCue}</figcaption>
+        </figure>
 
-        <aside className="mosaic-clues">
-          <figure>
-            <img src={visual.src} alt={visual.alt} />
-            <figcaption><PuzzleIcon name="play" size={16} /> Pista visual del video</figcaption>
-          </figure>
-          <p>{visual.videoCue}</p>
-          <div className="mosaic-status" aria-live="polite">
-            <span>{completed || misplacedTiles === 0 ? 'Imagen reconstruida' : 'Piezas por ubicar'}</span>
-            <strong>{completed ? 0 : misplacedTiles}</strong>
+        <aside className="signal-notebook" aria-live="polite">
+          <div className="signal-notebook-header">
+            <div>
+              <span>Cuaderno de hallazgos</span>
+              <strong>{visibleIndexes.length} de {cards.length}</strong>
+            </div>
+            <progress value={visibleIndexes.length} max={Math.max(cards.length, 1)}>
+              {visibleIndexes.length} de {cards.length}
+            </progress>
           </div>
+          <ol>
+            {cards.map((card, index) => {
+              const discovered = visibleIndexes.includes(index)
+              return (
+                <li className={discovered ? 'revealed' : ''} key={card.title}>
+                  <span>{discovered ? <PuzzleIcon name="clue" size={19} /> : index + 1}</span>
+                  <div>
+                    <strong>{discovered ? card.title : `Señal ${index + 1} por descubrir`}</strong>
+                    <p>{discovered ? card.body : 'Busca el marcador correspondiente en la imagen.'}</p>
+                  </div>
+                </li>
+              )
+            })}
+          </ol>
         </aside>
       </div>
 
-      <section className={`discovery-strip ${completed ? 'unlocked' : ''}`} aria-label="Pistas de aprendizaje">
-        <h4>{completed ? 'Lo que revela la escena' : 'Completa la imagen para revelar las pistas'}</h4>
-        <div>
-          {cards.map((card, index) => (
-            <article key={card.title}>
-              <PuzzleIcon name={['observe', 'boundary', 'support'][index] ?? 'clue'} size={22} />
-              <span><strong>{card.title}</strong><small>{completed ? card.body : 'Pista bloqueada'}</small></span>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {selectedPosition !== null && !completed && (
-        <p className="interaction-hint" role="status">Ahora selecciona la pieza con la que quieres intercambiarla.</p>
-      )}
       {feedback && <div className="activity-feedback" role="status">{feedback}</div>}
       {completed && (
-        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Mosaico resuelto</p>
+        <p className="puzzle-completed" role="status"><PuzzleIcon name="check" size={16} /> Señales descubiertas</p>
       )}
     </div>
   )
