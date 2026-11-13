@@ -3,11 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { PuzzleSceneImage } from './PuzzleSceneImage'
 
 describe('PuzzleSceneImage', () => {
-  it('mantiene una imagen descriptiva completa y un fondo únicamente decorativo', () => {
+  it('muestra una sola imagen descriptiva ajustada al cuadro', () => {
     const { container } = render(
       <PuzzleSceneImage
         visual={{
-          src: '/assets/course-puzzles/authority/sequence.jpg',
+          src: '/assets/course-puzzles/authority/sequence-v2.jpg',
           alt: 'Ruta ilustrada para ordenar acciones.',
           videoCue: 'Pista educativa.',
         }}
@@ -16,9 +16,7 @@ describe('PuzzleSceneImage', () => {
 
     expect(screen.getByRole('img', { name: 'Ruta ilustrada para ordenar acciones.' }))
       .toHaveClass('puzzle-scene-image-artwork')
-    expect(container.querySelector('.puzzle-scene-image-backdrop'))
-      .toHaveAttribute('aria-hidden', 'true')
-    expect(container.querySelector('.puzzle-scene-image-backdrop'))
-      .toHaveAttribute('alt', '')
+    expect(container.querySelectorAll('img')).toHaveLength(1)
+    expect(container.querySelector('.puzzle-scene-image-backdrop')).not.toBeInTheDocument()
   })
 })

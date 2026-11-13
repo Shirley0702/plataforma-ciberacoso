@@ -66,8 +66,8 @@ export function getCoursePuzzleVisual(
 ): CoursePuzzleVisual {
   const identity = COURSE_VISUAL_IDENTITIES[unitSlug] ?? FALLBACK_IDENTITY
   const fileName = kind === 'guided'
-    ? `/assets/course-puzzles/${identity.folder}.jpg`
-    : `/assets/course-puzzles/${identity.folder}/${FILE_NAME_BY_KIND[kind]}.jpg`
+    ? `/assets/course-puzzles/${identity.folder}-v2.jpg`
+    : `/assets/course-puzzles/${identity.folder}/${FILE_NAME_BY_KIND[kind]}-v2.jpg`
 
   return {
     src: fileName,
