@@ -508,30 +508,31 @@ p { color: var(--color-text-muted); line-height: 1.65; }
 
 /* Laboratorio de conexiones: selección, cable visual y significado. */
 .connection-reference, .sequence-reference { min-height: 170px; }
-.connection-selection { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: .55rem; min-height: 56px; padding: .6rem .75rem; border: 1px solid var(--course-border); border-radius: 11px; background: var(--course-soft); color: var(--course-accent-text); }
+.connection-selection { display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: .5rem; min-height: 48px; padding: .45rem .65rem; border: 1px solid var(--course-border); border-radius: 10px; background: var(--course-soft); color: var(--course-accent-text); }
 .connection-selection > div { display: grid; }
 .connection-selection small { color: var(--course-accent-text); font-size: .62rem; font-weight: 850; text-transform: uppercase; }
-.connection-selection strong { color: var(--color-text-main); font-size: .75rem; }
-.connection-board { display: grid; grid-template-columns: minmax(220px, .9fr) 34px minmax(280px, 1.1fr); gap: .45rem; align-items: stretch; }
-.connection-clues, .connection-meanings { display: grid; align-content: start; gap: .5rem; padding: .7rem; border-radius: 14px; background: var(--color-surface-subtle); }
+.connection-selection strong { color: var(--color-text-main); font-size: .72rem; line-height: 1.35; }
+.connection-board { display: grid; grid-template-columns: minmax(220px, .9fr) minmax(280px, 1.1fr); gap: .7rem; align-items: stretch; }
+.connection-clues, .connection-meanings { display: grid; align-content: start; gap: .4rem; padding: .55rem; border-radius: 12px; background: var(--color-surface-subtle); }
 .connection-clues h4, .connection-meanings h4 { display: flex; align-items: center; gap: .4rem; margin: 0 0 .15rem; color: var(--color-text-main); font-size: .7rem; }
 .connection-clues h4 span, .connection-meanings h4 span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: var(--course-soft-strong); color: var(--course-accent-text); font-size: .65rem; }
-.connection-clues button { display: grid; grid-template-columns: 35px 1fr auto; align-items: center; gap: .5rem; min-height: 64px; padding: .6rem; border: 1px solid var(--color-border); border-radius: 11px; background: var(--color-surface); color: var(--color-text-main); text-align: left; }
-.connection-clues button > span { display: grid; place-items: center; width: 35px; height: 35px; border-radius: 10px; background: var(--course-soft); color: var(--course-accent-text); }
+.connection-clues button { display: grid; grid-template-columns: 31px 1fr auto; align-items: center; gap: .45rem; min-height: 52px; padding: .45rem .5rem; border: 1px solid var(--color-border); border-radius: 9px; background: var(--color-surface); color: var(--color-text-main); text-align: left; }
+.connection-clues button > span:first-child { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 9px; background: var(--course-soft); color: var(--course-accent-text); }
 .connection-clues button > div { display: grid; gap: .12rem; }
-.connection-clues button strong { color: var(--color-text-main); font-size: .7rem; line-height: 1.3; }
-.connection-clues button small { color: var(--color-text-muted); font-size: .62rem; }
+.connection-clues button strong { color: var(--color-text-main); font-size: .68rem; line-height: 1.25; }
+.connection-clues button small { color: var(--color-text-muted); font-size: .59rem; }
 .connection-clues button.selected { border-color: var(--course-color); background: var(--course-soft); }
-.connection-clues button.connected { border-color: var(--course-border); }
-.connection-clues button.needs-review { border-color: var(--color-panic); }
-.connection-cables { display: grid; align-content: start; gap: .5rem; padding-top: 2.6rem; }
-.connection-cables span { position: relative; height: 64px; }
-.connection-cables span::before { content: ""; position: absolute; top: 50%; right: 0; left: 0; height: 2px; background: var(--color-border); }
-.connection-cables span.active::before { background: var(--course-color); }
-.connection-meanings button { display: grid; grid-template-columns: 22px 1fr; align-items: center; gap: .45rem; min-height: 64px; padding: .6rem .7rem; border: 1px dashed var(--course-border); border-radius: 11px; background: var(--color-surface); color: var(--color-text-muted); text-align: left; font-size: .68rem; line-height: 1.4; }
-.connection-meanings button.filled { border-style: solid; color: var(--color-text-main); }
+.connection-pair-1 { --connection-pair-color: #0284c7; }
+.connection-pair-2 { --connection-pair-color: #059669; }
+.connection-pair-3 { --connection-pair-color: #7c3aed; }
+.connection-pair-4 { --connection-pair-color: #d97706; }
+.connection-clues button.connected { border-color: var(--connection-pair-color); box-shadow: inset 3px 0 var(--connection-pair-color); }
+.connection-clues button.needs-review, .connection-meanings button.needs-review { --connection-pair-color: var(--color-panic); border-color: var(--color-panic); }
+.connection-pair-marker { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; background: var(--connection-pair-color); color: white; font-size: .65rem; font-weight: 900; }
+.connection-meanings button { display: grid; grid-template-columns: 24px 1fr; align-items: center; gap: .45rem; min-height: 52px; padding: .45rem .55rem; border: 1px dashed var(--course-border); border-radius: 9px; background: var(--color-surface); color: var(--color-text-muted); text-align: left; font-size: .65rem; line-height: 1.32; }
+.connection-meanings button.filled { border-style: solid; border-color: var(--connection-pair-color); color: var(--color-text-main); box-shadow: inset -3px 0 var(--connection-pair-color); }
 .connection-meanings button:not(:disabled):hover, .connection-meanings button:not(:disabled):focus-visible { border-color: var(--course-color); background: var(--course-soft); }
-.puzzle-check-button { justify-self: end; }
+.puzzle-check-button { justify-self: end; min-height: 36px; padding: .42rem .72rem; border-radius: 9px; font-size: .72rem; }
 
 /* Ruta ordenable: piezas amplias con flechas accesibles y retroalimentación posicional. */
 .sequence-status { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .65rem .75rem; border-radius: 10px; background: var(--color-surface-subtle); }
@@ -722,7 +723,6 @@ p { color: var(--color-text-muted); line-height: 1.65; }
   .chat-scene { min-height: 230px; max-height: 280px; }
   .reply-tray > div:last-child { grid-template-columns: 1fr; }
   .connection-board { grid-template-columns: 1fr; }
-  .connection-cables { display: none; }
   .sequence-pieces { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .emergency-banner { grid-template-columns: 1fr; }
   .emergency-number { padding: 0 0 1rem; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.3); }

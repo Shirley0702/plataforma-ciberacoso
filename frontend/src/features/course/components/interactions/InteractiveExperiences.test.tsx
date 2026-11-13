@@ -122,7 +122,7 @@ describe('experiencias interactivas del curso', () => {
     })
   })
 
-  it('permite encajar conexiones visuales sin penalización', async () => {
+  it('identifica ambos extremos de cada conexión y permite comprobarlas', async () => {
     const user = userEvent.setup()
     const onCompletion = vi.fn().mockResolvedValue(undefined)
 
@@ -148,8 +148,10 @@ describe('experiencias interactivas del curso', () => {
     render(<StatefulMatchingPuzzle />)
     await user.click(screen.getByRole('button', { name: /Hecho observable/ }))
     await user.click(screen.getByRole('button', { name: /Puede describirse/ }))
+    expect(screen.getAllByLabelText('Pareja 1')).toHaveLength(2)
     await user.click(screen.getByRole('button', { name: /Red de apoyo/ }))
     await user.click(screen.getByRole('button', { name: /Puede acompañar/ }))
+    expect(screen.getAllByLabelText('Pareja 2')).toHaveLength(2)
     await user.click(screen.getByRole('button', { name: 'Comprobar 2 conexiones' }))
     expect(onCompletion).toHaveBeenCalledWith(true)
   })
@@ -221,7 +223,7 @@ describe('experiencias interactivas del curso', () => {
     expect(video.getAttribute('src')).toContain('enablejsapi=1')
     await waitFor(() => expect(stateChangeHandler).toBeDefined())
     act(() => stateChangeHandler?.({ data: 0 }))
-    await waitFor(() => expect(onCompletion).toHaveBeenCalledWith(true, { watched: true }, false))
+    await waitFor(() => expect(onCompletion).toHaveBeenCalledWith(true, { watched: true }))
     delete window.YT
   })
 })
