@@ -2,6 +2,7 @@ import type { CoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
 import type { InteractionOption, InteractionResponse } from '../../types'
 import { PuzzleIcon } from '../PuzzleIcon'
 import { PuzzleGuide } from './PuzzleGuide'
+import { PuzzleSceneImage } from './PuzzleSceneImage'
 
 interface DialogueBuilderPuzzleProps {
   options: InteractionOption[]
@@ -62,7 +63,7 @@ export function DialogueBuilderPuzzle({
 
       <div className="chat-simulator">
         <div className="chat-scene">
-          <img src={visual.src} alt={visual.alt} />
+          <PuzzleSceneImage visual={visual} />
           <div><PuzzleIcon name="play" size={16} /><span>Pista del video: {visual.videoCue}</span></div>
         </div>
 

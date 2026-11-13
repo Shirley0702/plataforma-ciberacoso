@@ -3,6 +3,7 @@ import type { CoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
 import type { InteractionCard } from '../../types'
 import { PuzzleIcon } from '../PuzzleIcon'
 import { PuzzleGuide } from './PuzzleGuide'
+import { PuzzleSceneImage } from './PuzzleSceneImage'
 
 interface GuidedExplorationProps {
   cards: InteractionCard[]
@@ -58,7 +59,7 @@ export function GuidedExploration({
 
       <div className="signal-hunt-layout">
         <figure className="signal-hunt-scene">
-          <img src={visual.src} alt={visual.alt} />
+          <PuzzleSceneImage visual={visual} />
           {cards.map((card, index) => {
             const discovered = visibleIndexes.includes(index)
             const active = activeIndex === index

@@ -3,6 +3,7 @@ import type { CoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
 import type { InteractionItem } from '../../types'
 import { PuzzleIcon } from '../PuzzleIcon'
 import { PuzzleGuide } from './PuzzleGuide'
+import { PuzzleSceneImage } from './PuzzleSceneImage'
 
 interface MatchingPuzzleProps {
   items: InteractionItem[]
@@ -68,7 +69,7 @@ export function MatchingPuzzle({
       />
 
       <figure className="connection-reference">
-        <img src={visual.src} alt={visual.alt} />
+        <PuzzleSceneImage visual={visual} />
         <figcaption><PuzzleIcon name="play" size={16} /> Pista del video: {visual.videoCue}</figcaption>
       </figure>
 

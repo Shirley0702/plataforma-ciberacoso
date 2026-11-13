@@ -2,6 +2,7 @@ import type { CoursePuzzleVisual } from '../../config/coursePuzzleVisuals'
 import type { InteractionOption, InteractionResponse } from '../../types'
 import { PuzzleIcon } from '../PuzzleIcon'
 import { PuzzleGuide } from './PuzzleGuide'
+import { PuzzleSceneImage } from './PuzzleSceneImage'
 
 interface DecisionMapPuzzleProps {
   options: InteractionOption[]
@@ -65,7 +66,7 @@ export function DecisionMapPuzzle({
       />
 
       <figure className="decision-panorama">
-        <img src={visual.src} alt={visual.alt} />
+        <PuzzleSceneImage visual={visual} />
         <figcaption><PuzzleIcon name="play" size={16} /> Recuerda el video: {visual.videoCue}</figcaption>
       </figure>
 
