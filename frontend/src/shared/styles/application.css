@@ -410,14 +410,21 @@ p { color: var(--color-text-muted); line-height: 1.65; }
 .puzzle-guide-goal { display: flex; align-items: center; gap: .45rem; margin: 0; color: var(--color-text-muted); font-size: .72rem; }
 .puzzle-guide-goal svg, .puzzle-guide-goal strong { color: var(--course-accent-text); }
 .consequence-review, .matching-feedback, .ordering-feedback { margin: 0; padding: .75rem .85rem; border-left: 4px solid var(--color-panic); border-radius: 8px; background: var(--color-panic-soft); color: var(--color-panic-label); font-size: .8rem; }
+.puzzle-scene-image { position: absolute; inset: 0; isolation: isolate; display: grid; place-items: center; overflow: hidden; background: var(--course-soft); pointer-events: none; }
+.puzzle-scene-image::after { content: ""; position: absolute; z-index: 1; inset: 0; background: color-mix(in srgb, var(--color-surface) 34%, transparent); }
+.puzzle-scene-image-backdrop { position: absolute; z-index: 0; inset: -12%; width: 124%; height: 124%; object-fit: cover; opacity: .62; filter: blur(22px) saturate(.78); transform: scale(1.06); }
+.puzzle-scene-image-artwork { position: absolute; z-index: 2; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(14,10,22,.3)); }
+@media (prefers-color-scheme: dark) {
+  .puzzle-scene-image::after { background: rgba(14,10,22,.3); }
+  .puzzle-scene-image-backdrop { opacity: .52; filter: blur(22px) saturate(.72) brightness(.82); }
+}
 
 /* Descubrimiento visual: marcadores sobre una escena y cuaderno de hallazgos. */
 .signal-hunt-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: 1rem; align-items: stretch; }
 .signal-hunt-scene { position: relative; overflow: hidden; min-height: 420px; margin: 0; border: 1px solid var(--course-border); border-radius: 18px; background: var(--course-soft); }
-.signal-hunt-scene > img { display: block; width: 100%; height: 100%; min-height: 420px; object-fit: cover; }
-.signal-hunt-scene::after { content: ""; position: absolute; inset: 64% 0 0; background: linear-gradient(transparent, rgba(14,10,22,.92)); pointer-events: none; }
-.signal-hunt-scene figcaption { position: absolute; z-index: 2; right: .85rem; bottom: .75rem; left: .85rem; display: flex; align-items: center; gap: .45rem; color: white; font-size: .72rem; line-height: 1.4; }
-.signal-hotspot { position: absolute; z-index: 3; display: grid; place-items: center; width: 42px; height: 42px; border: 3px solid white; border-radius: 50%; background: var(--course-color); color: white; font-size: .8rem; font-weight: 900; transform: translate(-50%, -50%); box-shadow: 0 0 0 7px color-mix(in srgb, var(--course-color) 28%, transparent), 0 6px 18px rgba(0,0,0,.28); animation: signal-pulse 1.8s ease-in-out infinite; }
+.signal-hunt-scene::after { content: ""; position: absolute; z-index: 3; inset: 64% 0 0; background: linear-gradient(transparent, rgba(14,10,22,.92)); pointer-events: none; }
+.signal-hunt-scene figcaption { position: absolute; z-index: 4; right: .85rem; bottom: .75rem; left: .85rem; display: flex; align-items: center; gap: .45rem; color: white; font-size: .72rem; line-height: 1.4; }
+.signal-hotspot { position: absolute; z-index: 5; display: grid; place-items: center; width: 42px; height: 42px; border: 3px solid white; border-radius: 50%; background: var(--course-color); color: white; font-size: .8rem; font-weight: 900; transform: translate(-50%, -50%); box-shadow: 0 0 0 7px color-mix(in srgb, var(--course-color) 28%, transparent), 0 6px 18px rgba(0,0,0,.28); animation: signal-pulse 1.8s ease-in-out infinite; }
 .signal-hotspot:hover, .signal-hotspot:focus-visible, .signal-hotspot.active { transform: translate(-50%, -50%) scale(1.12); }
 .signal-hotspot.discovered { background: var(--color-surface); color: var(--course-accent-text); animation: none; }
 .signal-hotspot:disabled { opacity: 1; }
@@ -439,9 +446,8 @@ p { color: var(--color-text-muted); line-height: 1.65; }
 
 /* Tablero de decisiones: caminos, consecuencias y elección final separada. */
 .decision-panorama, .connection-reference, .sequence-reference { position: relative; overflow: hidden; min-height: 190px; margin: 0; border: 1px solid var(--course-border); border-radius: 16px; }
-.decision-panorama img, .connection-reference img, .sequence-reference img { display: block; width: 100%; height: 190px; object-fit: cover; }
-.decision-panorama::after, .connection-reference::after, .sequence-reference::after { content: ""; position: absolute; inset: 48% 0 0; background: linear-gradient(transparent, rgba(14,10,22,.92)); pointer-events: none; }
-.decision-panorama figcaption, .connection-reference figcaption, .sequence-reference figcaption { position: absolute; z-index: 1; right: .8rem; bottom: .7rem; left: .8rem; display: flex; align-items: center; gap: .45rem; color: white; font-size: .7rem; line-height: 1.35; }
+.decision-panorama::after, .connection-reference::after, .sequence-reference::after { content: ""; position: absolute; z-index: 3; inset: 48% 0 0; background: linear-gradient(transparent, rgba(14,10,22,.92)); pointer-events: none; }
+.decision-panorama figcaption, .connection-reference figcaption, .sequence-reference figcaption { position: absolute; z-index: 4; right: .8rem; bottom: .7rem; left: .8rem; display: flex; align-items: center; gap: .45rem; color: white; font-size: .7rem; line-height: 1.35; }
 .decision-board { position: relative; display: grid; gap: .75rem; padding-top: .25rem; }
 .decision-start { display: flex; align-items: center; gap: .45rem; width: fit-content; margin: 0 auto; padding: .45rem .75rem; border-radius: 999px; background: var(--course-color); color: white; font-size: .72rem; font-weight: 850; }
 .decision-route-line { width: 72%; height: 2px; margin: 0 auto -.85rem; background: var(--course-border); }
@@ -467,10 +473,9 @@ p { color: var(--color-text-muted); line-height: 1.65; }
 
 /* Simulador de conversación: escena, chat y bandeja de respuestas. */
 .chat-simulator { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: .8rem; }
-.chat-scene { position: relative; overflow: hidden; min-height: 330px; border-radius: 16px; }
-.chat-scene img { display: block; width: 100%; height: 100%; min-height: 330px; object-fit: cover; }
-.chat-scene::after { content: ""; position: absolute; inset: 50% 0 0; background: linear-gradient(transparent, rgba(14,10,22,.92)); }
-.chat-scene > div { position: absolute; z-index: 1; right: .7rem; bottom: .7rem; left: .7rem; display: flex; align-items: flex-start; gap: .4rem; color: white; font-size: .68rem; line-height: 1.4; }
+.chat-scene { position: relative; overflow: hidden; min-height: 330px; border: 1px solid var(--course-border); border-radius: 16px; }
+.chat-scene::after { content: ""; position: absolute; z-index: 3; inset: 50% 0 0; background: linear-gradient(transparent, rgba(14,10,22,.92)); pointer-events: none; }
+.chat-scene > div { position: absolute; z-index: 4; right: .7rem; bottom: .7rem; left: .7rem; display: flex; align-items: flex-start; gap: .4rem; color: white; font-size: .68rem; line-height: 1.4; }
 .chat-window { overflow: hidden; display: grid; grid-template-rows: auto 1fr; min-height: 330px; border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-surface-subtle); }
 .chat-window > header { display: grid; grid-template-columns: 36px 1fr; align-items: center; gap: .55rem; padding: .65rem .75rem; border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
 .chat-window > header > span { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--course-soft-strong); color: var(--course-accent-text); }
@@ -503,7 +508,6 @@ p { color: var(--color-text-muted); line-height: 1.65; }
 
 /* Laboratorio de conexiones: selección, cable visual y significado. */
 .connection-reference, .sequence-reference { min-height: 170px; }
-.connection-reference img, .sequence-reference img { height: 170px; }
 .connection-selection { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: .55rem; min-height: 56px; padding: .6rem .75rem; border: 1px solid var(--course-border); border-radius: 11px; background: var(--course-soft); color: var(--course-accent-text); }
 .connection-selection > div { display: grid; }
 .connection-selection small { color: var(--course-accent-text); font-size: .62rem; font-weight: 850; text-transform: uppercase; }
@@ -715,7 +719,7 @@ p { color: var(--color-text-muted); line-height: 1.65; }
   .decision-route-line { display: none; }
   .decision-card { min-height: 0; }
   .decision-final-choice { grid-template-columns: 1fr; }
-  .chat-scene, .chat-scene img { min-height: 230px; max-height: 280px; }
+  .chat-scene { min-height: 230px; max-height: 280px; }
   .reply-tray > div:last-child { grid-template-columns: 1fr; }
   .connection-board { grid-template-columns: 1fr; }
   .connection-cables { display: none; }
@@ -761,9 +765,8 @@ p { color: var(--color-text-muted); line-height: 1.65; }
   .puzzle-guide { padding: .75rem; }
   .puzzle-guide-heading { grid-template-columns: 36px 1fr; }
   .puzzle-guide-icon { width: 36px; height: 36px; }
-  .signal-hunt-scene, .signal-hunt-scene > img { min-height: 300px; }
+  .signal-hunt-scene { min-height: 300px; }
   .signal-hotspot { width: 37px; height: 37px; }
-  .decision-panorama img, .connection-reference img, .sequence-reference img { height: 155px; }
   .decision-panorama, .connection-reference, .sequence-reference { min-height: 155px; }
   .decision-final-choice > div:last-child { display: grid; grid-template-columns: 1fr; }
   .connection-clues, .connection-meanings { padding: .55rem; }
