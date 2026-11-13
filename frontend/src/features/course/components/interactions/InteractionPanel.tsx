@@ -17,7 +17,6 @@ interface InteractionPanelProps {
   onCompletion: (
     completed: boolean,
     responseOverride?: InteractionResponse,
-    advance?: boolean,
   ) => Promise<void>
 }
 

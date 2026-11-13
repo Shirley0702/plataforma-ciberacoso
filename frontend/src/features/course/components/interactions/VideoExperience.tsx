@@ -17,7 +17,6 @@ interface VideoExperienceProps {
   onCompletion: (
     completed: boolean,
     responseOverride?: InteractionResponse,
-    advance?: boolean,
   ) => Promise<void>
 }
 
@@ -55,7 +54,7 @@ export function VideoExperience({
             onStateChange: (event) => {
               if (event.data !== YOUTUBE_VIDEO_ENDED || completionRequested.current) return
               completionRequested.current = true
-              void completionHandler.current(true, { watched: true }, false)
+              void completionHandler.current(true, { watched: true })
                 .finally(() => {
                   completionRequested.current = false
                 })

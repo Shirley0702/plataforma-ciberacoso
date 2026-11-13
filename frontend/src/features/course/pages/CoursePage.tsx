@@ -72,13 +72,8 @@ export function CoursePage() {
     lesson: LearningItem,
     completed: boolean,
     responseOverride?: InteractionResponse,
-    advance = true,
   ) => {
-    const saved = await course.updateCompletion(lesson, completed, responseOverride)
-    if (saved && completed && advance) {
-      setActiveStep((current) => Math.min(current + 1, lessons.length))
-      document.querySelector('.course-stage')?.scrollIntoView({ behavior: 'smooth' })
-    }
+    await course.updateCompletion(lesson, completed, responseOverride)
   }
 
   const canMoveForward = Boolean(activeLesson?.completed)

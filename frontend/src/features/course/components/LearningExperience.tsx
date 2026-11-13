@@ -23,7 +23,6 @@ interface LearningExperienceProps {
     lesson: LearningItem,
     completed: boolean,
     responseOverride?: InteractionResponse,
-    advance?: boolean,
   ) => Promise<void>
 }
 
@@ -66,8 +65,8 @@ export function LearningExperience({
           feedback={feedback}
           saving={saving}
           onResponseChange={onResponseChange}
-          onCompletion={(completed, responseOverride, advance) => (
-            onCompletion(lesson, completed, responseOverride, advance)
+          onCompletion={(completed, responseOverride) => (
+            onCompletion(lesson, completed, responseOverride)
           )}
         />
       </section>
